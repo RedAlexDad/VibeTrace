@@ -52,6 +52,7 @@ export default function Sidebar({
   const dispatch = useAppDispatch()
   const [dirMenu, setDirMenu] = useState<DirMenu | null>(null)
   const dirMenuRef = useRef<HTMLDivElement>(null)
+  const [sessionQuery, setSessionQuery] = useState('')
   const [nowMs, setNowMs] = useState(() => Date.now())
   useEffect(() => {
     const id = window.setInterval(() => setNowMs(Date.now()), 5000)
@@ -61,6 +62,13 @@ export default function Sidebar({
     () => folderDisplayName(selectedDirectory),
     [selectedDirectory],
   )
+  const filteredSessions = useMemo(() => {
+    const q = sessionQuery.trim().toLowerCase()
+    if (!q) return sessionsInFolder
+    return sessionsInFolder.filter((s) =>
+      (s.title || '').toLowerCase().includes(q) || s.id.toLowerCase().includes(q),
+    )
+  }, [sessionsInFolder, sessionQuery])
   useEffect(() => {
     if (!dirMenu) return
     const onPointer = (e: MouseEvent) => {
@@ -385,6 +393,28 @@ export default function Sidebar({
           </button>
         </div>
 
+        <div style={{ padding: '0 12px 6px' }}>
+          <input
+            type="text"
+            value={sessionQuery}
+            onChange={(e) => setSessionQuery(e.target.value)}
+            placeholder="Search sessions…"
+            style={{
+              width: '100%',
+              boxSizing: 'border-box',
+              height: 28,
+              padding: '0 10px',
+              fontSize: 11,
+              borderRadius: 6,
+              border:'1px solid var(--color-border)',
+              background: 'var(--color-bg-white)',
+              color: 'var(--color-text-primary)',
+              outline: 'none',
+              fontFamily: 'inherit',
+            }}
+          />
+        </div>
+
         <div
           style={{
             flex: 1,
@@ -392,12 +422,14 @@ export default function Sidebar({
             padding: '4px 0',
           }}
         >
-          {sessionsInFolder.length === 0 ? (
+          {filteredSessions.length === 0 ? (
             <div style={{ padding: '12px 14px', fontSize: 12, color: 'var(--color-text-tertiary)', lineHeight: 1.5 }}>
-              No sessions in this folder yet. Use &quot;New session&quot; to start.
+              {sessionQuery.trim()
+                ? 'No sessions match your search.'
+                : 'No sessions in this folder yet. Use &quot;New session&quot; to start.'}
             </div>
           ) : (
-            sessionsInFolder.map((session) => (
+            filteredSessions.map((session) => (
               <div
                 key={session.id}
                 onMouseEnter={() => setHoverSessionId(session.id)}

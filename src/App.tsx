@@ -832,6 +832,21 @@ function App() {
     })
   }, [linkedSubtaskIndex])
 
+  /**
+   * On session enter, if the VibeTrace panel is open, scroll its card list to the
+   * bottom — mirrors the chat auto-scroll so both columns land on the latest turn.
+   */
+  useEffect(() => {
+    if (!subtaskPanelVisible) return
+    if (loading) return
+    const root = subtaskScrollRef.current
+    if (!root) return
+    const frame = requestAnimationFrame(() => {
+      root.scrollTop = root.scrollHeight
+    })
+    return () => cancelAnimationFrame(frame)
+  }, [selectedSessionId, messages, loading, subtaskPanelVisible, assistantSubtasks.length])
+
   const handleSessionTitleCommit = useCallback(
     async (title: string) => {
       if (!selectedSessionId) return
