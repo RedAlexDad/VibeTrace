@@ -410,14 +410,47 @@ function App() {
     refreshSessions()
       .then((data) => {
         const sorted = [...data].sort((a, b) => b.time.updated - a.time.updated)
-        if (sorted.length > 0) {
-          const first = sorted[0]!
-          setSelectedSessionId(first.id)
-          setSelectedDirectory(normalizeSessionDirectory(first.directory))
+        if (sorted.length === 0) return
+        const params = new URLSearchParams(window.location.search)
+        const urlSession = params.get('session')
+        const urlDir = params.get('dir')
+        const fromUrl = urlSession
+          ? sorted.find((s) => s.id === urlSession) ?? null
+          : null
+        if (fromUrl) {
+          setSelectedSessionId(fromUrl.id)
+          if (urlDir) setSelectedDirectory(urlDir)
+          else setSelectedDirectory(normalizeSessionDirectory(fromUrl.directory))
+          return
         }
+        if (urlDir) {
+          const inDir = sorted
+            .filter((s) => sameDirectory(s.directory, urlDir))
+            .sort((a, b) => b.time.updated - a.time.updated)
+          if (inDir.length > 0) {
+            setSelectedDirectory(urlDir)
+            setSelectedSessionId(inDir[0]!.id)
+            return
+          }
+        }
+        const first = sorted[0]!
+        setSelectedSessionId(first.id)
+        setSelectedDirectory(normalizeSessionDirectory(first.directory))
       })
       .catch(() => setApiConnected(false))
   }, [refreshSessions])
+
+  /** Keep the URL in sync with the selected directory + session (survives F5). */
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search)
+    if (selectedDirectory) params.set('dir', selectedDirectory)
+    else params.delete('dir')
+    if (selectedSessionId) params.set('session', selectedSessionId)
+    else params.delete('session')
+    const qs = params.toString()
+    const next = qs ? `${window.location.pathname}?${qs}` : window.location.pathname
+    window.history.replaceState(null, '', next)
+  }, [selectedDirectory, selectedSessionId])
 
   /** If the active session disappears from the list, fall back to newest in folder or globally */
   useEffect(() => {
