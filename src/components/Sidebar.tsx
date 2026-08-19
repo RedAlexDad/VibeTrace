@@ -1,6 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import type { OcSession } from '../types/opencode'
 import { folderDisplayName, groupDirectoriesByParent } from '../utils/sessionFolders'
+import { setSessionsCollapsed, setWsCollapsed } from '../store/uiSlice'
+import { useAppDispatch, useAppSelector } from '../store/hooks'
 
 interface SidebarProps {
   /** Sessions in the selected folder (sorted, filtered). */
@@ -43,8 +45,9 @@ export default function Sidebar({
   onCloseDirectory,
 }: SidebarProps) {
   const [hoverSessionId, setHoverSessionId] = useState<string | null>(null)
-  const [wsCollapsed, setWsCollapsed] = useState(false)
-  const [sessionsCollapsed, setSessionsCollapsed] = useState(false)
+  const wsCollapsed = useAppSelector((s) => s.ui.wsCollapsed)
+  const sessionsCollapsed = useAppSelector((s) => s.ui.sessionsCollapsed)
+  const dispatch = useAppDispatch()
   const [dirMenu, setDirMenu] = useState<DirMenu | null>(null)
   const dirMenuRef = useRef<HTMLDivElement>(null)
   const titleName = useMemo(
@@ -168,7 +171,7 @@ export default function Sidebar({
           <button
             type="button"
             title="Hide workspaces"
-            onClick={() => setWsCollapsed(true)}
+            onClick={() => dispatch(setWsCollapsed(true))}
             style={{
               width: 22,
               height: 22,
@@ -273,7 +276,7 @@ export default function Sidebar({
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <path d="M9 5l7 7-7 7" />
           </svg>,
-          () => setWsCollapsed(false),
+          () => dispatch(setWsCollapsed(false)),
         )
       )}
 
@@ -326,7 +329,7 @@ export default function Sidebar({
             />
           </div>
           <button
-            onClick={() => setSessionsCollapsed(true)}
+            onClick={() => dispatch(setSessionsCollapsed(true))}
             style={{
               width: 24,
               height: 24,
@@ -482,7 +485,7 @@ export default function Sidebar({
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <path d="M9 5l7 7-7 7" />
           </svg>,
-          () => setSessionsCollapsed(false),
+          () => dispatch(setSessionsCollapsed(false)),
         )
       )}
       {dirMenu && onCloseDirectory && (

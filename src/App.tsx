@@ -41,6 +41,11 @@ import { actionKeyMessageId } from './utils/actionKey'
 import { firstFlowAnchorKeyForSubtaskSegment } from './utils/actionMapping'
 import { parseActionRelatedSseEvent } from './utils/opencodeSse'
 import {
+  setSubtaskFlowLayoutMode,
+  setSubtaskPanelVisible,
+} from './store/uiSlice'
+import { useAppDispatch, useAppSelector } from './store/hooks'
+import {
   archivedCompletedList,
   buildSessionTodoModel,
   getLatestTodowriteBatchProgress,
@@ -355,10 +360,10 @@ function App() {
 
   /** Full-screen VibeTrace overlay */
   const [subtaskFullscreenOpen, setSubtaskFullscreenOpen] = useState(false)
-  /** VibeTrace side panel visibility (hidden by default) */
-  const [subtaskPanelVisible, setSubtaskPanelVisible] = useState(false)
-  /** Column layout: timeline vs summary */
-  const [subtaskFlowLayoutMode, setSubtaskFlowLayoutMode] = useState<'timeline' | 'summary'>('timeline')
+  /** VibeTrace side panel visibility + layout live in Redux (persisted) */
+  const subtaskPanelVisible = useAppSelector((s) => s.ui.subtaskPanelVisible)
+  const subtaskFlowLayoutMode = useAppSelector((s) => s.ui.subtaskFlowLayoutMode)
+  const dispatch = useAppDispatch()
   /** Short-lived hint when OpenCode signals `session.compacted` for the active session */
   const [compactionControlHint, setCompactionControlHint] = useState<string | null>(null)
   /** Action rectangle click toggles per-action highlight */
@@ -1340,7 +1345,7 @@ function App() {
               <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                 <button
                   type="button"
-                  onClick={() => setSubtaskFlowLayoutMode('timeline')}
+                  onClick={() => dispatch(setSubtaskFlowLayoutMode('timeline'))}
                   style={{
                     display: 'flex',
                     alignItems: 'center',
@@ -1371,7 +1376,7 @@ function App() {
                 </button>
                 <button
                   type="button"
-                  onClick={() => setSubtaskFlowLayoutMode('summary')}
+                  onClick={() => dispatch(setSubtaskFlowLayoutMode('summary'))}
                   style={{
                     display: 'flex',
                     alignItems: 'center',
@@ -1405,7 +1410,7 @@ function App() {
             <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
               <button
                 type="button"
-                onClick={() => setSubtaskPanelVisible(false)}
+                onClick={() => dispatch(setSubtaskPanelVisible(false))}
                 aria-label="Hide VibeTrace panel"
                 title="Hide VibeTrace panel"
                 style={{
@@ -1507,7 +1512,7 @@ function App() {
           >
             <button
               type="button"
-              onClick={() => setSubtaskPanelVisible(true)}
+              onClick={() => dispatch(setSubtaskPanelVisible(true))}
               aria-label="Show VibeTrace panel"
               title="Show VibeTrace panel"
               style={{
