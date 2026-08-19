@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, type RefObject } from 'react'
+import { useState, useEffect, useMemo, useRef, type RefObject } from 'react'
 import type { OcMessage, OcPendingQuestionRequest, OcTodo } from '../types/opencode'
 import type { CanonicalTodo, LatestTodowriteBatchProgress } from '../utils/todoRegistry'
 import MessageBubble from './MessageBubble'
@@ -116,6 +116,27 @@ export default function MessagePanel({
 
   const staleToolCallIds = useMemo(() => collectStaleToolCallIDs(messages), [messages])
   const transcriptAnchorNowMs = Date.now()
+
+  /** Auto-scroll to the bottom when entering a session (avoids starting at the top). */
+  const prevSessionIdRef = useRef(sessionId)
+  const pendingAutoScrollRef = useRef(false)
+  useEffect(() => {
+    if (prevSessionIdRef.current === sessionId) return
+    prevSessionIdRef.current = sessionId
+    pendingAutoScrollRef.current = true
+  }, [sessionId])
+
+  useEffect(() => {
+    if (!pendingAutoScrollRef.current) return
+    if (loading) return
+    pendingAutoScrollRef.current = false
+    const root = messageListScrollRef?.current
+    if (!root) return
+    const frame = requestAnimationFrame(() => {
+      root.scrollTop = root.scrollHeight
+    })
+    return () => cancelAnimationFrame(frame)
+  }, [messages, loading, messageListScrollRef])
 
   return (
     <div
