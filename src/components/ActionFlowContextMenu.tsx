@@ -170,7 +170,7 @@ export default function ActionFlowContextMenu({ menu, onClose, onFork, onAnalysi
     fontSize: 12,
     fontWeight: 600,
     letterSpacing: '0.04em',
-    color: '#1C1C1C',
+    color: 'var(--color-text-primary)',
     textAlign: 'left',
   }
 
@@ -193,16 +193,16 @@ export default function ActionFlowContextMenu({ menu, onClose, onFork, onAnalysi
         maxWidth: 260,
         padding: 6,
         borderRadius: 12,
-        background: 'linear-gradient(145deg, rgba(255,255,255,0.98) 0%, rgba(252,252,252,0.98) 100%)',
+        background: 'linear-gradient(145deg, var(--color-bg-white) 0%, var(--color-bg-elevated) 100%)',
         boxShadow:
-          '0 12px 40px rgba(15, 23, 42, 0.12), 0 0 0 1px rgba(15, 23, 42, 0.06), inset 0 1px 0 rgba(255,255,255,0.9)',
+          '0 12px 40px rgba(15, 23, 42, 0.12), 0 0 0 1px rgba(15, 23, 42, 0.06), inset 0 1px 0 var(--color-bg-white)',
         backdropFilter: 'blur(10px)',
       }}
     >
       {onFork ? (
         <button
           type="button"
-          style={{ ...itemStyle, color: '#111827' }}
+          style={{ ...itemStyle, color: 'var(--color-ink)' }}
           onMouseEnter={(e) => {
             e.currentTarget.style.background = 'rgba(148, 163, 184, 0.15)'
           }}
@@ -214,7 +214,7 @@ export default function ActionFlowContextMenu({ menu, onClose, onFork, onAnalysi
             onClose()
           }}
         >
-          <span style={{ color: '#94A3B8', display: 'flex', alignItems: 'center', flexShrink: 0 }}>
+          <span style={{ color: 'var(--color-tip-faint)', display: 'flex', alignItems: 'center', flexShrink: 0 }}>
             <IconForkSession />
           </span>
           <span style={labelStyle}>Fork session</span>
@@ -223,7 +223,7 @@ export default function ActionFlowContextMenu({ menu, onClose, onFork, onAnalysi
       {onAnalysis ? (
         <button
           type="button"
-          style={{ ...itemStyle, color: '#111827', marginTop: onFork ? 2 : 0 }}
+          style={{ ...itemStyle, color: 'var(--color-ink)', marginTop: onFork ? 2 : 0 }}
           onMouseEnter={(e) => {
             e.currentTarget.style.background = 'rgba(148, 163, 184, 0.15)'
           }}
@@ -235,7 +235,7 @@ export default function ActionFlowContextMenu({ menu, onClose, onFork, onAnalysi
             onClose()
           }}
         >
-          <span style={{ color: '#94A3B8', display: 'flex', alignItems: 'center', flexShrink: 0 }}>
+          <span style={{ color: 'var(--color-tip-faint)', display: 'flex', alignItems: 'center', flexShrink: 0 }}>
             <IconExplain clipId={explainClipId} />
           </span>
           <span style={labelStyle}>Explain</span>

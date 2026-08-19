@@ -78,7 +78,7 @@ export default function ActionTypeColorLegend({ paletteId }: Props) {
           style={{
             fontSize: 10,
             fontWeight: 600,
-            color: '#6A6A6A',
+            color: 'var(--color-text-secondary)',
             fontFamily: fontSans,
             whiteSpace: 'nowrap',
           }}
@@ -112,7 +112,7 @@ export default function ActionTypeColorLegend({ paletteId }: Props) {
                 style={{
                   fontSize: 9,
                   fontWeight: 600,
-                  color: '#2B2B2B',
+                  color: 'var(--color-control-track-on)',
                   textAlign: 'center',
                   fontFamily: fontSans,
                   whiteSpace: 'nowrap',

@@ -35,19 +35,19 @@ function renderMarkdown(text: string): string {
   if (!text) return ''
   return text
     // fenced code
-    .replace(/```(\w*)\n([\s\S]*?)```/g, '<pre style="background:#F5F5F5;padding:8px;border-radius:4px;margin:6px 0;font-family:IBM Plex Mono,monospace;font-size:11px"><code>$2</code></pre>')
+    .replace(/```(\w*)\n([\s\S]*?)```/g, '<pre style="background:var(--color-bg-soft);padding:8px;border-radius:4px;margin:6px 0;font-family:IBM Plex Mono,monospace;font-size:11px"><code>$2</code></pre>')
     // inline code
-    .replace(/`([^`]+)`/g, '<code style="background:#F5F5F5;padding:1px 3px;border-radius:2px;font-family:IBM Plex Mono,monospace;font-size:11px">$1</code>')
+    .replace(/`([^`]+)`/g, '<code style="background:var(--color-bg-soft);padding:1px 3px;border-radius:2px;font-family:IBM Plex Mono,monospace;font-size:11px">$1</code>')
     // Tables
     .replace(/(\|.+\|)\n(\|[-:| ]+\|)\n((?:\|.+\|\n?)*)/g, (_match, header, _divider, rows) => {
       const headerCells = header.split('|').filter((c: string) => c.trim())
       const rowLines = rows.trim().split('\n')
       const bodyCells = rowLines.map((row: string) => row.split('|').filter((c: string) => c.trim()))
       let html = '<table style="border-collapse:collapse;margin:8px 0;font-size:11px">'
-      html += '<thead><tr>' + headerCells.map((c: string) => `<th style="border:1px solid #E8E8E8;padding:4px 8px;background:#F5F5F5;font-weight:600">${c}</th>`).join('') + '</tr></thead>'
+      html += '<thead><tr>' + headerCells.map((c: string) => `<th style="border:1px solid var(--color-border-light);padding:4px 8px;background:var(--color-bg-soft);font-weight:600">${c}</th>`).join('') + '</tr></thead>'
       html += '<tbody>'
       bodyCells.forEach((cells: string[]) => {
-        html += '<tr>' + cells.map((c: string) => `<td style="border:1px solid #E8E8E8;padding:4px 8px">${c}</td>`).join('') + '</tr>'
+        html += '<tr>' + cells.map((c: string) => `<td style="border:1px solid var(--color-border-light);padding:4px 8px">${c}</td>`).join('') + '</tr>'
       })
       html += '</tbody></table>'
       return html
@@ -144,16 +144,16 @@ function UserMessage({ message }: { message: OcMessage }) {
         style={{
           maxWidth: '70%',
           padding: '8px 12px',
-          background: '#FFFFFF',
-          border: '1px solid #E8E8E8',
+          background: 'var(--color-bg-white)',
+          border:'1px solid var(--color-border-light)',
           borderRadius: '12px',
           fontSize: 12,
           lineHeight: 1.5,
-          color: '#333',
+          color: 'var(--color-text-primary)',
           wordBreak: 'break-word',
         }}
       >
-        {content || <span style={{ color: '#BBB' }}>No text payload</span>}
+        {content || <span style={{ color: 'var(--color-text-muted)' }}>No text payload</span>}
       </div>
       {/* Copy button */}
       {showCopy && (
@@ -163,12 +163,12 @@ function UserMessage({ message }: { message: OcMessage }) {
             position: 'absolute',
             bottom: -4,
             right: 8,
-            background: '#FFFFFF',
-            border: '1px solid #E8E8E8',
+            background: 'var(--color-bg-white)',
+            border:'1px solid var(--color-border-light)',
             borderRadius: '4px',
             padding: '2px 6px',
             fontSize: 10,
-            color: copied ? '#0ABE00' : '#999',
+            color: copied ? 'var(--color-success)' : 'var(--color-text-tertiary)',
             cursor: 'pointer',
           }}
         >
@@ -194,7 +194,7 @@ function AgentInfo({ info }: { info: OcMessageInfo }) {
   if (!modelName && !totalTokens && !duration) return null
 
   return (
-    <div style={{ marginTop: '8px', fontSize: 11, color: '#999', display: 'flex', gap: '12px' }}>
+    <div style={{ marginTop: '8px', fontSize: 11, color: 'var(--color-text-tertiary)', display: 'flex', gap: '12px' }}>
       {modelName && <span>{modelName}</span>}
       {duration && <span>{duration}</span>}
       {totalTokens && <span>{totalTokens} tokens</span>}
@@ -233,7 +233,7 @@ function PartView({
       return (
         <div
           data-transcript-action-key={ak ?? undefined}
-          style={{ fontSize: 12, lineHeight: 1.6, color: '#333' }}
+          style={{ fontSize: 12, lineHeight: 1.6, color: 'var(--color-text-primary)' }}
           dangerouslySetInnerHTML={{ __html: renderMarkdown(part.text || '') }}
         />
       )
@@ -252,10 +252,10 @@ function PartView({
           data-transcript-action-key={ak ?? undefined}
           style={{
             fontSize: 12,
-            color: '#999',
+            color: 'var(--color-text-tertiary)',
             margin: '4px 0',
             padding: '6px 10px',
-            background: '#FAFAFA',
+            background: 'var(--color-bg-subtle)',
             borderRadius: '4px',
             lineHeight: 1.5,
           }}
@@ -289,13 +289,13 @@ function PartView({
       return (
         <div style={{
           fontSize: 11,
-          background: '#F5F5F5',
+          background: 'var(--color-bg-soft)',
           padding: '6px 10px',
           borderRadius: '4px',
           margin: '4px 0',
           fontFamily: 'IBM Plex Mono, monospace',
           whiteSpace: 'pre-wrap',
-          color: '#555',
+          color: 'var(--color-text-secondary)',
           overflow: 'hidden',
         }}>
           [{part.path}]
@@ -307,7 +307,7 @@ function PartView({
         ? `data:${part.source.media_type};base64,${part.source.data}`
         : null
       return (
-        <div style={{ fontSize: 12, color: '#888', margin: '4px 0' }}>
+        <div style={{ fontSize: 12, color: 'var(--color-text-tertiary)', margin: '4px 0' }}>
           {url ? <img src={url} alt="image" style={{ maxWidth: '150px', borderRadius: '4px' }} /> : '[image]'}
         </div>
       )
@@ -326,7 +326,7 @@ function PartView({
           data-transcript-action-key={ak ?? undefined}
           style={{
             fontSize: 10,
-            color: '#C62828',
+            color: 'var(--color-error-text)',
             margin: '4px 0',
             fontFamily: 'var(--font-family-mono)',
           }}
@@ -417,7 +417,7 @@ function ToolCallView({
   }, [part.id, hasError, hasOutput])
 
   return (
-    <div style={{ border: '1px solid #E8E8E8', borderRadius: '6px', overflow: 'hidden' }}>
+    <div style={{ border:'1px solid var(--color-border-light)', borderRadius: '6px', overflow: 'hidden' }}>
       <div
         onClick={() => hasDetails && setExpanded(!expanded)}
         title={errorTooltip}
@@ -425,22 +425,22 @@ function ToolCallView({
           display: 'flex',
           alignItems: 'center',
           padding: '6px 10px',
-          background: '#FAFAFA',
+          background: 'var(--color-bg-subtle)',
           cursor: hasDetails ? 'pointer' : 'default',
           fontSize: 12,
         }}
       >
-        <span style={{ fontFamily: 'IBM Plex Mono, monospace', color: '#333' }}>{toolName}</span>
+        <span style={{ fontFamily: 'IBM Plex Mono, monospace', color: 'var(--color-text-primary)' }}>{toolName}</span>
         {status && (
-          <span style={{ fontSize: 10, color: '#999', marginLeft: '8px' }}>{status}</span>
+          <span style={{ fontSize: 10, color: 'var(--color-text-tertiary)', marginLeft: '8px' }}>{status}</span>
         )}
         {hasError && (
-          <span style={{ fontSize: 10, color: '#C62828', marginLeft: '8px' }}>
+          <span style={{ fontSize: 10, color: 'var(--color-error-text)', marginLeft: '8px' }}>
             {parsedError.name || 'Error'}
           </span>
         )}
         {hasDetails && (
-          <span style={{ marginLeft: 'auto', color: '#CCC', fontSize: 11 }}>{expanded ? '▲' : '▼'}</span>
+          <span style={{ marginLeft: 'auto', color: 'var(--color-text-muted)', fontSize: 11 }}>{expanded ? '▲' : '▼'}</span>
         )}
       </div>
       {showInlineQuestion && (
@@ -453,14 +453,14 @@ function ToolCallView({
         />
       )}
       {hasDetails && expanded && (
-        <div style={{ borderTop: '1px solid #E8E8E8', background: '#FFFFFF' }}>
-          <div style={{ display: 'flex', gap: 4, padding: '6px 8px', borderBottom: '1px solid #F0F0F0' }}>
+        <div style={{ borderTop:'1px solid var(--color-border-light)', background: 'var(--color-bg-white)' }}>
+          <div style={{ display: 'flex', gap: 4, padding: '6px 8px', borderBottom:'1px solid var(--color-border-faint)' }}>
             {hasInput && (
               <button
                 onClick={() => setActiveTab('input')}
                 style={{
-                  border: '1px solid #E2E2E2',
-                  background: activeTab === 'input' ? '#F5F5F5' : '#FFFFFF',
+                  border:'1px solid var(--color-border-light)',
+                  background: activeTab === 'input' ? 'var(--color-bg-soft)' : 'var(--color-bg-white)',
                   borderRadius: 4,
                   fontSize: 10,
                   padding: '2px 6px',
@@ -474,8 +474,8 @@ function ToolCallView({
               <button
                 onClick={() => setActiveTab('output')}
                 style={{
-                  border: '1px solid #E2E2E2',
-                  background: activeTab === 'output' ? '#F5F5F5' : '#FFFFFF',
+                  border:'1px solid var(--color-border-light)',
+                  background: activeTab === 'output' ? 'var(--color-bg-soft)' : 'var(--color-bg-white)',
                   borderRadius: 4,
                   fontSize: 10,
                   padding: '2px 6px',
@@ -489,9 +489,9 @@ function ToolCallView({
               <button
                 onClick={() => setActiveTab('error')}
                 style={{
-                  border: '1px solid #E2E2E2',
-                  background: activeTab === 'error' ? '#FFF1F1' : '#FFFFFF',
-                  color: '#8B1F1F',
+                  border:'1px solid var(--color-border-light)',
+                  background: activeTab === 'error' ? 'var(--color-error-soft)' : 'var(--color-bg-white)',
+                  color: 'var(--color-error-text)',
                   borderRadius: 4,
                   fontSize: 10,
                   padding: '2px 6px',
@@ -507,8 +507,8 @@ function ToolCallView({
             fontSize: 11,
             fontFamily: 'IBM Plex Mono, monospace',
             whiteSpace: 'pre-wrap',
-            color: activeTab === 'error' ? '#8B1F1F' : '#555',
-            background: activeTab === 'error' ? '#FFF5F5' : '#FFFFFF',
+            color: activeTab === 'error' ? 'var(--color-error-text)' : 'var(--color-text-secondary)',
+            background: activeTab === 'error' ? 'var(--color-error-soft)' : 'var(--color-bg-white)',
             maxHeight: '220px',
             overflowY: 'auto',
             overflowX: 'hidden',
@@ -647,8 +647,8 @@ function QuestionInlineForm({
     <div
       style={{
         padding: '10px 12px',
-        background: 'linear-gradient(180deg, #FAF7FF 0%, #FFFFFF 100%)',
-        borderTop: '1px solid #F0F0F0',
+        background:'linear-gradient(180deg, var(--color-accent-softer) 0%, var(--color-bg-white) 100%)',
+        borderTop:'1px solid var(--color-border-faint)',
       }}
     >
       <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
@@ -656,16 +656,16 @@ function QuestionInlineForm({
           <div
             key={`inline-q-${qi}`}
             style={{
-              border: '1px solid #E8E8E8',
+              border:'1px solid var(--color-border-light)',
               borderRadius: 8,
               padding: '8px 10px',
-              background: '#FFFFFF',
+              background: 'var(--color-bg-white)',
             }}
           >
             {q.header ? (
-              <div style={{ fontSize: 10, color: '#8445BC', marginBottom: 4 }}>{q.header}</div>
+              <div style={{ fontSize: 10, color: 'var(--color-accent)', marginBottom: 4 }}>{q.header}</div>
             ) : null}
-            <div style={{ fontSize: 12, color: '#333', lineHeight: 1.5, marginBottom: 8 }}>{q.question}</div>
+            <div style={{ fontSize: 12, color: 'var(--color-text-primary)', lineHeight: 1.5, marginBottom: 8 }}>{q.question}</div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
               {q.options.map((opt) => {
                 const sel = selections[qi] ?? []
@@ -679,7 +679,7 @@ function QuestionInlineForm({
                       gap: 8,
                       cursor: submitting ? 'not-allowed' : 'pointer',
                       fontSize: 11,
-                      color: '#444',
+                      color: 'var(--color-text-secondary)',
                     }}
                   >
                     <input
@@ -693,7 +693,7 @@ function QuestionInlineForm({
                     <span>
                       <span style={{ fontWeight: 500 }}>{opt.label}</span>
                       {opt.description ? (
-                        <span style={{ color: '#888', display: 'block', marginTop: 2 }}>{opt.description}</span>
+                        <span style={{ color: 'var(--color-text-tertiary)', display: 'block', marginTop: 2 }}>{opt.description}</span>
                       ) : null}
                     </span>
                   </label>
@@ -702,7 +702,7 @@ function QuestionInlineForm({
             </div>
             {q.custom !== false && (
               <div style={{ marginTop: 8 }}>
-                <div style={{ fontSize: 10, color: '#999', marginBottom: 4 }}>Notes (optional)</div>
+                <div style={{ fontSize: 10, color: 'var(--color-text-tertiary)', marginBottom: 4 }}>Notes (optional)</div>
                 <input
                   type="text"
                   value={customTexts[qi] ?? ''}
@@ -720,7 +720,7 @@ function QuestionInlineForm({
                     width: '100%',
                     fontSize: 11,
                     padding: '6px 8px',
-                    border: '1px solid #E0E0E0',
+                    border:'1px solid var(--color-border-light)',
                     borderRadius: 6,
                     fontFamily: 'inherit',
                   }}
@@ -739,9 +739,9 @@ function QuestionInlineForm({
             fontSize: 11,
             padding: '6px 12px',
             borderRadius: 6,
-            border: '1px solid #E0E0E0',
-            background: '#FFF',
-            color: '#666',
+            border:'1px solid var(--color-border-light)',
+            background: 'var(--color-bg-white)',
+            color: 'var(--color-text-secondary)',
             cursor: submitting ? 'not-allowed' : 'pointer',
           }}
         >
@@ -756,8 +756,8 @@ function QuestionInlineForm({
             padding: '6px 16px',
             borderRadius: 6,
             border: 'none',
-            background: submitting ? '#C4B5D8' : '#8445BC',
-            color: '#FFF',
+            background: submitting ? 'var(--color-accent-muted)' : 'var(--color-accent)',
+            color: 'var(--color-on-accent)',
             cursor: submitting ? 'not-allowed' : 'pointer',
           }}
         >

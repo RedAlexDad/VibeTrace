@@ -124,7 +124,7 @@ export default function MessagePanel({
         display: 'flex',
         flexDirection: 'column',
         overflow: 'hidden',
-        background: '#FFFFFF',
+        background: 'var(--color-bg-white)',
       }}
     >
       {/* Header */}
@@ -134,8 +134,8 @@ export default function MessagePanel({
           padding: '0 16px',
           display: 'flex',
           alignItems: 'center',
-          borderBottom: '1px solid #E8E8E8',
-          background: '#FFFFFF',
+          borderBottom:'1px solid var(--color-border-light)',
+          background: 'var(--color-bg-white)',
           flexShrink: 0,
         }}
       >
@@ -153,9 +153,9 @@ export default function MessagePanel({
             flexShrink: 0,
             padding: '8px 16px',
             fontSize: 12,
-            color: '#4338ca',
-            background: 'linear-gradient(90deg, #eef2ff 0%, #faf5ff 100%)',
-            borderBottom: '1px solid #c7d2fe',
+            color: 'var(--color-accent-strong)',
+            background:'linear-gradient(90deg, var(--color-link-soft) 0%, var(--color-link-softer) 100%)',
+            borderBottom:'1px solid var(--color-link-soft)',
             display: 'flex',
             alignItems: 'center',
             gap: 10,
@@ -167,12 +167,12 @@ export default function MessagePanel({
               width: 8,
               height: 8,
               borderRadius: '50%',
-              background: '#6366f1',
+              background: 'var(--color-accent-strong)',
               flexShrink: 0,
             }}
           />
           <span style={{ fontWeight: 600 }}>Waiting for the model…</span>
-          <span style={{ color: '#64748b', fontWeight: 400 }}>
+          <span style={{ color: 'var(--color-tip-muted)', fontWeight: 400 }}>
             Polling in the background — if nothing appears, check OpenCode logs or upstream queue delays.
           </span>
         </div>
@@ -191,11 +191,11 @@ export default function MessagePanel({
         }}
       >
         {loading ? (
-          <div style={{ display: 'flex', justifyContent: 'center', padding: '32px', color: '#888', fontSize: 12 }}>
+          <div style={{ display: 'flex', justifyContent: 'center', padding: '32px', color: 'var(--color-text-tertiary)', fontSize: 12 }}>
             Loading…
           </div>
         ) : messages.length === 0 ? (
-          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100%', color: '#888', fontSize: 12 }}>
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100%', color: 'var(--color-text-tertiary)', fontSize: 12 }}>
             Pick a session to start chatting
           </div>
         ) : (
@@ -341,7 +341,7 @@ function EditableSessionTitle({
 
   if (!canEdit) {
     return (
-      <span style={{ fontSize: 13, fontWeight: 500, color: '#171717' }}>{display}</span>
+      <span style={{ fontSize: 13, fontWeight: 500, color: 'var(--color-text-primary)' }}>{display}</span>
     )
   }
 
@@ -367,8 +367,8 @@ function EditableSessionTitle({
         style={{
           fontSize: 13,
           fontWeight: 500,
-          color: '#171717',
-          border: '1px solid #8445BC',
+          color: 'var(--color-text-primary)',
+          border:'1px solid var(--color-accent)',
           borderRadius: 6,
           padding: '4px 8px',
           minWidth: 200,
@@ -394,7 +394,7 @@ function EditableSessionTitle({
       style={{
         fontSize: 13,
         fontWeight: 500,
-        color: '#171717',
+        color: 'var(--color-text-primary)',
         cursor: 'pointer',
       }}
       title="Click to rename"

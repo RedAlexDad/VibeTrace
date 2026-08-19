@@ -100,7 +100,7 @@ export default function ToolCallCard({ tool, callID: _callID, state }: ToolCallC
   return (
     <div
       style={{
-        background: '#FAFAFA',
+        background: 'var(--color-bg-subtle)',
         borderRadius: 6,
         overflow: 'hidden',
         maxWidth: '100%',
@@ -122,14 +122,14 @@ export default function ToolCallCard({ tool, callID: _callID, state }: ToolCallC
         }}
       >
         {/* Tool icon */}
-        <span style={{ color: '#6F6F6F' }}>{icon}</span>
+        <span style={{ color: 'var(--color-text-secondary)' }}>{icon}</span>
 
         {/* Tool name */}
         <span
           style={{
             fontSize: 12,
             fontWeight: 500,
-            color: '#171717',
+            color: 'var(--color-text-primary)',
             fontFamily: 'IBM Plex Mono, monospace',
             textTransform: 'capitalize',
           }}
@@ -140,17 +140,17 @@ export default function ToolCallCard({ tool, callID: _callID, state }: ToolCallC
         {/* Status indicator */}
         <span style={{ marginLeft: 'auto' }}>
           {state.status === 'running' ? (
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#8445BC" strokeWidth="2" style={{ animation: 'spin 1s linear infinite' }}>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--color-accent)" strokeWidth="2" style={{ animation: 'spin 1s linear infinite' }}>
               <path d="M21 12a9 9 0 1 1-6.219-8.56" />
             </svg>
           ) : state.status === 'error' ? (
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#FF3B30" strokeWidth="2">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--color-error)" strokeWidth="2">
               <circle cx="12" cy="12" r="10" />
               <line x1="15" y1="9" x2="9" y2="15" />
               <line x1="9" y1="9" x2="15" y2="15" />
             </svg>
           ) : (
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#0ABE00" strokeWidth="2">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--color-success)" strokeWidth="2">
               <polyline points="20 6 9 17 4 12" />
             </svg>
           )}
@@ -161,7 +161,7 @@ export default function ToolCallCard({ tool, callID: _callID, state }: ToolCallC
       {expanded && inputStr && (
         <div
           style={{
-            borderTop: '1px solid #E8E8E8',
+            borderTop:'1px solid var(--color-border-light)',
             padding: '8px 12px',
           }}
         >
@@ -170,8 +170,8 @@ export default function ToolCallCard({ tool, callID: _callID, state }: ToolCallC
               fontFamily: 'IBM Plex Mono, monospace',
               fontSize: 11,
               lineHeight: 1.5,
-              color: '#6F6F6F',
-              background: '#FFFFFF',
+              color: 'var(--color-text-secondary)',
+              background: 'var(--color-bg-white)',
               borderRadius: 4,
               padding: 8,
               overflow: 'auto',

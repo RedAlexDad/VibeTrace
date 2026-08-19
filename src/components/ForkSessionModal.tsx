@@ -45,34 +45,34 @@ export default function ForkSessionModal({ open, submitting, onClose, onConfirm 
           maxHeight: 'min(70vh, 480px)',
           display: 'flex',
           flexDirection: 'column',
-          background: '#FFFFFF',
+          background: 'var(--color-bg-white)',
           borderRadius: 14,
           boxShadow: '0 18px 48px rgba(15, 23, 42, 0.18)',
-          border: '1px solid #E8E8E8',
+          border:'1px solid var(--color-border-light)',
           overflow: 'hidden',
           fontFamily: fontSans,
         }}
         onMouseDown={(e) => e.stopPropagation()}
       >
-        <div style={{ padding: '14px 16px 10px', borderBottom: '1px solid #EEF0F2' }}>
+        <div style={{ padding: '14px 16px 10px', borderBottom: '1px solid var(--color-border-faint)' }}>
           <h2
             id="fork-session-modal-title"
             style={{
               margin: 0,
               fontSize: 15,
               fontWeight: 600,
-              color: '#111827',
+              color: 'var(--color-ink)',
               lineHeight: '22px',
             }}
           >
             Fork session
           </h2>
-          <p style={{ margin: '8px 0 0', fontSize: 12, color: '#64748B', lineHeight: 1.45 }}>
+          <p style={{ margin: '8px 0 0', fontSize: 12, color: 'var(--color-tip-muted)', lineHeight: 1.45 }}>
             Enter the <strong>first user message</strong> for the forked session, then confirm.
           </p>
         </div>
         <div style={{ padding: '12px 16px', flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column' }}>
-          <label htmlFor="fork-prompt-input" style={{ fontSize: 11, fontWeight: 600, color: '#475569', marginBottom: 6 }}>
+          <label htmlFor="fork-prompt-input" style={{ fontSize: 11, fontWeight: 600, color: 'var(--color-tip-subtle)', marginBottom: 6 }}>
             Message
           </label>
           <textarea
@@ -91,7 +91,7 @@ export default function ForkSessionModal({ open, submitting, onClose, onConfirm 
               fontSize: 13,
               lineHeight: 1.45,
               borderRadius: 10,
-              border: '1px solid #D1D5DB',
+              border: '1px solid var(--color-border)',
               fontFamily: fontSans,
               outline: 'none',
             }}
@@ -104,8 +104,8 @@ export default function ForkSessionModal({ open, submitting, onClose, onConfirm 
             justifyContent: 'flex-end',
             gap: 10,
             padding: '12px 16px 14px',
-            borderTop: '1px solid #EEF0F2',
-            background: '#FAFAFA',
+            borderTop: '1px solid var(--color-border-faint)',
+            background: 'var(--color-bg-subtle)',
           }}
         >
           <button
@@ -116,8 +116,8 @@ export default function ForkSessionModal({ open, submitting, onClose, onConfirm 
               padding: '8px 14px',
               fontSize: 13,
               borderRadius: 8,
-              border: '1px solid #D1D5DB',
-              background: '#FFFFFF',
+              border: '1px solid var(--color-border)',
+              background: 'var(--color-bg-white)',
               cursor: submitting ? 'not-allowed' : 'pointer',
               fontFamily: fontSans,
             }}
@@ -133,8 +133,8 @@ export default function ForkSessionModal({ open, submitting, onClose, onConfirm 
               fontSize: 13,
               borderRadius: 8,
               border: 'none',
-              background: canSubmit ? '#111827' : '#CBD5E1',
-              color: '#FFFFFF',
+              background: canSubmit ? 'var(--color-ink)' : 'var(--color-tip-border)',
+              color: 'var(--color-on-accent)',
               cursor: submitting ? 'not-allowed' : 'pointer',
               fontFamily: fontSans,
             }}

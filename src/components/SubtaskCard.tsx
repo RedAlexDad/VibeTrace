@@ -73,9 +73,9 @@ function MetricBox({ label, value, alert }: { label: string; value: string; aler
         minWidth: 0,
         flex: '1 1 0',
         minHeight: 44,
-        border: '1px solid #DBDBDB',
+        border:'1px solid var(--color-border)',
         borderRadius: 10,
-        background: '#FCFCFC',
+        background: 'var(--color-bg-elevated)',
       }}
     >
       <div
@@ -86,7 +86,7 @@ function MetricBox({ label, value, alert }: { label: string; value: string; aler
           fontSize: 9,
           lineHeight: '12px',
           textAlign: 'center',
-          color: '#5C5C5C',
+          color: 'var(--color-text-secondary)',
           marginBottom: 2,
         }}
       >
@@ -99,7 +99,7 @@ function MetricBox({ label, value, alert }: { label: string; value: string; aler
           fontSize: 13,
           lineHeight: '16px',
           textAlign: 'center',
-          color: '#2B2B2B',
+          color: 'var(--color-control-track-on)',
           wordBreak: 'break-all',
         }}
       >
@@ -474,7 +474,7 @@ export default function SubtaskCard({
           fontWeight: 600,
           fontSize: 13,
           lineHeight: '18px',
-          color: '#2B2B2B',
+          color: 'var(--color-control-track-on)',
           flexShrink: 0,
         }}
       >
@@ -512,7 +512,7 @@ export default function SubtaskCard({
               gap: 8,
             }}
           >
-            <span style={{ fontSize: 10, fontWeight: 400, lineHeight: '14px', color: '#2B2B2B' }}>
+            <span style={{ fontSize: 10, fontWeight: 400, lineHeight: '14px', color: 'var(--color-control-track-on)' }}>
               Actions duration
             </span>
             <button
@@ -524,7 +524,7 @@ export default function SubtaskCard({
                 width: 26,
                 height: 13,
                 borderRadius: 80,
-                background: actionsDurationOn ? '#2B2B2B' : '#8A8A8A',
+                background: actionsDurationOn ? 'var(--color-control-track-on)' : 'var(--color-control-track-off)',
                 border: 'none',
                 padding: 2,
                 cursor: 'pointer',
@@ -538,7 +538,7 @@ export default function SubtaskCard({
                   width: 9,
                   height: 9,
                   borderRadius: '50%',
-                  background: '#FFFFFF',
+                  background: 'var(--color-bg-white)',
                   display: 'block',
                   flexShrink: 0,
                 }}
@@ -549,7 +549,7 @@ export default function SubtaskCard({
             style={{
               width: 1,
               height: 14,
-              background: '#DBDBDB',
+              background: 'var(--color-border)',
               flexShrink: 0,
             }}
           />
@@ -561,7 +561,7 @@ export default function SubtaskCard({
               gap: 6,
             }}
           >
-            <span style={{ fontSize: 10, fontWeight: 400, lineHeight: '14px', color: '#2B2B2B' }}>
+            <span style={{ fontSize: 10, fontWeight: 400, lineHeight: '14px', color: 'var(--color-control-track-on)' }}>
               Actions color
             </span>
             <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: 8 }}>
@@ -580,7 +580,7 @@ export default function SubtaskCard({
                   fontFamily: fontSans,
                   fontSize: 11,
                   lineHeight: '16px',
-                  color: colorBy === 'tokens' ? '#2B2B2B' : '#C6C6C6',
+                  color: colorBy === 'tokens' ? 'var(--color-control-track-on)' : 'var(--color-control-muted)',
                 }}
               >
                 <span
@@ -589,8 +589,8 @@ export default function SubtaskCard({
                     height: 10,
                     borderRadius: 3,
                     boxSizing: 'border-box',
-                    background: colorBy === 'tokens' ? '#C6C6C6' : 'transparent',
-                    border: colorBy === 'tokens' ? '1px solid #8A8A8A' : '1px solid #C6C6C6',
+                    background: colorBy === 'tokens' ? 'var(--color-control-muted)' : 'transparent',
+                    border: colorBy === 'tokens' ? '1px solid var(--color-control-track-off)' : '1px solid var(--color-control-muted)',
                   }}
                 />
                 tokens
@@ -610,7 +610,7 @@ export default function SubtaskCard({
                   fontFamily: fontSans,
                   fontSize: 11,
                   lineHeight: '16px',
-                  color: colorBy === 'type' ? '#2B2B2B' : '#C6C6C6',
+                  color: colorBy === 'type' ? 'var(--color-control-track-on)' : 'var(--color-control-muted)',
                 }}
               >
                 <span
@@ -619,8 +619,8 @@ export default function SubtaskCard({
                     height: 10,
                     borderRadius: 3,
                     boxSizing: 'border-box',
-                    background: colorBy === 'type' ? '#C6C6C6' : 'transparent',
-                    border: colorBy === 'type' ? '1px solid #8A8A8A' : '1px solid #C6C6C6',
+                    background: colorBy === 'type' ? 'var(--color-control-muted)' : 'transparent',
+                    border: colorBy === 'type' ? '1px solid var(--color-control-track-off)' : '1px solid var(--color-control-muted)',
                   }}
                 />
                 type
@@ -646,7 +646,7 @@ export default function SubtaskCard({
               style={{
                 width: 1,
                 height: 14,
-                background: '#DBDBDB',
+                background: 'var(--color-border)',
                 flexShrink: 0,
                 marginRight: 2,
               }}
@@ -656,7 +656,7 @@ export default function SubtaskCard({
                 fontSize: 10,
                 fontWeight: 400,
                 lineHeight: '14px',
-                color: '#2B2B2B',
+                color: 'var(--color-control-track-on)',
                 flexShrink: 0,
               }}
             >
@@ -678,7 +678,7 @@ export default function SubtaskCard({
                   fontFamily: fontSans,
                   fontSize: 10,
                   lineHeight: '14px',
-                  color: filterMode === 'duration' ? '#2B2B2B' : '#C6C6C6',
+                  color: filterMode === 'duration' ? 'var(--color-control-track-on)' : 'var(--color-control-muted)',
                 }}
               >
                 <span
@@ -687,8 +687,8 @@ export default function SubtaskCard({
                     height: 8,
                     borderRadius: 2,
                     boxSizing: 'border-box',
-                    background: filterMode === 'duration' ? '#C6C6C6' : 'transparent',
-                    border: filterMode === 'duration' ? '1px solid #8A8A8A' : '1px solid #C6C6C6',
+                    background: filterMode === 'duration' ? 'var(--color-control-muted)' : 'transparent',
+                    border: filterMode === 'duration' ? '1px solid var(--color-control-track-off)' : '1px solid var(--color-control-muted)',
                   }}
                 />
                 duration
@@ -708,7 +708,7 @@ export default function SubtaskCard({
                   fontFamily: fontSans,
                   fontSize: 10,
                   lineHeight: '14px',
-                  color: filterMode === 'tokens' ? '#2B2B2B' : '#C6C6C6',
+                  color: filterMode === 'tokens' ? 'var(--color-control-track-on)' : 'var(--color-control-muted)',
                 }}
               >
                 <span
@@ -717,8 +717,8 @@ export default function SubtaskCard({
                     height: 8,
                     borderRadius: 2,
                     boxSizing: 'border-box',
-                    background: filterMode === 'tokens' ? '#C6C6C6' : 'transparent',
-                    border: filterMode === 'tokens' ? '1px solid #8A8A8A' : '1px solid #C6C6C6',
+                    background: filterMode === 'tokens' ? 'var(--color-control-muted)' : 'transparent',
+                    border: filterMode === 'tokens' ? '1px solid var(--color-control-track-off)' : '1px solid var(--color-control-muted)',
                   }}
                 />
                 tokens
@@ -762,7 +762,7 @@ export default function SubtaskCard({
                 fontSize: 10,
                 fontWeight: 500,
                 lineHeight: '14px',
-                color: '#6A6A6A',
+                color: 'var(--color-text-secondary)',
                 whiteSpace: 'nowrap',
                 flexShrink: 1,
                 minWidth: 0,
@@ -846,15 +846,15 @@ export default function SubtaskCard({
     gap: 4,
     width: '100%',
     minWidth: 0,
-    background: isLinked ? '#FFFFFF' : '#FCFCFC',
+    background: isLinked ? 'var(--color-bg-white)' : 'var(--color-bg-elevated)',
     borderRadius: 14,
     fontFamily: fontSans,
     overflow: 'visible',
     cursor: onSelectSubtask ? 'pointer' : 'default',
     transition: 'box-shadow 0.15s ease, border-color 0.15s ease, background-color 0.15s ease',
     border: hasLongRunningAction
-      ? (isLinked ? '2px solid #FF6B6B' : '1px solid #FF6B6B')
-      : (isLinked ? '2px solid #5A8FFF' : '1px solid #DBDBDB'),
+      ? (isLinked ? '2px solid var(--color-error-text)' : '1px solid var(--color-error-text)')
+      : (isLinked ? '2px solid var(--color-link)' : '1px solid var(--color-border)'),
     boxShadow: isLinked
       ? `0 0 0 3px rgba(90, 143, 255, 0.22), 0 6px 18px rgba(90, 143, 255, 0.12)`
       : 'none',

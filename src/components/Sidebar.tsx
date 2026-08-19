@@ -76,8 +76,8 @@ export default function Sidebar({
         style={{
           width: 48,
           height: '100%',
-          background: '#FFFFFF',
-          borderRight: '1px solid #E8E8E8',
+          background: 'var(--color-bg-white)',
+          borderRight:'1px solid var(--color-border-light)',
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
@@ -100,7 +100,7 @@ export default function Sidebar({
           }}
           title="Expand sidebar"
         >
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#171717" strokeWidth="2">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--color-text-primary)" strokeWidth="2">
             <path d="M3 12h18M3 6h18M3 18h18" />
           </svg>
         </button>
@@ -120,8 +120,8 @@ export default function Sidebar({
       <div
         style={{
           width: RAIL_WIDTH,
-          background: '#FAFAFA',
-          borderRight: '1px solid #E8E8E8',
+          background: 'var(--color-bg-subtle)',
+          borderRight:'1px solid var(--color-border-light)',
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
@@ -140,10 +140,10 @@ export default function Sidebar({
               width: 32,
               height: 32,
               borderRadius: 8,
-              border: '1px solid #D8C2EB',
-              background: 'linear-gradient(180deg, #FCF8FF 0%, #F3E9FB 100%)',
+              border:'1px solid var(--color-accent-border)',
+              background:'linear-gradient(180deg, var(--color-accent-softer) 0%, var(--color-accent-soft) 100%)',
               cursor: 'pointer',
-              color: '#6D35A1',
+              color: 'var(--color-accent-deep)',
               fontSize: 18,
               fontWeight: 500,
               lineHeight: '28px',
@@ -172,12 +172,12 @@ export default function Sidebar({
                 minHeight: 32,
                 padding: '4px 2px',
                 borderRadius: 8,
-                border: active ? '1px solid #8445BC' : '1px solid transparent',
-                background: active ? '#F0E6FA' : 'transparent',
+                border: active ? '1px solid var(--color-accent)' : '1px solid transparent',
+                background: active ? 'var(--color-accent-soft)' : 'transparent',
                 cursor: 'pointer',
                 fontSize: 11,
                 fontWeight: 600,
-                color: active ? '#5B2D82' : '#525252',
+                color: active ? 'var(--color-accent-deep)' : 'var(--color-text-secondary)',
                 lineHeight: 1.15,
                 wordBreak: 'break-all',
               }}
@@ -193,8 +193,8 @@ export default function Sidebar({
         style={{
           width: 240,
           height: '100%',
-          background: '#FFFFFF',
-          borderRight: '1px solid #E8E8E8',
+          background: 'var(--color-bg-white)',
+          borderRight:'1px solid var(--color-border-light)',
           display: 'flex',
           flexDirection: 'column',
           flexShrink: 0,
@@ -207,7 +207,7 @@ export default function Sidebar({
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
-            borderBottom: '1px solid #E8E8E8',
+            borderBottom:'1px solid var(--color-border-light)',
             minWidth: 0,
           }}
         >
@@ -217,7 +217,7 @@ export default function Sidebar({
               style={{
                 fontSize: 14,
                 fontWeight: 500,
-                color: '#171717',
+                color: 'var(--color-text-primary)',
                 overflow: 'hidden',
                 textOverflow: 'ellipsis',
                 whiteSpace: 'nowrap',
@@ -230,7 +230,7 @@ export default function Sidebar({
                 width: 6,
                 height: 6,
                 borderRadius: '50%',
-                background: apiConnected ? '#0ABE00' : '#FF3B30',
+                background: apiConnected ? 'var(--color-success)' : 'var(--color-error)',
                 flexShrink: 0,
               }}
               title={apiConnected ? 'OpenCode connected' : 'Not connected'}
@@ -252,7 +252,7 @@ export default function Sidebar({
             }}
             title="Collapse sidebar"
           >
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#8F8F8F" strokeWidth="2">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--color-text-tertiary)" strokeWidth="2">
               <path d="M11 19l-7-7 7-7M18 19l-7-7 7-7" />
             </svg>
           </button>
@@ -270,8 +270,8 @@ export default function Sidebar({
               alignItems: 'center',
               justifyContent: 'center',
               gap: 8,
-              background: creatingSession ? '#ECECEC' : '#8445BC',
-              color: '#FFFFFF',
+              background: creatingSession ? 'var(--color-bg-disabled)' : 'var(--color-accent)',
+              color: 'var(--color-on-accent)',
               border: 'none',
               borderRadius: 8,
               fontSize: 13,
@@ -294,7 +294,7 @@ export default function Sidebar({
           }}
         >
           {sessionsInFolder.length === 0 ? (
-            <div style={{ padding: '12px 14px', fontSize: 12, color: '#8F8F8F', lineHeight: 1.5 }}>
+            <div style={{ padding: '12px 14px', fontSize: 12, color: 'var(--color-text-tertiary)', lineHeight: 1.5 }}>
               No sessions in this folder yet. Use &quot;New session&quot; to start.
             </div>
           ) : (
@@ -308,7 +308,7 @@ export default function Sidebar({
                   alignItems: 'center',
                   gap: 4,
                   padding: '4px 8px 4px 12px',
-                  background: session.id === selectedSessionId ? '#F0E6FA' : 'transparent',
+                  background: session.id === selectedSessionId ? 'var(--color-accent-soft)' : 'transparent',
                   borderRadius: 6,
                 }}
               >
@@ -333,14 +333,14 @@ export default function Sidebar({
                       width: 6,
                       height: 6,
                       borderRadius: '50%',
-                      background: session.id === selectedSessionId ? '#8445BC' : '#C7C7C7',
+                      background: session.id === selectedSessionId ? 'var(--color-accent)' : 'var(--color-gray-200)',
                       flexShrink: 0,
                     }}
                   />
                   <span
                     style={{
                       fontSize: 12,
-                      color: '#171717',
+                      color: 'var(--color-text-primary)',
                       overflow: 'hidden',
                       textOverflow: 'ellipsis',
                       whiteSpace: 'nowrap',
@@ -370,7 +370,7 @@ export default function Sidebar({
                       borderRadius: 6,
                       cursor: archivingSessionId === session.id ? 'wait' : 'pointer',
                       opacity: hoverSessionId === session.id ? 1 : 0.35,
-                      color: '#737373',
+                      color: 'var(--color-text-secondary)',
                     }}
                   >
                     {archivingSessionId === session.id ? (
@@ -396,8 +396,8 @@ export default function Sidebar({
             left: dirMenu.x,
             zIndex: 2000,
             minWidth: 148,
-            background: '#FFFFFF',
-            border: '1px solid #E7E7E7',
+            background: 'var(--color-bg-white)',
+            border:'1px solid var(--color-border-light)',
             borderRadius: 8,
             boxShadow: '0 6px 24px rgba(0,0,0,0.14)',
             padding: 4,
@@ -419,7 +419,7 @@ export default function Sidebar({
               textAlign: 'left',
               padding: '0 10px',
               fontSize: 12,
-              color: '#B42318',
+              color: 'var(--color-error-text)',
             }}
           >
             Close Workspace

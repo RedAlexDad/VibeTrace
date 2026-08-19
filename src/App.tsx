@@ -1180,7 +1180,7 @@ function App() {
         height: '100vh',
         width: '100vw',
         overflow: 'hidden',
-        background: '#F8F8F8',
+        background: 'var(--color-bg-base)',
         position: 'relative',
       }}
     >
@@ -1275,8 +1275,8 @@ function App() {
           style={{
             width: 630,
             flexShrink: 0,
-            background: '#FFFFFF',
-            borderLeft: '1px solid #E8E8E8',
+            background: 'var(--color-bg-white)',
+            borderLeft:'1px solid var(--color-border-light)',
             display: 'flex',
             flexDirection: 'column',
             transition: 'width 0.25s ease',
@@ -1289,10 +1289,10 @@ function App() {
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'space-between',
-              borderBottom: '1px solid #E8E8E8',
+              borderBottom:'1px solid var(--color-border-light)',
               fontSize: 12,
               fontWeight: 500,
-              color: '#171717',
+              color: 'var(--color-text-primary)',
             }}
           >
             <div style={{ display: 'flex', alignItems: 'center', gap: 10, minWidth: 0 }}>
@@ -1303,7 +1303,7 @@ function App() {
                   style={{
                     fontSize: 10,
                     fontWeight: 500,
-                    color: '#467FA8',
+                    color: 'var(--color-accent-strong)',
                     flexShrink: 1,
                     minWidth: 0,
                     overflow: 'hidden',
@@ -1320,7 +1320,7 @@ function App() {
                 style={{
                   fontSize: 11,
                   fontWeight: 400,
-                  color: '#737373',
+                  color: 'var(--color-text-secondary)',
                   overflow: 'hidden',
                   textOverflow: 'ellipsis',
                   whiteSpace: 'nowrap',
@@ -1347,7 +1347,7 @@ function App() {
                     padding: 0,
                     fontSize: 11,
                     lineHeight: '16px',
-                    color: subtaskFlowLayoutMode === 'timeline' ? '#2B2B2B' : '#A3A3A3',
+                    color: subtaskFlowLayoutMode === 'timeline' ? 'var(--color-control-track-on)' : 'var(--color-text-muted)',
                   }}
                 >
                   <span
@@ -1356,11 +1356,11 @@ function App() {
                       height: 10,
                       borderRadius: 3,
                       boxSizing: 'border-box',
-                      background: subtaskFlowLayoutMode === 'timeline' ? '#C6C6C6' : 'transparent',
+                      background: subtaskFlowLayoutMode === 'timeline' ? 'var(--color-control-muted)' : 'transparent',
                       border:
                         subtaskFlowLayoutMode === 'timeline'
-                          ? '1px solid #8A8A8A'
-                          : '1px solid #C6C6C6',
+                          ? '1px solid var(--color-control-track-off)'
+                          : '1px solid var(--color-control-muted)',
                     }}
                   />
                   timeline
@@ -1378,7 +1378,7 @@ function App() {
                     padding: 0,
                     fontSize: 11,
                     lineHeight: '16px',
-                    color: subtaskFlowLayoutMode === 'summary' ? '#2B2B2B' : '#A3A3A3',
+                    color: subtaskFlowLayoutMode === 'summary' ? 'var(--color-control-track-on)' : 'var(--color-text-muted)',
                   }}
                 >
                   <span
@@ -1387,11 +1387,11 @@ function App() {
                       height: 10,
                       borderRadius: 3,
                       boxSizing: 'border-box',
-                      background: subtaskFlowLayoutMode === 'summary' ? '#C6C6C6' : 'transparent',
+                      background: subtaskFlowLayoutMode === 'summary' ? 'var(--color-control-muted)' : 'transparent',
                       border:
                         subtaskFlowLayoutMode === 'summary'
-                          ? '1px solid #8A8A8A'
-                          : '1px solid #C6C6C6',
+                          ? '1px solid var(--color-control-track-off)'
+                          : '1px solid var(--color-control-muted)',
                     }}
                   />
                   summary
@@ -1415,11 +1415,11 @@ function App() {
                   alignItems: 'center',
                   justifyContent: 'center',
                   borderRadius: 6,
-                  color: visibleSubtasks.length === 0 ? '#C6C6C6' : '#5C5C5C',
+                  color: visibleSubtasks.length === 0 ? 'var(--color-control-muted)' : 'var(--color-text-secondary)',
                 }}
                 onMouseEnter={(e) => {
                   if (visibleSubtasks.length === 0) return
-                  e.currentTarget.style.background = '#F3F3F3'
+                  e.currentTarget.style.background = 'var(--color-bg-soft)'
                 }}
                 onMouseLeave={(e) => {
                   e.currentTarget.style.background = 'transparent'

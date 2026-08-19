@@ -23,11 +23,11 @@ function row(label: string, value: string | undefined): ReactNode {
         fontFamily: fontSans,
         fontSize: 12,
         lineHeight: 1.45,
-        color: '#334155',
+        color: 'var(--color-tip-subtle)',
       }}
     >
-      <div style={{ fontWeight: 600, color: '#64748B' }}>{label}</div>
-      <div style={{ wordBreak: 'break-all', color: '#0F172A' }}>{value}</div>
+      <div style={{ fontWeight: 600, color: 'var(--color-tip-muted)' }}>{label}</div>
+      <div style={{ wordBreak: 'break-all', color: 'var(--color-tip-text)' }}>{value}</div>
     </div>
   )
 }
@@ -51,7 +51,7 @@ export default function ActionAnalysisModal({ action, onClose }: Props) {
     overflow: 'auto',
     borderRadius: 16,
     padding: '20px 22px 18px',
-    background: 'linear-gradient(180deg, #FFFFFF 0%, #FAFAFA 100%)',
+    background:'linear-gradient(180deg, var(--color-bg-white) 0%, var(--color-bg-subtle) 100%)',
     boxShadow:
       '0 24px 80px rgba(15, 23, 42, 0.18), 0 0 0 1px rgba(15, 23, 42, 0.06)',
   }
@@ -86,7 +86,7 @@ export default function ActionAnalysisModal({ action, onClose }: Props) {
                 fontSize: 16,
                 fontWeight: 700,
                 letterSpacing: '-0.02em',
-                color: '#0F172A',
+                color: 'var(--color-tip-text)',
               }}
             >
               Explain
@@ -97,7 +97,7 @@ export default function ActionAnalysisModal({ action, onClose }: Props) {
                 fontFamily: fontSans,
                 fontSize: 12,
                 lineHeight: 1.55,
-                color: '#64748B',
+                color: 'var(--color-tip-muted)',
               }}
             >
               {hint}
@@ -112,11 +112,11 @@ export default function ActionAnalysisModal({ action, onClose }: Props) {
               height: 32,
               borderRadius: 10,
               border: '1px solid rgba(15, 23, 42, 0.08)',
-              background: '#FFFFFF',
+              background: 'var(--color-bg-white)',
               cursor: 'pointer',
               fontSize: 18,
               lineHeight: '28px',
-              color: '#64748B',
+              color: 'var(--color-tip-muted)',
             }}
             aria-label="Close"
           >

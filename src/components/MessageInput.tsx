@@ -147,7 +147,7 @@ export default function MessageInput({
           }}
         >
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-            <label htmlFor={COMPOSER_MODEL_DOM_ID} style={{ fontSize: 11, color: '#666', flexShrink: 0 }}>
+            <label htmlFor={COMPOSER_MODEL_DOM_ID} style={{ fontSize: 11, color: 'var(--color-text-secondary)', flexShrink: 0 }}>
               模型
             </label>
             <select
@@ -161,9 +161,9 @@ export default function MessageInput({
                 fontSize: 11,
                 padding: '6px 8px',
                 borderRadius: 6,
-                border: '1px solid #E8E8E8',
-                background: '#FFFFFF',
-                color: '#333',
+                border:'1px solid var(--color-border-light)',
+                background: 'var(--color-bg-white)',
+                color: 'var(--color-text-primary)',
               }}
             >
               <option value="">默认（不在请求里指定 model）</option>
@@ -174,24 +174,24 @@ export default function MessageInput({
               ))}
             </select>
             {composerModelsLoading && (
-              <span style={{ fontSize: 10, color: '#999', flexShrink: 0 }}>加载中…</span>
+              <span style={{ fontSize: 10, color: 'var(--color-text-tertiary)', flexShrink: 0 }}>加载中…</span>
             )}
           </div>
           {composerModelsError && (
-            <div style={{ fontSize: 10, color: '#C62828', lineHeight: 1.4 }}>
+            <div style={{ fontSize: 10, color: 'var(--color-error-text)', lineHeight: 1.4 }}>
               无法拉取模型列表（需要 OpenCode 暴露 GET /config/providers）：{composerModelsError}
             </div>
           )}
-          <div style={{ fontSize: 10, color: '#888', lineHeight: 1.4 }}>
-            下一条消息将使用：<span style={{ color: '#555' }}>{nextSendModelHint}</span>
+          <div style={{ fontSize: 10, color: 'var(--color-text-tertiary)', lineHeight: 1.4 }}>
+            下一条消息将使用：<span style={{ color: 'var(--color-text-secondary)' }}>{nextSendModelHint}</span>
           </div>
         </div>
       )}
 
       <div
         style={{
-          background: '#FFFFFF',
-          border: '1px solid #E8E8E8',
+          background: 'var(--color-bg-white)',
+          border:'1px solid var(--color-border-light)',
           borderRadius: '8px',
           overflow: 'hidden',
         }}
@@ -215,7 +215,7 @@ export default function MessageInput({
             border: 'none',
             outline: 'none',
             resize: 'none',
-            color: '#333',
+            color: 'var(--color-text-primary)',
             fontSize: FONT_SIZE,
             lineHeight: LINE_HEIGHT,
             fontFamily: 'inherit',
@@ -229,7 +229,7 @@ export default function MessageInput({
               display: 'flex',
               flexWrap: 'wrap',
               gap: 6,
-              borderTop: '1px solid #F0F0F0',
+              borderTop:'1px solid var(--color-border-faint)',
             }}
           >
             {files.map((f, i) => (
@@ -237,8 +237,8 @@ export default function MessageInput({
                 key={`${f.name}-${i}-${f.size}`}
                 style={{
                   fontSize: 11,
-                  color: '#555',
-                  background: '#F5F5F5',
+                  color: 'var(--color-text-secondary)',
+                  background: 'var(--color-bg-soft)',
                   borderRadius: 4,
                   padding: '2px 8px',
                   display: 'inline-flex',
@@ -260,7 +260,7 @@ export default function MessageInput({
                     padding: 0,
                     fontSize: 14,
                     lineHeight: 1,
-                    color: '#999',
+                    color: 'var(--color-text-tertiary)',
                   }}
                   aria-label="Remove attachment"
                 >
@@ -278,8 +278,8 @@ export default function MessageInput({
             justifyContent: 'space-between',
             gap: 8,
             padding: '8px 10px',
-            borderTop: '1px solid #F0F0F0',
-            background: '#FAFAFA',
+            borderTop:'1px solid var(--color-border-faint)',
+            background: 'var(--color-bg-subtle)',
           }}
         >
           <input
@@ -301,14 +301,14 @@ export default function MessageInput({
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              background: '#FFFFFF',
-              border: '1px solid #E8E8E8',
+              background: 'var(--color-bg-white)',
+              border:'1px solid var(--color-border-light)',
               borderRadius: 6,
               cursor: disabled || sending ? 'not-allowed' : 'pointer',
               opacity: disabled || sending ? 0.5 : 1,
             }}
           >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#666" strokeWidth="2">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--color-text-secondary)" strokeWidth="2">
               <path d="M12 5v14M5 12h14" />
             </svg>
           </button>
@@ -323,7 +323,7 @@ export default function MessageInput({
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              background: canAbort ? '#FFECEC' : (canSend ? '#8B5CF6' : '#F5F5F5'),
+              background: canAbort ? 'var(--color-error-soft)' : (canSend ? 'var(--color-accent-strong)' : 'var(--color-bg-soft)'),
               border: 'none',
               borderRadius: 6,
               cursor: canAbort || canSend ? 'pointer' : 'not-allowed',
@@ -331,11 +331,11 @@ export default function MessageInput({
             }}
           >
             {canAbort ? (
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#D94A4A" strokeWidth="2">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--color-error-text)" strokeWidth="2">
                 <rect x="6" y="6" width="12" height="12" rx="1.5" />
               </svg>
             ) : (
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={canSend ? 'white' : '#CCC'} strokeWidth="2">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={canSend ? 'white' : 'var(--color-text-muted)'} strokeWidth="2">
                 <line x1="22" y1="2" x2="11" y2="13" />
                 <polygon points="22 2 15 22 11 13 2 9 22 2" />
               </svg>
@@ -345,7 +345,7 @@ export default function MessageInput({
       </div>
 
       {attachError && (
-        <div style={{ marginTop: 6, fontSize: 11, color: '#C62828' }}>{attachError}</div>
+        <div style={{ marginTop: 6, fontSize: 11, color: 'var(--color-error-text)' }}>{attachError}</div>
       )}
 
       {(agentName || modelName) && (
@@ -353,7 +353,7 @@ export default function MessageInput({
           style={{
             marginTop: 6,
             fontSize: 11,
-            color: '#999',
+            color: 'var(--color-text-tertiary)',
             display: 'flex',
             gap: 12,
           }}

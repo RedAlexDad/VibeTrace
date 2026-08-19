@@ -6,7 +6,7 @@ import type { CanonicalTodo, LatestTodowriteBatchProgress } from '../utils/todoR
 const sectionHeaderLabelStyle: CSSProperties = {
   fontSize: 11,
   fontWeight: 600,
-  color: '#171717',
+  color: 'var(--color-text-primary)',
   letterSpacing: 0.2,
 }
 
@@ -31,7 +31,7 @@ function Chevron({ open }: { open: boolean }) {
       height="14"
       viewBox="0 0 24 24"
       fill="none"
-      stroke="#8F8F8F"
+      stroke="var(--color-text-tertiary)"
       strokeWidth="2"
       style={{
         transform: open ? 'rotate(180deg)' : 'rotate(0deg)',
@@ -155,8 +155,8 @@ export default function TodoPanel({
       style={{
         maxWidth: '100%',
         margin: '0 16px',
-        background: '#FFFFFF',
-        border: '1px solid #E8E8E8',
+        background: 'var(--color-bg-white)',
+        border:'1px solid var(--color-border-light)',
         borderRadius: '8px',
         display: 'flex',
         flexDirection: 'column',
@@ -188,16 +188,16 @@ export default function TodoPanel({
             flex: 1,
           }}
         >
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#6F6F6F" strokeWidth="2" style={{ flexShrink: 0 }}>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--color-text-secondary)" strokeWidth="2" style={{ flexShrink: 0 }}>
             <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
             <path d="M9 12l2 2 4-4" />
           </svg>
-          <span style={{ fontSize: '13px', fontWeight: 600, color: '#171717', flexShrink: 0 }}>Todos</span>
+          <span style={{ fontSize: '13px', fontWeight: 600, color: 'var(--color-text-primary)', flexShrink: 0 }}>Todos</span>
           <span
             style={{
               fontSize: '12px',
               fontWeight: 400,
-              color: '#8F8F8F',
+              color: 'var(--color-text-tertiary)',
               whiteSpace: 'nowrap',
               overflow: 'hidden',
               textOverflow: 'ellipsis',
@@ -221,7 +221,7 @@ export default function TodoPanel({
             gap: 6,
           }}
         >
-          <div style={{ borderTop: '1px solid #F0F0F0', paddingTop: 6 }}>
+          <div style={{ borderTop:'1px solid var(--color-border-faint)', paddingTop: 6 }}>
             <button
               type="button"
               onClick={() => setOpenSectionExpanded(v => !v)}
@@ -242,7 +242,7 @@ export default function TodoPanel({
                 {showBatchRatio && latestTodowriteBatchProgress ? (
                   <>
                     {' '}
-                    <span style={{ fontWeight: 500, color: '#8445BC' }}>
+                    <span style={{ fontWeight: 500, color: 'var(--color-accent)' }}>
                       {latestTodowriteBatchProgress.completed}/{latestTodowriteBatchProgress.total}
                     </span>
                   </>
@@ -262,12 +262,12 @@ export default function TodoPanel({
                   />
                 ))
               ) : (
-                <div style={{ fontSize: 12, color: '#B0B0B0', padding: '4px 6px 8px' }}>No open todos</div>
+                <div style={{ fontSize: 12, color: 'var(--color-text-muted)', padding: '4px 6px 8px' }}>No open todos</div>
               ))}
           </div>
 
           {doneOnList.length > 0 && (
-            <div style={{ borderTop: '1px solid #F0F0F0', paddingTop: 4 }}>
+            <div style={{ borderTop:'1px solid var(--color-border-faint)', paddingTop: 4 }}>
               <button
                 type="button"
                 onClick={() => setDoneOnListExpanded(v => !v)}
@@ -302,7 +302,7 @@ export default function TodoPanel({
           )}
 
           {archivedCompleted.length > 0 && (
-            <div style={{ borderTop: '1px solid #F0F0F0', paddingTop: 4 }}>
+            <div style={{ borderTop:'1px solid var(--color-border-faint)', paddingTop: 4 }}>
               <button
                 type="button"
                 onClick={() => setHistoryExpanded(v => !v)}
@@ -398,16 +398,16 @@ function TodoItem({
         }}
       >
         {isCompleted ? (
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#0ABE00" strokeWidth="2.5">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--color-success)" strokeWidth="2.5">
             <path d="M20 6L9 17l-5-5" />
           </svg>
         ) : isInProgress ? (
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#8445BC" strokeWidth="2">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--color-accent)" strokeWidth="2">
             <circle cx="12" cy="12" r="9" />
             <path d="M12 7v5l3 3" />
           </svg>
         ) : (
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#8F8F8F" strokeWidth="2">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--color-text-tertiary)" strokeWidth="2">
             <circle cx="12" cy="12" r="9" />
           </svg>
         )}
@@ -417,7 +417,7 @@ function TodoItem({
         <p
           style={{
             fontSize: '13px',
-            color: isCompleted ? '#8F8F8F' : '#171717',
+            color: isCompleted ? 'var(--color-text-tertiary)' : 'var(--color-text-primary)',
             textDecoration: isCompleted ? 'line-through' : 'none',
             lineHeight: 1.4,
             wordBreak: 'break-word',
@@ -430,7 +430,7 @@ function TodoItem({
           style={{
             margin: '2px 0 0',
             fontSize: 9,
-            color: '#B0B0B0',
+            color: 'var(--color-text-muted)',
             fontFamily: 'ui-monospace, monospace',
             wordBreak: 'break-all',
           }}

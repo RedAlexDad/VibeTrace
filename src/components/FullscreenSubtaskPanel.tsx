@@ -90,8 +90,8 @@ export default function FullscreenSubtaskPanel({
         style={{
           flex: 1,
           maxWidth: 1600,
-          background: '#FFFFFF',
-          border: '1px solid #E8E8E8',
+          background: 'var(--color-bg-white)',
+          border:'1px solid var(--color-border-light)',
           borderRadius: 14,
           display: 'flex',
           flexDirection: 'column',
@@ -106,7 +106,7 @@ export default function FullscreenSubtaskPanel({
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
-            borderBottom: '1px solid #E8E8E8',
+            borderBottom:'1px solid var(--color-border-light)',
             flexShrink: 0,
           }}
         >
@@ -115,12 +115,12 @@ export default function FullscreenSubtaskPanel({
               style={{
                 fontSize: 13,
                 fontWeight: 600,
-                color: '#171717',
+                color: 'var(--color-text-primary)',
               }}
             >
               VibeTrace
             </span>
-            <span style={{ fontSize: 11, color: '#8F8F8F' }}>
+            <span style={{ fontSize: 11, color: 'var(--color-text-tertiary)' }}>
               {visibleSubtasks.length} subtask{visibleSubtasks.length === 1 ? '' : 's'}
             </span>
           </div>
@@ -139,10 +139,10 @@ export default function FullscreenSubtaskPanel({
               alignItems: 'center',
               justifyContent: 'center',
               borderRadius: 8,
-              color: '#5C5C5C',
+              color: 'var(--color-text-secondary)',
             }}
             onMouseEnter={(e) => {
-              e.currentTarget.style.background = '#F3F3F3'
+              e.currentTarget.style.background = 'var(--color-bg-soft)'
             }}
             onMouseLeave={(e) => {
               e.currentTarget.style.background = 'transparent'

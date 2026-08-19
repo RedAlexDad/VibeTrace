@@ -210,7 +210,7 @@ export default function SubtaskDebugPanel({
         }}
       >
         {summaryRowsSorted.length === 0 ? (
-          <span style={{ color: '#AAA', fontSize: 11 }}>No subtasks</span>
+          <span style={{ color: 'var(--color-text-muted)', fontSize: 11 }}>No subtasks</span>
         ) : (
           summaryRowsSorted.map((row) => {
             const tooltipMessages = mergeMessagesForActionTooltipLookup(
@@ -242,7 +242,7 @@ export default function SubtaskDebugPanel({
                     }}
                   >
                     {row.actions.length === 0 ? (
-                      <span style={{ color: '#B0B0B0', fontSize: 10 }}>No actions</span>
+                      <span style={{ color: 'var(--color-text-muted)', fontSize: 10 }}>No actions</span>
                     ) : (
                       row.actions.map((action) => {
                         const paletteTriad = getActionTypeTriad(actionTypePaletteId, action.actionType)
@@ -263,7 +263,7 @@ export default function SubtaskDebugPanel({
                               borderRadius: 0,
                               flexShrink: 0,
                               background:
-                                action.actionType === 'UserRequest' ? '#8F8F8F' : paletteTriad.fill,
+                                action.actionType === 'UserRequest' ? 'var(--color-text-tertiary)' : paletteTriad.fill,
                               border: 'none',
                             }}
                           />
@@ -289,7 +289,7 @@ export default function SubtaskDebugPanel({
           opacity={1}
           clickable
           globalCloseEvents={{ scroll: false, resize: true, escape: true }}
-          arrowColor="#f8fafc"
+          arrowColor="var(--color-tip-bg)"
         />
       )}
     </>
@@ -309,7 +309,7 @@ export default function SubtaskDebugPanel({
         style={{
           flexShrink: 0,
           padding: '0 0 8px',
-          borderBottom: '1px solid #E8E8E8',
+          borderBottom:'1px solid var(--color-border-light)',
           marginBottom: 8,
         }}
       >
@@ -321,14 +321,14 @@ export default function SubtaskDebugPanel({
           flex: 1,
           overflowY: flowLayoutMode === 'summary' ? 'hidden' : 'auto',
           fontSize: 11,
-          color: '#333',
+          color: 'var(--color-text-primary)',
           lineHeight: 1.45,
         }}
       >
         {flowLayoutMode === 'summary' ? (
           summaryPanel
         ) : visibleSubtasks.length === 0 ? (
-          <span style={{ color: '#AAA', fontSize: 11 }}>No subtasks</span>
+          <span style={{ color: 'var(--color-text-muted)', fontSize: 11 }}>No subtasks</span>
         ) : (
           visibleSubtasks.map(({ subtask: st, sourceIndex }, si) => (
             <Fragment

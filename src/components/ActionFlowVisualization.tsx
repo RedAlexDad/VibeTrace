@@ -78,8 +78,8 @@ const MAX_VISIBLE_ROWS = 4
 const SVG_FONT_SANS =
   "'PingFang SC', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Microsoft YaHei', sans-serif"
 /** Fork snapshots: ghost segments no longer on the branch — rects + connectors */
-const FORK_GHOST_STROKE = '#B8B8B8'
-const FORK_GHOST_MARKER_FILL = '#B8B8B8'
+const FORK_GHOST_STROKE = 'var(--color-text-muted)'
+const FORK_GHOST_MARKER_FILL = 'var(--color-text-muted)'
 
 /**
  * Same slope as blocks past `[10ms,120s] → [28px,200px]`, extrapolating linearly without caps.
@@ -246,7 +246,7 @@ function flowEndListRows(items: string[], esc: (s: string) => string): { html: s
   const html = shown
     .map(
       (p) =>
-        `<div style="font-family:ui-monospace,Consolas,monospace;font-size:11px;line-height:1.4;color:#24292f;">${esc(truncatePathForFlowEnd(p))}</div>`,
+        `<div style="font-family:ui-monospace,Consolas,monospace;font-size:11px;line-height:1.4;color:var(--color-ink);">${esc(truncatePathForFlowEnd(p))}</div>`,
     )
     .join('')
   return { html, more }
@@ -261,34 +261,34 @@ function buildFlowEndTooltipHtml(s: FlowEndSummary): string {
   const readList = flowEndListRows(readPaths, esc)
   const readMore =
     readList.more > 0
-      ? `<div style="font-size:11px;color:#57606a;margin-top:4px;">+ ${readList.more} more</div>`
+      ? `<div style="font-size:11px;color:var(--color-text-secondary);margin-top:4px;">+ ${readList.more} more</div>`
       : ''
   const globLine =
     s.globMatchFileCount > 0
-      ? `<div style="font-size:11px;color:#57606a;margin-top:6px;">Glob · ~${esc(String(s.globMatchFileCount))} file(s) matched</div>`
+      ? `<div style="font-size:11px;color:var(--color-text-secondary);margin-top:6px;">Glob · ~${esc(String(s.globMatchFileCount))} file(s) matched</div>`
       : ''
 
   const qList = flowEndListRows(queries, esc)
   const qMore =
     qList.more > 0
-      ? `<div style="font-size:11px;color:#57606a;margin-top:4px;">+ ${qList.more} more</div>`
+      ? `<div style="font-size:11px;color:var(--color-text-secondary);margin-top:4px;">+ ${qList.more} more</div>`
       : ''
 
   const writeList = flowEndListRows(writePaths, esc)
   const writeMore =
     writeList.more > 0
-      ? `<div style="font-size:11px;color:#57606a;margin-top:4px;">+ ${writeList.more} more</div>`
+      ? `<div style="font-size:11px;color:var(--color-text-secondary);margin-top:4px;">+ ${writeList.more} more</div>`
       : ''
 
   return `<div class="action-tip-root action-tip-root--compact" style="text-align:left;max-width:min(440px,92vw);">
-<div style="font-size:12px;font-weight:600;color:#24292f;margin-bottom:4px;">Read</div>
-<div style="font-size:11px;color:#57606a;margin-bottom:6px;">${esc(String(s.readFileTotalCount))} file(s) (paths + glob)</div>
+<div style="font-size:12px;font-weight:600;color:var(--color-ink);margin-bottom:4px;">Read</div>
+<div style="font-size:11px;color:var(--color-text-secondary);margin-bottom:6px;">${esc(String(s.readFileTotalCount))} file(s) (paths + glob)</div>
 ${readList.html}${readMore}${globLine}
-<div style="font-size:12px;font-weight:600;color:#24292f;margin-top:10px;margin-bottom:4px;">Web search</div>
-<div style="font-size:11px;color:#57606a;margin-bottom:6px;">${esc(String(s.webSearchCount))} call(s) · keywords / URLs</div>
+<div style="font-size:12px;font-weight:600;color:var(--color-ink);margin-top:10px;margin-bottom:4px;">Web search</div>
+<div style="font-size:11px;color:var(--color-text-secondary);margin-bottom:6px;">${esc(String(s.webSearchCount))} call(s) · keywords / URLs</div>
 ${qList.html}${qMore}
-<div style="font-size:12px;font-weight:600;color:#24292f;margin-top:10px;margin-bottom:4px;">Write / edit</div>
-<div style="font-size:11px;color:#57606a;margin-bottom:6px;">${esc(String(s.writeFileCount))} file(s)</div>
+<div style="font-size:12px;font-weight:600;color:var(--color-ink);margin-top:10px;margin-bottom:4px;">Write / edit</div>
+<div style="font-size:11px;color:var(--color-text-secondary);margin-bottom:6px;">${esc(String(s.writeFileCount))} file(s)</div>
 ${writeList.html}${writeMore}
 </div>`
 }
@@ -1661,8 +1661,8 @@ export default function ActionFlowVisualization({
          */
         const isGhostEnd =
           node.sessionRegion === 'main' && hasForkNewBranchInLayout
-        const fill = isGhostEnd ? '#E8E8E8' : actionFlowPalette.end.fill
-        const stroke = isGhostEnd ? '#BFBFBF' : actionFlowPalette.end.stroke
+        const fill = isGhostEnd ? 'var(--color-border-light)' : actionFlowPalette.end.fill
+        const stroke = isGhostEnd ? 'var(--color-text-muted)' : actionFlowPalette.end.stroke
         const endTip = !isGhostEnd && flowEndSummary ? buildFlowEndTooltipHtml(flowEndSummary) : ''
         const circle = content
           .append('circle')
@@ -1795,7 +1795,7 @@ export default function ActionFlowVisualization({
           .attr('y', ny + 10)
           .attr('font-size', 9)
           .attr('font-weight', 600)
-          .attr('fill', '#64748B')
+          .attr('fill', 'var(--color-tip-muted)')
           .attr('font-family', SVG_FONT_SANS)
           .text(formatDurationMs(act.durationMs))
           .attr('pointer-events', 'none')
@@ -2029,8 +2029,8 @@ export default function ActionFlowVisualization({
             .attr('width', hw)
             .attr('height', BLOCK_H)
             .attr('rx', 4)
-            .attr('fill', '#ECECEC')
-            .attr('stroke', '#CFCFCF')
+            .attr('fill', 'var(--color-bg-disabled)')
+            .attr('stroke', 'var(--color-text-muted)')
             .attr('stroke-width', 1.5)
             .style('cursor', 'default')
 
@@ -2040,7 +2040,7 @@ export default function ActionFlowVisualization({
               getActionFlowIconSvg(h.actionType),
               hx + hw / 2,
               historyY,
-              '#B5B5B5',
+              'var(--color-text-muted)',
               `${reactId}-mock-history-${i}-`
             )
           }
@@ -2053,7 +2053,7 @@ export default function ActionFlowVisualization({
               .append('path')
               .attr('d', link.toString())
               .attr('fill', 'none')
-              .attr('stroke', '#C8C8C8')
+              .attr('stroke', 'var(--color-control-muted)')
               .attr('stroke-width', 1.2)
               .attr('marker-end', markerUrl)
               .attr('pointer-events', 'none')
@@ -2077,7 +2077,7 @@ export default function ActionFlowVisualization({
           .append('path')
           .attr('d', connect.toString())
           .attr('fill', 'none')
-          .attr('stroke', '#C8C8C8')
+          .attr('stroke', 'var(--color-control-muted)')
           .attr('stroke-width', 1.2)
           .attr('marker-end', markerUrl)
           .attr('pointer-events', 'none')
@@ -2273,9 +2273,9 @@ export default function ActionFlowVisualization({
         <div
           style={{
             boxSizing: 'border-box',
-            border: '1px solid #E8E8E8',
+            border:'1px solid var(--color-border-light)',
             borderRadius: 8,
-            background: '#FCFCFC',
+            background: 'var(--color-bg-elevated)',
             overflow: 'hidden',
             width: '100%',
           }}
@@ -2296,7 +2296,7 @@ export default function ActionFlowVisualization({
           clickable
           /** Inner `overflow:auto` can bubble `scroll` globally and dismiss tooltips prematurely */
           globalCloseEvents={{ scroll: false, resize: true, escape: true }}
-          arrowColor="#f8fafc"
+          arrowColor="var(--color-tip-bg)"
         />
       )}
     </div>

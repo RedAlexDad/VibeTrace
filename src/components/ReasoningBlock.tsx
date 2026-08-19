@@ -15,7 +15,7 @@ export default function ReasoningBlock({ text, time }: ReasoningBlockProps) {
   return (
     <div
       style={{
-        background: '#FAFAFA',
+        background: 'var(--color-bg-subtle)',
         borderRadius: 6,
         overflow: 'hidden',
         maxWidth: '100%',
@@ -41,18 +41,18 @@ export default function ReasoningBlock({ text, time }: ReasoningBlockProps) {
           height="12"
           viewBox="0 0 24 24"
           fill="none"
-          stroke="#8445BC"
+          stroke="var(--color-accent)"
           strokeWidth="2"
         >
           <path d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 1 1 7.072 0l-.548.547A3.374 3.374 0 0 0 14 18.469V19a2 2 0 1 1-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
         </svg>
 
-        <span style={{ fontSize: 11, fontWeight: 500, color: '#8445BC' }}>
+        <span style={{ fontSize: 11, fontWeight: 500, color: 'var(--color-accent)' }}>
           Thinking
         </span>
 
         {duration && (
-          <span style={{ fontSize: 10, color: '#8F8F8F', fontFamily: 'IBM Plex Mono, monospace' }}>
+          <span style={{ fontSize: 10, color: 'var(--color-text-tertiary)', fontFamily: 'IBM Plex Mono, monospace' }}>
             {duration}s
           </span>
         )}
@@ -61,7 +61,7 @@ export default function ReasoningBlock({ text, time }: ReasoningBlockProps) {
           style={{
             flex: 1,
             fontSize: 11,
-            color: '#8F8F8F',
+            color: 'var(--color-text-tertiary)',
             overflow: 'hidden',
             textOverflow: 'ellipsis',
             whiteSpace: 'nowrap',
@@ -76,7 +76,7 @@ export default function ReasoningBlock({ text, time }: ReasoningBlockProps) {
           height="10"
           viewBox="0 0 24 24"
           fill="none"
-          stroke="#8F8F8F"
+          stroke="var(--color-text-tertiary)"
           strokeWidth="2"
           style={{
             transform: expanded ? 'rotate(0deg)' : 'rotate(-90deg)',
@@ -90,7 +90,7 @@ export default function ReasoningBlock({ text, time }: ReasoningBlockProps) {
       {expanded && (
         <div
           style={{
-            borderTop: '1px solid #E8E8E8',
+            borderTop:'1px solid var(--color-border-light)',
             padding: '8px 10px',
           }}
         >
@@ -99,7 +99,7 @@ export default function ReasoningBlock({ text, time }: ReasoningBlockProps) {
               fontFamily: 'Inter, sans-serif',
               fontSize: 12,
               lineHeight: 1.5,
-              color: '#6F6F6F',
+              color: 'var(--color-text-secondary)',
               whiteSpace: 'pre-wrap',
               wordBreak: 'break-word',
               margin: 0,
