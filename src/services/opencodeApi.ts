@@ -480,7 +480,7 @@ function createSseLineDispatcher(
 async function streamGlobalSse(
   url: string,
   signal: AbortSignal,
-  onEvent: (event: unknown) => void,
+  onEvent: (event: GlobalSseEvent) => void,
 ): Promise<void> {
   const res = await fetch(url, {
     headers: { Accept: 'text/event-stream', ...basicAuthHeader() },
@@ -517,7 +517,15 @@ async function streamGlobalSse(
   }
 }
 
-export function subscribeGlobalEvents(onEvent: (event: any) => void): () => void {
+/** Loose shape of a global SSE event object (payload may be nested or the event itself). */
+export interface GlobalSseEvent {
+  type?: string
+  properties?: Record<string, unknown>
+  payload?: GlobalSseEvent
+  directory?: string
+}
+
+export function subscribeGlobalEvents(onEvent: (event: GlobalSseEvent) => void): () => void {
   const url = `${BASE}/global/event`
   const ac = new AbortController()
 

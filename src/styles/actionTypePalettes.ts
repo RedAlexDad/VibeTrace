@@ -157,9 +157,9 @@ function triadFromD3SchemeColor(hex: string): ActionTypeTriad {
   let fillS = Math.min(hsl.s * 0.32 + 0.06, 0.38)
   let fillL = 0.91
   let strokeS = Math.min(hsl.s * 0.48 + 0.08, 0.52)
-  let strokeL = 0.52
+  const strokeL = 0.52
   let accentS = Math.min(hsl.s * 0.55 + 0.1, 0.58)
-  let accentL = 0.34
+  const accentL = 0.34
 
   // Red band: lighten + desaturate vs error reds
   if ((h >= 0 && h < 32) || h >= 348) {
@@ -192,9 +192,9 @@ function triadFromD3SchemeColorVivid(hex: string): ActionTypeTriad {
   let fillS = Math.min(hsl.s * 0.62 + 0.1, 0.72)
   let fillL = 0.86
   let strokeS = Math.min(hsl.s * 0.76 + 0.12, 0.85)
-  let strokeL = 0.58
+  const strokeL = 0.58
   let accentS = Math.min(hsl.s * 0.84 + 0.12, 0.9)
-  let accentL = 0.42
+  const accentL = 0.42
 
   if ((h >= 0 && h < 32) || h >= 348) {
     fillS *= 0.72

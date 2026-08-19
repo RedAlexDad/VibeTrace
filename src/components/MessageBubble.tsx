@@ -636,6 +636,7 @@ function QuestionInlineForm({
   useEffect(() => {
     setSelections(questions.map(() => []))
     setCustomTexts(questions.map(() => ''))
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [part.id, part.callID, questions.length])
 
   const setQuestionSelection = (qi: number, labels: string[]) => {

@@ -57,13 +57,13 @@ const DUR_REF_MS = 120_000
 const DUR_BLOCK_AT_REF_PX = 200
 const DUR_BETA_MS = Math.max(1, DUR_REF_MS - DUR_WIDTH_BASE_MS)
 /**
- * Action block width: `w = MIN_W + DUR_PX_PER_MS * (durationMs - 10)` — below ~10 ms stays 28px, at 120s reaches 200px, then scales linearly.
+ * Action block width: `w = MIN_W + DUR_PX_PER_MS * (durationMs - 10)` — below ~10 ms stays 28px, at 120s reaches 200px, then scales linearly.
  * Independent tuning from inter-slot gaps; see `DUR_GAP_MIN_PX` / `DUR_GAP_REF_PX`.
  */
 const DUR_PX_PER_MS = (DUR_BLOCK_AT_REF_PX - MIN_W) / DUR_BETA_MS
 /**
  * Idle gap width between slots (px): floors at `DUR_GAP_MIN_PX`, reaches `DUR_GAP_REF_PX` at `DUR_GAP_REF_MS`
- * (“gap analogue” of the block width slope from the ~10 ms baseline):
+ * (“gap analogue” of the block width slope from the ~10 ms baseline):
  * `gapPx = DUR_GAP_MIN_PX + DUR_GAP_PX_PER_MS * max(0, gapMs - 10)`.
  * Tweak proportions via `DUR_GAP_*`; optionally align `DUR_WIDTH_BASE_MS` with combined block + gap timelines.
  */
@@ -98,7 +98,7 @@ function durationBlockExtraPx(durationMs: number): number {
 /**
  * Inter-slot idle `gapMs = next.minStart - prev.maxEnd` (clamped ≥0) maps to layout `interSlotGap` px,
  * roughly matching the horizontal span of orthogonal edge segments.
- * Unlike blocks (`MIN_W = 28`), gaps start from `DUR_GAP_MIN_PX = 10` and hit 200px wide at ~2 min.
+ * Unlike blocks (`MIN_W = 28`), gaps start from `DUR_GAP_MIN_PX = 10` and hit 200px wide at ~2 min.
  */
 function durationGapWidthPx(gapMs: number): number {
   if (!Number.isFinite(gapMs) || gapMs <= 0) return DUR_GAP_MIN_PX
@@ -1798,7 +1798,7 @@ export default function ActionFlowVisualization({
           iconBox,
         )
       }
-      /** Duration mode: stamp readable duration inside wide blocks (> legacy 60 s badges) */
+      /** Duration mode: stamp readable duration inside wide blocks (> legacy 60 s badges) */
       if (durationMode && !isGhost && w >= 52 && act.durationMs > 0) {
         actionG
           .append('text')
@@ -2132,6 +2132,8 @@ export default function ActionFlowVisualization({
     mockBranchForkActionIndex,
     onForkFromAction,
     onAnalyzeFromAction,
+    onSelectAction,
+    reactId,
     showFlowEndNode,
     flowEndSummary,
     embedded,
@@ -2248,7 +2250,7 @@ export default function ActionFlowVisualization({
   /** `maxHeight` caps overflow only — short content keeps intrinsic height (no phantom scrollbars) */
   const scrollAreaMaxHeight = viewportHeight
 
-  /** Avoid inner borders — `box-sizing` would shrink scrollable area vs SVG by 2 px and falsely show scrollbars */
+  /** Avoid inner borders — `box-sizing` would shrink scrollable area vs SVG by 2 px and falsely show scrollbars */
   const scrollInner = (
     <div
       className={hideScrollbar ? 'action-flow-scroll--hide-scrollbar' : undefined}

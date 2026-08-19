@@ -376,6 +376,7 @@ function EditableSessionTitle({
       await onCommit(next)
       setEditing(false)
     } catch {
+      /* keep draft; server error surfaced elsewhere */
     } finally {
       setSaving(false)
     }
