@@ -355,6 +355,8 @@ function App() {
 
   /** Full-screen VibeTrace overlay */
   const [subtaskFullscreenOpen, setSubtaskFullscreenOpen] = useState(false)
+  /** VibeTrace side panel visibility (hidden by default) */
+  const [subtaskPanelVisible, setSubtaskPanelVisible] = useState(false)
   /** Column layout: timeline vs summary */
   const [subtaskFlowLayoutMode, setSubtaskFlowLayoutMode] = useState<'timeline' | 'summary'>('timeline')
   /** Short-lived hint when OpenCode signals `session.compacted` for the active session */
@@ -1272,6 +1274,7 @@ function App() {
           </div>
         </div>
 
+        {subtaskPanelVisible ? (
         <div
           style={{
             width: 630,
@@ -1402,6 +1405,34 @@ function App() {
             <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
               <button
                 type="button"
+                onClick={() => setSubtaskPanelVisible(false)}
+                aria-label="Hide VibeTrace panel"
+                title="Hide VibeTrace panel"
+                style={{
+                  width: 26,
+                  height: 26,
+                  border: 'none',
+                  background: 'transparent',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  borderRadius: 6,
+                  color: 'var(--color-text-secondary)',
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = 'var(--color-bg-soft)'
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = 'transparent'
+                }}
+              >
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M13 5l7 7-7 7M5 5l7 7-7 7" />
+                </svg>
+              </button>
+              <button
+                type="button"
                 onClick={() => setSubtaskFullscreenOpen(true)}
                 aria-label="Open VibeTrace fullscreen"
                 title="Open VibeTrace fullscreen"
@@ -1461,6 +1492,43 @@ function App() {
             />
           </div>
         </div>
+        ) : (
+          <div
+            style={{
+              width: 36,
+              flexShrink: 0,
+              background: 'var(--color-bg-white)',
+              borderLeft:'1px solid var(--color-border-light)',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              paddingTop: 10,
+            }}
+          >
+            <button
+              type="button"
+              onClick={() => setSubtaskPanelVisible(true)}
+              aria-label="Show VibeTrace panel"
+              title="Show VibeTrace panel"
+              style={{
+                width: 30,
+                height: 30,
+                border: 'none',
+                background: 'transparent',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                borderRadius: 6,
+                color: 'var(--color-text-secondary)',
+              }}
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M9 5l7 7-7 7" />
+              </svg>
+            </button>
+          </div>
+        )}
 
         <ForkSessionModal
           open={pendingFork !== null}
