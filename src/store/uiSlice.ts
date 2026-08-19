@@ -9,6 +9,8 @@ export interface UiState {
   wsCollapsed: boolean
   /** Sessions panel collapsed */
   sessionsCollapsed: boolean
+  /** Parent folders collapsed in the workspace list */
+  collapsedGroups: string[]
 }
 
 const initialState: UiState = {
@@ -16,6 +18,7 @@ const initialState: UiState = {
   subtaskFlowLayoutMode: 'timeline',
   wsCollapsed: false,
   sessionsCollapsed: false,
+  collapsedGroups: [],
 }
 
 const uiSlice = createSlice({
@@ -34,6 +37,15 @@ const uiSlice = createSlice({
     setSessionsCollapsed(state, action: PayloadAction<boolean>) {
       state.sessionsCollapsed = action.payload
     },
+    toggleGroupCollapsed(state, action: PayloadAction<string>) {
+      const key = action.payload
+      const i = state.collapsedGroups.indexOf(key)
+      if (i >= 0) {
+        state.collapsedGroups.splice(i, 1)
+      } else {
+        state.collapsedGroups.push(key)
+      }
+    },
   },
 })
 
@@ -42,6 +54,7 @@ export const {
   setSubtaskFlowLayoutMode,
   setWsCollapsed,
   setSessionsCollapsed,
+  toggleGroupCollapsed,
 } = uiSlice.actions
 
 export default uiSlice.reducer

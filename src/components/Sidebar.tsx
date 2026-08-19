@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import type { OcSession } from '../types/opencode'
 import { folderDisplayName, groupDirectoriesByParent } from '../utils/sessionFolders'
-import { setSessionsCollapsed, setWsCollapsed } from '../store/uiSlice'
+import { setSessionsCollapsed, setWsCollapsed, toggleGroupCollapsed } from '../store/uiSlice'
 import { useAppDispatch, useAppSelector } from '../store/hooks'
 
 interface SidebarProps {
@@ -49,6 +49,7 @@ export default function Sidebar({
   const [hoverSessionId, setHoverSessionId] = useState<string | null>(null)
   const wsCollapsed = useAppSelector((s) => s.ui.wsCollapsed)
   const sessionsCollapsed = useAppSelector((s) => s.ui.sessionsCollapsed)
+  const collapsedGroups = useAppSelector((s) => s.ui.collapsedGroups)
   const dispatch = useAppDispatch()
   const [dirMenu, setDirMenu] = useState<DirMenu | null>(null)
   const dirMenuRef = useRef<HTMLDivElement>(null)
@@ -209,25 +210,59 @@ export default function Sidebar({
         <div style={{ flex: 1, overflowY: 'auto', padding: '6px 0 8px' }}>
           {groupDirectoriesByParent(directories, recencyMap).map((group) => {
             const groupLabel = group.parent ? folderDisplayName(group.parent) : 'Other'
+            const groupKey = group.parent || '__root__'
+            const groupCollapsed = collapsedGroups.includes(groupKey)
             return (
-              <div key={group.parent || '__root__'} style={{ marginBottom: 6 }}>
-                <div
-                  style={{
-                    padding: '4px 12px 2px',
-                    fontSize: 10,
-                    fontWeight: 600,
-                    letterSpacing: 0.3,
-                    textTransform: 'uppercase',
-                    color: 'var(--color-text-tertiary)',
-                    overflow: 'hidden',
-                    textOverflow: 'ellipsis',
-                    whiteSpace: 'nowrap',
-                  }}
+              <div key={groupKey} style={{ marginBottom: 6 }}>
+                <button
+                  type="button"
+                  onClick={() => dispatch(toggleGroupCollapsed(groupKey))}
                   title={group.parent}
+                  style={{
+                    width: '100%',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 6,
+                    padding: '4px 10px 2px',
+                    background: 'transparent',
+                    border: 'none',
+                    cursor: 'pointer',
+                    textAlign: 'left',
+                  }}
                 >
-                  {groupLabel}
-                </div>
-                {group.dirs.map((dir) => {
+                  <svg
+                    width="10"
+                    height="10"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="var(--color-text-tertiary)"
+                    strokeWidth="2"
+                    style={{
+                      transform: groupCollapsed ? 'rotate(-90deg)' : 'rotate(0deg)',
+                      transition: 'transform 0.15s ease',
+                      flexShrink: 0,
+                    }}
+                  >
+                    <path d="M9 18l6-6-6-6" />
+                  </svg>
+                  <span
+                    style={{
+                      fontSize: 10,
+                      fontWeight: 600,
+                      letterSpacing: 0.3,
+                      textTransform: 'uppercase',
+                      color: 'var(--color-text-tertiary)',
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                      whiteSpace: 'nowrap',
+                      flex: 1,
+                      minWidth: 0,
+                    }}
+                  >
+                    {groupLabel}
+                  </span>
+                </button>
+                {!groupCollapsed && group.dirs.map((dir) => {
                   const active = dir === selectedDirectory
                   const name = folderDisplayName(dir)
                   return (
