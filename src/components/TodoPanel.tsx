@@ -67,15 +67,15 @@ export default function TodoPanel({
   archivedRef.current = archivedCompleted
   highlightRef.current = highlightTodoIds
 
-  const openTodos = latestActive.filter(t => t.status !== 'completed')
-  const doneOnList = latestActive.filter(t => t.status === 'completed')
+  const openTodos = latestActive.filter((t) => t.status !== 'completed')
+  const doneOnList = latestActive.filter((t) => t.status === 'completed')
 
   /** Header chips: empty list / in progress / all done */
   const panelStatusLabel: 'None' | 'In progress' | 'All done' =
     latestActive.length === 0 ? 'None' : openTodos.length > 0 ? 'In progress' : 'All done'
 
   const showBatchRatio = Boolean(
-    latestTodowriteBatchProgress?.ongoing && latestTodowriteBatchProgress.total > 0
+    latestTodowriteBatchProgress?.ongoing && latestTodowriteBatchProgress.total > 0,
   )
 
   // React only to subtask-selection signals so routine todo refreshes don't reset collapse state
@@ -93,9 +93,9 @@ export default function TodoPanel({
     let hitHistory = false
     if (ids && ids.size > 0) {
       for (const id of ids) {
-        if (la.some(t => t.id === id && t.status !== 'completed')) hitOpen = true
-        if (la.some(t => t.id === id && t.status === 'completed')) hitDoneOnList = true
-        if (arc.some(t => t.id === id)) hitHistory = true
+        if (la.some((t) => t.id === id && t.status !== 'completed')) hitOpen = true
+        if (la.some((t) => t.id === id && t.status === 'completed')) hitDoneOnList = true
+        if (arc.some((t) => t.id === id)) hitHistory = true
       }
     }
 
@@ -120,7 +120,7 @@ export default function TodoPanel({
   if (latestActive.length === 0 && archivedCompleted.length === 0) return null
 
   const toggleMainPanel = () => {
-    setPanelExpanded(prev => {
+    setPanelExpanded((prev) => {
       const next = !prev
       if (next) {
         setOpenSectionExpanded(true)
@@ -133,7 +133,7 @@ export default function TodoPanel({
 
   const handleTodoPick = (todo: CanonicalTodo) => {
     setPanelExpanded(true)
-    const inHistory = archivedCompleted.some(t => t.id === todo.id)
+    const inHistory = archivedCompleted.some((t) => t.id === todo.id)
     if (inHistory) {
       setHistoryExpanded(true)
       setOpenSectionExpanded(false)
@@ -156,7 +156,7 @@ export default function TodoPanel({
         maxWidth: '100%',
         margin: '0 16px',
         background: 'var(--color-bg-white)',
-        border:'1px solid var(--color-border-light)',
+        border: '1px solid var(--color-border-light)',
         borderRadius: '8px',
         display: 'flex',
         flexDirection: 'column',
@@ -188,11 +188,28 @@ export default function TodoPanel({
             flex: 1,
           }}
         >
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--color-text-secondary)" strokeWidth="2" style={{ flexShrink: 0 }}>
+          <svg
+            width="14"
+            height="14"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="var(--color-text-secondary)"
+            strokeWidth="2"
+            style={{ flexShrink: 0 }}
+          >
             <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
             <path d="M9 12l2 2 4-4" />
           </svg>
-          <span style={{ fontSize: '13px', fontWeight: 600, color: 'var(--color-text-primary)', flexShrink: 0 }}>Todos</span>
+          <span
+            style={{
+              fontSize: '13px',
+              fontWeight: 600,
+              color: 'var(--color-text-primary)',
+              flexShrink: 0,
+            }}
+          >
+            Todos
+          </span>
           <span
             style={{
               fontSize: '12px',
@@ -221,10 +238,10 @@ export default function TodoPanel({
             gap: 6,
           }}
         >
-          <div style={{ borderTop:'1px solid var(--color-border-faint)', paddingTop: 6 }}>
+          <div style={{ borderTop: '1px solid var(--color-border-faint)', paddingTop: 6 }}>
             <button
               type="button"
-              onClick={() => setOpenSectionExpanded(v => !v)}
+              onClick={() => setOpenSectionExpanded((v) => !v)}
               style={{
                 width: '100%',
                 display: 'flex',
@@ -262,15 +279,19 @@ export default function TodoPanel({
                   />
                 ))
               ) : (
-                <div style={{ fontSize: 12, color: 'var(--color-text-muted)', padding: '4px 6px 8px' }}>No open todos</div>
+                <div
+                  style={{ fontSize: 12, color: 'var(--color-text-muted)', padding: '4px 6px 8px' }}
+                >
+                  No open todos
+                </div>
               ))}
           </div>
 
           {doneOnList.length > 0 && (
-            <div style={{ borderTop:'1px solid var(--color-border-faint)', paddingTop: 4 }}>
+            <div style={{ borderTop: '1px solid var(--color-border-faint)', paddingTop: 4 }}>
               <button
                 type="button"
-                onClick={() => setDoneOnListExpanded(v => !v)}
+                onClick={() => setDoneOnListExpanded((v) => !v)}
                 style={{
                   width: '100%',
                   display: 'flex',
@@ -283,9 +304,7 @@ export default function TodoPanel({
                   borderRadius: 6,
                 }}
               >
-                <span style={sectionHeaderLabelStyle}>
-                  Completed · {doneOnList.length}
-                </span>
+                <span style={sectionHeaderLabelStyle}>Completed · {doneOnList.length}</span>
                 <Chevron open={doneOnListExpanded} />
               </button>
               {doneOnListExpanded &&
@@ -302,10 +321,10 @@ export default function TodoPanel({
           )}
 
           {archivedCompleted.length > 0 && (
-            <div style={{ borderTop:'1px solid var(--color-border-faint)', paddingTop: 4 }}>
+            <div style={{ borderTop: '1px solid var(--color-border-faint)', paddingTop: 4 }}>
               <button
                 type="button"
-                onClick={() => setHistoryExpanded(v => !v)}
+                onClick={() => setHistoryExpanded((v) => !v)}
                 style={{
                   width: '100%',
                   display: 'flex',
@@ -319,7 +338,8 @@ export default function TodoPanel({
                 }}
               >
                 <span style={sectionHeaderLabelStyle}>
-                  Completed history <span style={{ fontWeight: 500 }}>({archivedCompleted.length})</span>
+                  Completed history{' '}
+                  <span style={{ fontWeight: 500 }}>({archivedCompleted.length})</span>
                 </span>
                 <Chevron open={historyExpanded} />
               </button>
@@ -363,7 +383,7 @@ function TodoItem({
       onClick={clickable && onPick ? () => onPick(todo) : undefined}
       onKeyDown={
         clickable && onPick
-          ? e => {
+          ? (e) => {
               if (e.key === 'Enter' || e.key === ' ') {
                 e.preventDefault()
                 onPick(todo)
@@ -398,16 +418,37 @@ function TodoItem({
         }}
       >
         {isCompleted ? (
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--color-success)" strokeWidth="2.5">
+          <svg
+            width="14"
+            height="14"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="var(--color-success)"
+            strokeWidth="2.5"
+          >
             <path d="M20 6L9 17l-5-5" />
           </svg>
         ) : isInProgress ? (
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--color-accent)" strokeWidth="2">
+          <svg
+            width="14"
+            height="14"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="var(--color-accent)"
+            strokeWidth="2"
+          >
             <circle cx="12" cy="12" r="9" />
             <path d="M12 7v5l3 3" />
           </svg>
         ) : (
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--color-text-tertiary)" strokeWidth="2">
+          <svg
+            width="14"
+            height="14"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="var(--color-text-tertiary)"
+            strokeWidth="2"
+          >
             <circle cx="12" cy="12" r="9" />
           </svg>
         )}

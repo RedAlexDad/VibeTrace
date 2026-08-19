@@ -9,7 +9,7 @@ import { parseWebsearchTitleQuery } from './actionTooltipMapping'
 export function countUserMessagesInSubtaskWindow(
   messages: OcMessage[],
   assistantIndices: number[],
-  prevSubtaskMaxAssistantIndex: number | null | undefined
+  prevSubtaskMaxAssistantIndex: number | null | undefined,
 ): number {
   if (assistantIndices.length === 0) return 0
   const maxA = Math.max(...assistantIndices)
@@ -149,7 +149,10 @@ function strInput(v: unknown): string | undefined {
  * Read stats: deduped path list + glob file hits (`meta.count`).
  * grep `meta.count` is usually line matches, not files — excluded from file count.
  */
-function collectReadFileStatsFromMessages(msgs: OcMessage[]): { readPathsSorted: string[]; globFileHits: number } {
+function collectReadFileStatsFromMessages(msgs: OcMessage[]): {
+  readPathsSorted: string[]
+  globFileHits: number
+} {
   const paths = new Set<string>()
   let globFileHits = 0
   for (const m of msgs) {
@@ -162,7 +165,9 @@ function collectReadFileStatsFromMessages(msgs: OcMessage[]): { readPathsSorted:
         if (typeof cnt === 'number' && cnt > 0) {
           globFileHits += cnt
         } else {
-          const p = extractPathFromToolInput(part.state?.input as Record<string, unknown> | undefined)
+          const p = extractPathFromToolInput(
+            part.state?.input as Record<string, unknown> | undefined,
+          )
           if (p) paths.add(p)
         }
         continue
@@ -287,7 +292,7 @@ function countPartsInMessages(messages: OcMessage[]): number {
 export function deriveSubtaskTitle(
   st: AssistantSubtask,
   messages: OcMessage[],
-  displayIndex: number
+  displayIndex: number,
 ): string {
   if (st.phase === 'planning') {
     return 'Research & plan'
@@ -339,7 +344,7 @@ export function buildSubtaskCardMetrics(
   },
 ): SubtaskCardMetrics {
   const indices = st.assistantMessageIndices
-  const msgs = indices.map(i => messages[i]).filter((m): m is OcMessage => !!m)
+  const msgs = indices.map((i) => messages[i]).filter((m): m is OcMessage => !!m)
 
   const bd: SubtaskTokenBreakdown = {
     input: 0,
@@ -415,10 +420,10 @@ export function buildSubtaskCardMetrics(
 /** Message + part refs for this subtask (for downstream visualization). */
 export function getSubtaskMessagesAndParts(
   st: AssistantSubtask,
-  messages: OcMessage[]
+  messages: OcMessage[],
 ): { messageIndex: number; message: OcMessage; parts: OcMessagePart[] }[] {
   return st.assistantMessageIndices
-    .map(i => {
+    .map((i) => {
       const message = messages[i]
       if (!message) return null
       return { messageIndex: i, message, parts: message.parts }

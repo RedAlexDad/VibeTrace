@@ -23,21 +23,21 @@ export function collectTodoLinkIdsForSubtask(st: AssistantSubtask): Set<string> 
  */
 export function findSubtaskIndexForTodo(
   assistantSubtasks: AssistantSubtask[],
-  todo: OcTodo
+  todo: OcTodo,
 ): number | null {
   const id = todo.id?.trim()
   if (id) {
     for (let si = assistantSubtasks.length - 1; si >= 0; si--) {
       const st = assistantSubtasks[si]!
       if (st.linkedTodoIds.includes(id)) return si
-      if (st.todos.some(t => t.id?.trim() === id)) return si
+      if (st.todos.some((t) => t.id?.trim() === id)) return si
     }
   }
   const key = normalizeTodoContent(todo.content)
   if (!key) return null
   for (let si = assistantSubtasks.length - 1; si >= 0; si--) {
     const st = assistantSubtasks[si]!
-    if (st.todos.some(t => normalizeTodoContent(t.content) === key)) {
+    if (st.todos.some((t) => normalizeTodoContent(t.content) === key)) {
       return si
     }
   }
@@ -49,7 +49,7 @@ export function findSubtaskIndexForTodo(
  */
 export function buildMessageHighlightSet(
   subtask: AssistantSubtask,
-  messages: OcMessage[]
+  messages: OcMessage[],
 ): Set<number> {
   const s = new Set<number>()
   const idxs = subtask.assistantMessageIndices

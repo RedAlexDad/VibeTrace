@@ -8,7 +8,9 @@
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "smoke:opencode": "node scripts/smoke-opencode-session.mjs"
+    "smoke:opencode": "node scripts/smoke-opencode-session.mjs",
+    "format": "prettier --write \"src/**/*.{ts,tsx,css}\"",
+    "format:check": "prettier --check \"src/**/*.{ts,tsx,css}\""
   },
   "dependencies": {
     "@reduxjs/toolkit": "^2.12.0",

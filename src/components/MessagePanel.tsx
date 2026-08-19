@@ -91,11 +91,10 @@ export default function MessagePanel({
   void onRefresh
   const hasInlineQuestion = messagesHaveOpenQuestionWithInput(messages)
   const blockComposerForQuestion =
-    hasInlineQuestion ||
-    Boolean(pendingQuestion && pendingQuestion.sessionID === sessionId)
+    hasInlineQuestion || Boolean(pendingQuestion && pendingQuestion.sessionID === sessionId)
 
   // Derive composer metadata from latest assistant row
-  const lastAssistantMsg = [...messages].reverse().find(m => m.info.role === 'assistant')
+  const lastAssistantMsg = [...messages].reverse().find((m) => m.info.role === 'assistant')
   const agentName = lastAssistantMsg?.info.agent || null
   const modelName = lastAssistantMsg?.info.model?.modelID || null
   const assistantIndices = messages
@@ -155,7 +154,7 @@ export default function MessagePanel({
           padding: '0 16px',
           display: 'flex',
           alignItems: 'center',
-          borderBottom:'1px solid var(--color-border-light)',
+          borderBottom: '1px solid var(--color-border-light)',
           background: 'var(--color-bg-white)',
           flexShrink: 0,
         }}
@@ -175,8 +174,9 @@ export default function MessagePanel({
             padding: '8px 16px',
             fontSize: 12,
             color: 'var(--color-accent-strong)',
-            background:'linear-gradient(90deg, var(--color-link-soft) 0%, var(--color-link-softer) 100%)',
-            borderBottom:'1px solid var(--color-link-soft)',
+            background:
+              'linear-gradient(90deg, var(--color-link-soft) 0%, var(--color-link-softer) 100%)',
+            borderBottom: '1px solid var(--color-link-soft)',
             display: 'flex',
             alignItems: 'center',
             gap: 10,
@@ -194,7 +194,8 @@ export default function MessagePanel({
           />
           <span style={{ fontWeight: 600 }}>Waiting for the model…</span>
           <span style={{ color: 'var(--color-tip-muted)', fontWeight: 400 }}>
-            Polling in the background — if nothing appears, check OpenCode logs or upstream queue delays.
+            Polling in the background — if nothing appears, check OpenCode logs or upstream queue
+            delays.
           </span>
         </div>
       )}
@@ -212,11 +213,29 @@ export default function MessagePanel({
         }}
       >
         {loading ? (
-          <div style={{ display: 'flex', justifyContent: 'center', padding: '32px', color: 'var(--color-text-tertiary)', fontSize: 12 }}>
+          <div
+            style={{
+              display: 'flex',
+              justifyContent: 'center',
+              padding: '32px',
+              color: 'var(--color-text-tertiary)',
+              fontSize: 12,
+            }}
+          >
             Loading…
           </div>
         ) : messages.length === 0 ? (
-          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100%', color: 'var(--color-text-tertiary)', fontSize: 12 }}>
+          <div
+            style={{
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              height: '100%',
+              color: 'var(--color-text-tertiary)',
+              fontSize: 12,
+            }}
+          >
             Pick a session to start chatting
           </div>
         ) : (
@@ -244,7 +263,9 @@ export default function MessagePanel({
                   isLastInTurn={isLastMessageInTurn(messages, idx)}
                   sessionDirectory={sessionDirectory}
                   ssePendingQuestion={
-                    pendingQuestion && pendingQuestion.sessionID === sessionId ? pendingQuestion : null
+                    pendingQuestion && pendingQuestion.sessionID === sessionId
+                      ? pendingQuestion
+                      : null
                   }
                   onQuestionAnswered={onQuestionAnswered}
                 />
@@ -273,14 +294,14 @@ export default function MessagePanel({
         pendingQuestion.sessionID === sessionId &&
         onQuestionReply &&
         !hasInlineQuestion && (
-        <QuestionPromptPanel
-          request={pendingQuestion}
-          disabled={loading}
-          submitting={questionSubmitting}
-          onReply={onQuestionReply}
-          onReject={onQuestionReject}
-        />
-      )}
+          <QuestionPromptPanel
+            request={pendingQuestion}
+            disabled={loading}
+            submitting={questionSubmitting}
+            onReply={onQuestionReply}
+            onReject={onQuestionReject}
+          />
+        )}
 
       {/* Composer */}
       <div style={{ flexShrink: 0 }}>
@@ -362,7 +383,9 @@ function EditableSessionTitle({
 
   if (!canEdit) {
     return (
-      <span style={{ fontSize: 13, fontWeight: 500, color: 'var(--color-text-primary)' }}>{display}</span>
+      <span style={{ fontSize: 13, fontWeight: 500, color: 'var(--color-text-primary)' }}>
+        {display}
+      </span>
     )
   }
 
@@ -389,7 +412,7 @@ function EditableSessionTitle({
           fontSize: 13,
           fontWeight: 500,
           color: 'var(--color-text-primary)',
-          border:'1px solid var(--color-accent)',
+          border: '1px solid var(--color-accent)',
           borderRadius: 6,
           padding: '4px 8px',
           minWidth: 200,

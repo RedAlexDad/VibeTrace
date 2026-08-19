@@ -8,7 +8,11 @@ import {
   type ActionTypePaletteId,
   DEFAULT_ACTION_TYPE_PALETTE_ID,
 } from '../styles/actionTypePalettes'
-import { effectiveStatusColors, resolveActionBlockColors, statusColors } from '../utils/actionFlowColors'
+import {
+  effectiveStatusColors,
+  resolveActionBlockColors,
+  statusColors,
+} from '../utils/actionFlowColors'
 import { appendActionFlowIcon, getActionFlowIconSvg } from './actionFlowIcons'
 import ActionFlowContextMenu, { type ActionFlowContextMenuState } from './ActionFlowContextMenu'
 import { actionKey } from '../utils/actionKey'
@@ -112,7 +116,7 @@ function edgeStrokeAndMarker(
   a: MappedAction & { row: number },
   b: MappedAction & { row: number },
   normalMarkerUrl: string,
-  ghostMarkerUrl: string
+  ghostMarkerUrl: string,
 ): { stroke: string; markerUrl: string } {
   if (a.forkGhost || b.forkGhost) {
     return { stroke: FORK_GHOST_STROKE, markerUrl: ghostMarkerUrl }
@@ -126,7 +130,7 @@ function blockWidth(durationMode: boolean, durationMs: number): number {
 
 function durationWidthMeta(
   durationMode: boolean,
-  durationMs: number
+  durationMs: number,
 ): { w: number; overThreshold: boolean } {
   if (!durationMode) return { w: MIN_W, overThreshold: false }
   if (!Number.isFinite(durationMs) || durationMs <= 0) return { w: MIN_W, overThreshold: false }
@@ -165,12 +169,7 @@ function actionSessionKey(a: MappedAction & { row: number }): string {
   if (a.source === 'child-session' && a.parentTaskCallID) {
     return `session:task:${a.parentTaskCallID}`
   }
-  if (
-    a.actionType === 'Subagent' &&
-    a.source !== 'child-session' &&
-    a.callID &&
-    a.childSessionID
-  ) {
+  if (a.actionType === 'Subagent' && a.source !== 'child-session' && a.callID && a.childSessionID) {
     return `session:task:${a.callID}`
   }
   if (a.forkCompareRow === 2) {
@@ -186,12 +185,7 @@ function isNewBranchAction(a: MappedAction & { row: number }): boolean {
 
 /** Parent tasks remain layer1 in payloads; inside child-session **bands** force first row rendering (fresh session headline). */
 function actionLocalRowForLayout(a: MappedAction & { row: number }): number {
-  if (
-    a.actionType === 'Subagent' &&
-    a.source !== 'child-session' &&
-    a.callID &&
-    a.childSessionID
-  ) {
+  if (a.actionType === 'Subagent' && a.source !== 'child-session' && a.callID && a.childSessionID) {
     return 0
   }
   return Math.max(0, a.row % 2)
@@ -208,7 +202,7 @@ function escapeHtml(s: string): string {
 
 function verticalCenterOffsetY(
   layout: { node: FlowNode; y: number; h: number }[],
-  totalH: number
+  totalH: number,
 ): number {
   if (layout.length === 0) return 0
   let minY = Infinity
@@ -241,7 +235,10 @@ function truncatePathForFlowEnd(p: string): string {
   return `${t.slice(0, FLOW_END_PATH_MAX_CHARS - 1)}…`
 }
 
-function flowEndListRows(items: string[], esc: (s: string) => string): { html: string; more: number } {
+function flowEndListRows(
+  items: string[],
+  esc: (s: string) => string,
+): { html: string; more: number } {
   const shown = items.slice(0, FLOW_END_MAX_LINES)
   const more = items.length > shown.length ? items.length - shown.length : 0
   const html = shown
@@ -300,7 +297,7 @@ function computeLayout(
   layoutOpts?: {
     includeEndNode?: boolean
     forkAnchorActionKey?: string | null
-  }
+  },
 ) {
   const includeEndNode = layoutOpts?.includeEndNode !== false
   const forkAnchorActionKey = layoutOpts?.forkAnchorActionKey ?? null
@@ -343,7 +340,7 @@ function computeLayout(
    * Vanilla sessions still emit a single main end.
    * End nodes carry `sessionRegion` so layout can place x/y deterministically.
    */
-  const seq: FlowNode[] = sorted.map(a => ({ ...a, kind: 'action' as const }))
+  const seq: FlowNode[] = sorted.map((a) => ({ ...a, kind: 'action' as const }))
   if (includeEndNode) {
     seq.push({ kind: 'end', row: 1, sessionRegion: 'main' })
     if (hasNewBranchAction) {
@@ -351,7 +348,7 @@ function computeLayout(
     }
   }
   const childKeys = [...sessionKeySet].filter(
-    (k) => k !== 'session:main' && k !== 'session:fork-new-branch'
+    (k) => k !== 'session:main' && k !== 'session:fork-new-branch',
   )
   const sortChildKeys = (keys: string[]) => {
     keys.sort((ka, kb) => {
@@ -410,7 +407,8 @@ function computeLayout(
       slotKey = `root:${nextRootSlot++}`
     } else {
       const session = actionSessionKey(a)
-      const isParentTaskEntry = a.actionType === 'Subagent' && a.source !== 'child-session' && Boolean(a.callID)
+      const isParentTaskEntry =
+        a.actionType === 'Subagent' && a.source !== 'child-session' && Boolean(a.callID)
       const groupKey = isParentTaskEntry ? a.parallelGroupId : `${session}::${a.parallelGroupId}`
       const lane = a.parallelLaneIndex ?? 0
       let laneCounter = rootGroupLaneStepCounter.get(groupKey)
@@ -512,7 +510,10 @@ function computeLayout(
         const range = childSlotTimeRange.get(slotKey)
         const dx = durationStartOffsetPx(range?.minStart ?? a.sortTime, a.sortTime)
         childSlotOffsetByIndex.set(idx, dx)
-        childSlotWidth.set(slotKey, Math.max(childSlotWidth.get(slotKey) ?? 0, dx + blockWidth(durationMode, a.durationMs)))
+        childSlotWidth.set(
+          slotKey,
+          Math.max(childSlotWidth.get(slotKey) ?? 0, dx + blockWidth(durationMode, a.durationMs)),
+        )
       }
     }
     const childSlotStartX = new Map<string, number>()
@@ -536,7 +537,8 @@ function computeLayout(
       const slotKey = childSlotByIndex.get(idx)
       childLocalXByIndex.set(
         idx,
-        (slotKey ? (childSlotStartX.get(slotKey) ?? 0) : 0) + (childSlotOffsetByIndex.get(idx) ?? 0),
+        (slotKey ? (childSlotStartX.get(slotKey) ?? 0) : 0) +
+          (childSlotOffsetByIndex.get(idx) ?? 0),
       )
     }
     const lastChildGap = durationMode ? DUR_TAIL_PAD_PX : TIMELINE_STEP_GAP
@@ -631,11 +633,7 @@ function computeLayout(
             const w = blockWidth(durationMode, a.durationMs)
             anchorRight = x + w
             /** If the anchor is a Subagent with a child session, branch rails must clear the child band to avoid overlay. */
-            if (
-              a.actionType === 'Subagent' &&
-              a.source !== 'child-session' &&
-              a.callID
-            ) {
+            if (a.actionType === 'Subagent' && a.source !== 'child-session' && a.callID) {
               const childSpan = childSpanByCallID.get(a.callID) ?? 0
               if (childSpan > 0) anchorRight = x + w + TIMELINE_STEP_GAP + childSpan
             }
@@ -652,13 +650,10 @@ function computeLayout(
         const x = actionXBySortedIndex.get(i)
         if (x == null) continue
         let r = x + blockWidth(durationMode, a.durationMs)
-        if (
-          a.actionType === 'Subagent' &&
-          a.source !== 'child-session' &&
-          a.callID
-        ) {
+        if (a.actionType === 'Subagent' && a.source !== 'child-session' && a.callID) {
           const childSpan = childSpanByCallID.get(a.callID) ?? 0
-          if (childSpan > 0) r = x + blockWidth(durationMode, a.durationMs) + TIMELINE_STEP_GAP + childSpan
+          if (childSpan > 0)
+            r = x + blockWidth(durationMode, a.durationMs) + TIMELINE_STEP_GAP + childSpan
         }
         if (anchorRight == null || r > anchorRight) anchorRight = r
       }
@@ -837,7 +832,7 @@ function computeLayout(
   for (const childSession of childKeys) {
     const callID = childSession.slice('session:task:'.length)
     const parentIdx = sorted.findIndex(
-      (a) => a.actionType === 'Subagent' && a.source !== 'child-session' && a.callID === callID
+      (a) => a.actionType === 'Subagent' && a.source !== 'child-session' && a.callID === callID,
     )
     if (parentIdx < 0) continue
     const parent = sorted[parentIdx]!
@@ -875,7 +870,9 @@ function computeLayout(
     return Math.max(maxR, x + blockWidth(durationMode, a.durationMs))
   }, MARGIN_LEFT)
   const endXForkBranch = hasNewBranchAction
-    ? (durationMode ? branchRightmost + TIMELINE_STEP_GAP : forkBranchRight + TIMELINE_STEP_GAP)
+    ? durationMode
+      ? branchRightmost + TIMELINE_STEP_GAP
+      : forkBranchRight + TIMELINE_STEP_GAP
     : endXMain
 
   const sessionTopY = new Map<string, number>()
@@ -886,8 +883,7 @@ function computeLayout(
     let maxBottom = BLOCK_H
     for (const a of local) {
       /** Within-session y comes from kernel/tool row plus parallel lanes; forks already split via `sessionTopY`. */
-      const yInSession =
-        actionLocalRowForLayout(a) * ROW_H + laneOffsetY(a.parallelLaneIndex)
+      const yInSession = actionLocalRowForLayout(a) * ROW_H + laneOffsetY(a.parallelLaneIndex)
       maxBottom = Math.max(maxBottom, yInSession + BLOCK_H)
     }
     sessionY += maxBottom + SESSION_REGION_GAP
@@ -895,7 +891,7 @@ function computeLayout(
   const totalH = Math.max(
     sessionY - SESSION_REGION_GAP + BOTTOM_PAD,
     TOP_PAD + BLOCK_H + BOTTOM_PAD,
-    MIN_SVG_CONTENT_HEIGHT
+    MIN_SVG_CONTENT_HEIGHT,
   )
 
   const layout: FlowLayoutItem[] = []
@@ -957,7 +953,7 @@ function appendOrthoFanOut(
   source: FlowLayoutItem,
   targets: FlowLayoutItem[],
   markerUrl: string,
-  ghostMarkerUrl: string
+  ghostMarkerUrl: string,
 ) {
   if (targets.length === 0) return
   const sna = source.node.kind === 'action' ? (source.node as MappedAction & { row: number }) : null
@@ -966,9 +962,18 @@ function appendOrthoFanOut(
 
   if (targets.length === 1) {
     const t = targets[0]!
-    appendOrthoEdge(content, source.x + source.w, source.cy, t.x, t.cy, baseMarker, baseStroke, 1.2,
+    appendOrthoEdge(
+      content,
+      source.x + source.w,
+      source.cy,
+      t.x,
+      t.cy,
+      baseMarker,
+      baseStroke,
+      1.2,
       sna ? actionKey(sna) : null,
-      t.node.kind === 'action' ? actionKey(t.node as MappedAction & { row: number }) : null)
+      t.node.kind === 'action' ? actionKey(t.node as MappedAction & { row: number }) : null,
+    )
     return
   }
 
@@ -1023,7 +1028,7 @@ function appendOrthoEdge(
   strokeWidth: number,
   /** Link metadata: originating / terminating action keys (null for synthetic end nodes). */
   fromKey: string | null = null,
-  toKey: string | null = null
+  toKey: string | null = null,
 ) {
   const mid = (x1 + x2) / 2
   const path = d3.path()
@@ -1049,7 +1054,7 @@ function joinStrokeForFanIn(
   from: MappedAction & { row: number },
   to: FlowNode,
   markerUrl: string,
-  ghostMarkerUrl: string
+  ghostMarkerUrl: string,
 ): { stroke: string; markerUrl: string } {
   if (to.kind === 'end') {
     return {
@@ -1068,13 +1073,11 @@ function appendOrthoFanIn(
   sources: FlowLayoutItem[],
   target: FlowLayoutItem,
   markerUrl: string,
-  ghostMarkerUrl: string
+  ghostMarkerUrl: string,
 ) {
   if (sources.length === 0) return
   const targetKey =
-    target.node.kind === 'action'
-      ? actionKey(target.node as MappedAction & { row: number })
-      : null
+    target.node.kind === 'action' ? actionKey(target.node as MappedAction & { row: number }) : null
   if (sources.length === 1) {
     const s = sources[0]!
     const na = s.node as MappedAction & { row: number }
@@ -1099,7 +1102,7 @@ function appendOrthoFanIn(
    * - Exactly one downstream trunk segment renders the arrow to avoid stacking N markers.
    * - Trunk tint follows the dominant non-ghost feeder when possible so the terminator reads clean.
    */
-  const maxEnd = Math.max(...sources.map(s => s.x + s.w))
+  const maxEnd = Math.max(...sources.map((s) => s.x + s.w))
   const bundleX = (maxEnd + target.x) / 2
 
   for (const s of sources) {
@@ -1247,7 +1250,7 @@ export default function ActionFlowVisualization({
         includeEndNode: showFlowEndNode,
         forkAnchorActionKey,
       }),
-    [actions, durationMode, showFlowEndNode, forkAnchorActionKey]
+    [actions, durationMode, showFlowEndNode, forkAnchorActionKey],
   )
 
   useLayoutEffect(() => {
@@ -1256,7 +1259,7 @@ export default function ActionFlowVisualization({
     const root = d3.select(svg)
     root.selectAll('*').remove()
 
-    const maxTok = Math.max(1, ...actions.map(a => a.tokenEstimate))
+    const maxTok = Math.max(1, ...actions.map((a) => a.tokenEstimate))
     const colorScale = d3.scaleSequential(d3.interpolateBlues).domain([0, maxTok])
 
     const { layout, totalW, totalH } = computeLayout(actions, durationMode, {
@@ -1272,8 +1275,7 @@ export default function ActionFlowVisualization({
     const offsetY = verticalCenterOffsetY(layout, totalH)
     const durationFilterActive =
       durationHighlightMinMs != null && Number.isFinite(durationHighlightMinMs)
-    const tokenFilterActive =
-      tokenHighlightMin != null && Number.isFinite(tokenHighlightMin)
+    const tokenFilterActive = tokenHighlightMin != null && Number.isFinite(tokenHighlightMin)
     const filterMode = durationFilterActive ? 'duration' : tokenFilterActive ? 'tokens' : null
 
     const defs = root.append('defs')
@@ -1333,20 +1335,20 @@ export default function ActionFlowVisualization({
 
     /** Parallel bundles: intra-lane links, predecessor→lane heads, tails→successor (merged fan-in/out). */
     const groupIdToIndices = new Map<string, number[]>()
-      for (let i = 0; i < layout.length; i++) {
-        const item = layout[i]!
-        if (item.node.kind !== 'action') continue
-        const act = item.node as MappedAction & { row: number }
-        const gid = act.parallelGroupId
-        if (!gid) continue
-        let arr = groupIdToIndices.get(gid)
-        if (!arr) {
-          arr = []
-          groupIdToIndices.set(gid, arr)
-        }
-        arr.push(i)
+    for (let i = 0; i < layout.length; i++) {
+      const item = layout[i]!
+      if (item.node.kind !== 'action') continue
+      const act = item.node as MappedAction & { row: number }
+      const gid = act.parallelGroupId
+      if (!gid) continue
+      let arr = groupIdToIndices.get(gid)
+      if (!arr) {
+        arr = []
+        groupIdToIndices.set(gid, arr)
       }
-      for (const indices of groupIdToIndices.values()) {
+      arr.push(i)
+    }
+    for (const indices of groupIdToIndices.values()) {
       if (indices.length < 2) continue
       const groupActions = indices.map((idx) => ({
         idx,
@@ -1434,9 +1436,7 @@ export default function ActionFlowVisualization({
           const it = layout[i]!
           if (it.node.kind !== 'end') continue
           const endRegion =
-            it.node.sessionRegion === 'fork-new-branch'
-              ? 'session:fork-new-branch'
-              : 'session:main'
+            it.node.sessionRegion === 'fork-new-branch' ? 'session:fork-new-branch' : 'session:main'
           const targetEndRegion = groupIsNewBranch ? 'session:fork-new-branch' : 'session:main'
           if (endRegion === targetEndRegion) {
             succItem = it
@@ -1472,7 +1472,12 @@ export default function ActionFlowVisualization({
           const toIdx = sortedIdx[i + 1]!
           const na = layout[fromIdx]!.node as MappedAction & { row: number }
           const nb = layout[toIdx]!.node as MappedAction & { row: number }
-          const { stroke: forkStroke, markerUrl: forkMarker } = edgeStrokeAndMarker(na, nb, markerUrl, ghostMarkerUrl)
+          const { stroke: forkStroke, markerUrl: forkMarker } = edgeStrokeAndMarker(
+            na,
+            nb,
+            markerUrl,
+            ghostMarkerUrl,
+          )
           appendOrthoEdge(
             content,
             layout[fromIdx]!.x + layout[fromIdx]!.w,
@@ -1481,7 +1486,7 @@ export default function ActionFlowVisualization({
             layout[toIdx]!.cy,
             forkMarker,
             forkStroke,
-            1.2
+            1.2,
           )
         }
         firstIndices.push(sortedIdx[0]!)
@@ -1500,7 +1505,7 @@ export default function ActionFlowVisualization({
           predItem,
           firstIndices.map((fi) => layout[fi]!),
           markerUrl,
-          ghostMarkerUrl
+          ghostMarkerUrl,
         )
       }
 
@@ -1514,7 +1519,7 @@ export default function ActionFlowVisualization({
           lastIndices.map((idx) => layout[idx]!),
           layout[succIdx]!,
           markerUrl,
-          ghostMarkerUrl
+          ghostMarkerUrl,
         )
       }
     }
@@ -1576,7 +1581,7 @@ export default function ActionFlowVisualization({
               a.node as MappedAction & { row: number },
               b.node as MappedAction & { row: number },
               markerUrl,
-              ghostMarkerUrl
+              ghostMarkerUrl,
             )
           : { stroke: actionFlowPalette.arrow, markerUrl }
       const fromKey =
@@ -1602,9 +1607,7 @@ export default function ActionFlowVisualization({
      * - Inside a rail ignore session distinctions (reads like pre-fork Main→Subagent flow).
      * - Skip purple Subagent→child entry edges, intra-parallel siblings, and fan-in pairs already routed.
      */
-    const connectPostAnchorTrack = (
-      predicate: (a: MappedAction & { row: number }) => boolean,
-    ) => {
+    const connectPostAnchorTrack = (predicate: (a: MappedAction & { row: number }) => boolean) => {
       const indices: number[] = []
       for (let i = 0; i < layout.length; i++) {
         const it = layout[i]!
@@ -1661,8 +1664,7 @@ export default function ActionFlowVisualization({
          * Ghost terminator (`sessionRegion='main'` with active fork rails) renders neutral grey;
          * forked / baseline ends keep `palette.end` yellow. Omit summary tooltip on ghosts (current-session data mismatch).
          */
-        const isGhostEnd =
-          node.sessionRegion === 'main' && hasForkNewBranchInLayout
+        const isGhostEnd = node.sessionRegion === 'main' && hasForkNewBranchInLayout
         const fill = isGhostEnd ? 'var(--color-border-light)' : actionFlowPalette.end.fill
         const stroke = isGhostEnd ? 'var(--color-text-muted)' : actionFlowPalette.end.stroke
         const endTip = !isGhostEnd && flowEndSummary ? buildFlowEndTooltipHtml(flowEndSummary) : ''
@@ -1676,7 +1678,10 @@ export default function ActionFlowVisualization({
           .attr('stroke-width', 1.5)
           .style('cursor', endTip ? 'pointer' : 'default')
         if (endTip) {
-          circle.attr('data-tooltip-id', tooltipId).attr('data-tooltip-html', endTip).attr('data-tooltip-place', 'left')
+          circle
+            .attr('data-tooltip-id', tooltipId)
+            .attr('data-tooltip-html', endTip)
+            .attr('data-tooltip-place', 'left')
         }
         return
       }
@@ -1688,8 +1693,10 @@ export default function ActionFlowVisualization({
         filterMode === null
           ? true
           : filterMode === 'duration'
-            ? !Number.isFinite(act.durationMs) || act.durationMs >= (durationHighlightMinMs as number)
-            : !Number.isFinite(act.tokenEstimate) || act.tokenEstimate >= (tokenHighlightMin as number)
+            ? !Number.isFinite(act.durationMs) ||
+              act.durationMs >= (durationHighlightMinMs as number)
+            : !Number.isFinite(act.tokenEstimate) ||
+              act.tokenEstimate >= (tokenHighlightMin as number)
       const sc = effectiveStatusColors(act.status, act.durationMs)
       const { fill, iconFill } = resolveActionBlockColors(
         act,
@@ -1746,7 +1753,10 @@ export default function ActionFlowVisualization({
          */
         .attr('pointer-events', 'all')
         .attr('data-tooltip-id', tooltipId)
-        .attr('data-tooltip-html', buildCompactMappedActionTooltipHtml(act, tooltipMessages, formatDurationMs))
+        .attr(
+          'data-tooltip-html',
+          buildCompactMappedActionTooltipHtml(act, tooltipMessages, formatDurationMs),
+        )
         .attr('data-tooltip-place', 'top')
       if (onSelectAction) {
         actionTarget.on('click', (ev: MouseEvent) => {
@@ -1767,12 +1777,11 @@ export default function ActionFlowVisualization({
         })
       }
 
-      if (
-        !isGhost &&
-        !isUserRequest &&
-        (act.status === 'running' || act.status === 'pending')
-      ) {
-        actionTarget.attr('class', sc.isLongRunning ? 'action-flow-running-long' : 'action-flow-running')
+      if (!isGhost && !isUserRequest && (act.status === 'running' || act.status === 'pending')) {
+        actionTarget.attr(
+          'class',
+          sc.isLongRunning ? 'action-flow-running-long' : 'action-flow-running',
+        )
       }
 
       const actionGNode = actionG.node() as SVGGElement | null
@@ -1808,14 +1817,14 @@ export default function ActionFlowVisualization({
 
     /**
      * Explicit terminator wiring: each end node attaches to its rail’s eastern-most action (`x+w` maxima).
-       *  - Vanilla: single main end anchored to farthest legacy action on the spine.
-       *  - Fork compare:
-       *      ghost/main end ← rightmost legacy action (including nested task tails);
-       *      fork end ← rightmost forked action (nested tasks included).
-       *    Decide membership with `forkCompareRow === 2`, not solely `actionSessionKey`, so forked-task tails stay connected.
-       *  - Skip terminator pairs fan-in already handled (prevents doubling edges).
-       */
-      for (let endIdx = 0; endIdx < layout.length; endIdx++) {
+     *  - Vanilla: single main end anchored to farthest legacy action on the spine.
+     *  - Fork compare:
+     *      ghost/main end ← rightmost legacy action (including nested task tails);
+     *      fork end ← rightmost forked action (nested tasks included).
+     *    Decide membership with `forkCompareRow === 2`, not solely `actionSessionKey`, so forked-task tails stay connected.
+     *  - Skip terminator pairs fan-in already handled (prevents doubling edges).
+     */
+    for (let endIdx = 0; endIdx < layout.length; endIdx++) {
       const endItem = layout[endIdx]!
       if (endItem.node.kind !== 'end') continue
       const endIsForkBranch = endItem.node.sessionRegion === 'fork-new-branch'
@@ -1852,16 +1861,16 @@ export default function ActionFlowVisualization({
         actionKey(lastAct),
         null,
       )
-      }
+    }
 
-      /**
-       * Fork fan-out wiring: anchor fans into both rails’ first parent-scope actions —
-       * - earliest ghost predecessor (post-fork leftover trail)
-       * - earliest fork-branch parent action (`forkCompareRow === 2`)
-       *
-       * Ignore child-session internals so forks land on rails, not nested bands.
-       */
-      if (hasForkNewBranchInLayout && forkAnchorActionKey) {
+    /**
+     * Fork fan-out wiring: anchor fans into both rails’ first parent-scope actions —
+     * - earliest ghost predecessor (post-fork leftover trail)
+     * - earliest fork-branch parent action (`forkCompareRow === 2`)
+     *
+     * Ignore child-session internals so forks land on rails, not nested bands.
+     */
+    if (hasForkNewBranchInLayout && forkAnchorActionKey) {
       let anchorItem: (typeof layout)[number] | undefined
       for (const item of layout) {
         if (item.node.kind !== 'action') continue
@@ -1895,71 +1904,71 @@ export default function ActionFlowVisualization({
         }
       }
       if (anchorItem) {
-        const targets = [firstGhostItem, firstNewBranchItem].filter(
-          (it): it is FlowLayoutItem => Boolean(it),
+        const targets = [firstGhostItem, firstNewBranchItem].filter((it): it is FlowLayoutItem =>
+          Boolean(it),
         )
         if (targets.length > 0) {
           appendOrthoFanOut(content, anchorItem, targets, markerUrl, ghostMarkerUrl)
         }
       }
-      }
+    }
 
-      /**
-       * Safety net before the fork anchor: reconnect historical spine steps `1→2→…→anchor` when sequential layout misses hops.
-       */
-      if (hasForkNewBranchInLayout && forkAnchorActionKey) {
-        let anchorSortTime = Infinity
-        for (const item of layout) {
-          if (item.node.kind !== 'action') continue
-          const a = item.node as MappedAction & { row: number }
-          if (actionKey(a) === forkAnchorActionKey) {
-            anchorSortTime = a.sortTime
-            break
-          }
-        }
-        if (Number.isFinite(anchorSortTime)) {
-          const prefixItems = layout
-            .filter((item) => {
-              if (item.node.kind !== 'action') return false
-              const a = item.node as MappedAction & { row: number }
-              if (a.source === 'child-session') return false
-              if (isNewBranchAction(a)) return false
-              if (a.forkGhost === true) return false
-              return a.sortTime <= anchorSortTime
-            })
-            .sort((p, q) => {
-              const pa = p.node as MappedAction & { row: number }
-              const qa = q.node as MappedAction & { row: number }
-              return pa.sortTime - qa.sortTime
-            })
-          for (let i = 0; i < prefixItems.length - 1; i++) {
-            const from = prefixItems[i]!
-            const to = prefixItems[i + 1]!
-            const pa = from.node as MappedAction & { row: number }
-            const pb = to.node as MappedAction & { row: number }
-            if (parallelSiblingSkip(pa, pb)) continue
-            const fromK = actionKey(pa)
-            const toK = actionKey(pb)
-            if (edgeExists(fromK, toK)) continue
-            const { stroke, markerUrl: m } = edgeStrokeAndMarker(pa, pb, markerUrl, ghostMarkerUrl)
-            appendOrthoEdge(
-              content,
-              from.x + from.w,
-              from.cy,
-              to.x,
-              to.cy,
-              m,
-              stroke,
-              1.2,
-              fromK,
-              toK,
-            )
-          }
+    /**
+     * Safety net before the fork anchor: reconnect historical spine steps `1→2→…→anchor` when sequential layout misses hops.
+     */
+    if (hasForkNewBranchInLayout && forkAnchorActionKey) {
+      let anchorSortTime = Infinity
+      for (const item of layout) {
+        if (item.node.kind !== 'action') continue
+        const a = item.node as MappedAction & { row: number }
+        if (actionKey(a) === forkAnchorActionKey) {
+          anchorSortTime = a.sortTime
+          break
         }
       }
+      if (Number.isFinite(anchorSortTime)) {
+        const prefixItems = layout
+          .filter((item) => {
+            if (item.node.kind !== 'action') return false
+            const a = item.node as MappedAction & { row: number }
+            if (a.source === 'child-session') return false
+            if (isNewBranchAction(a)) return false
+            if (a.forkGhost === true) return false
+            return a.sortTime <= anchorSortTime
+          })
+          .sort((p, q) => {
+            const pa = p.node as MappedAction & { row: number }
+            const qa = q.node as MappedAction & { row: number }
+            return pa.sortTime - qa.sortTime
+          })
+        for (let i = 0; i < prefixItems.length - 1; i++) {
+          const from = prefixItems[i]!
+          const to = prefixItems[i + 1]!
+          const pa = from.node as MappedAction & { row: number }
+          const pb = to.node as MappedAction & { row: number }
+          if (parallelSiblingSkip(pa, pb)) continue
+          const fromK = actionKey(pa)
+          const toK = actionKey(pb)
+          if (edgeExists(fromK, toK)) continue
+          const { stroke, markerUrl: m } = edgeStrokeAndMarker(pa, pb, markerUrl, ghostMarkerUrl)
+          appendOrthoEdge(
+            content,
+            from.x + from.w,
+            from.cy,
+            to.x,
+            to.cy,
+            m,
+            stroke,
+            1.2,
+            fromK,
+            toK,
+          )
+        }
+      }
+    }
 
-      /** Purple branch from parent Subagent(task) rects into nested child-session entry */
-      for (let i = 0; i < layout.length - 1; i++) {
+    /** Purple branch from parent Subagent(task) rects into nested child-session entry */
+    for (let i = 0; i < layout.length - 1; i++) {
       const item = layout[i]!
       const node = item.node
       if (node.kind !== 'action') continue
@@ -1995,7 +2004,7 @@ export default function ActionFlowVisualization({
         parentAct,
         childAct,
         markerUrl,
-        ghostMarkerUrl
+        ghostMarkerUrl,
       )
       content
         .append('path')
@@ -2006,11 +2015,11 @@ export default function ActionFlowVisualization({
         .attr('stroke-width', 1.2)
         .attr('marker-end', branchMarker)
         .attr('pointer-events', 'none')
-      }
+    }
 
-      if (canMockFork) {
-        const forkItem = layout[mockBranchForkActionIndex as number]
-        if (forkItem) {
+    if (canMockFork) {
+      const forkItem = layout[mockBranchForkActionIndex as number]
+      if (forkItem) {
         const historyTemplates = [
           { actionType: 'Think', status: 'completed', durationMs: 420, tokenEstimate: 24 },
           { actionType: 'Read', status: 'completed', durationMs: 560, tokenEstimate: 40 },
@@ -2018,7 +2027,7 @@ export default function ActionFlowVisualization({
         ] as const
         const historyY = rowTopY(0) - ROW_H + BLOCK_H / 2
 
-        const historyWidths = historyTemplates.map(h => blockWidth(durationMode, h.durationMs))
+        const historyWidths = historyTemplates.map((h) => blockWidth(durationMode, h.durationMs))
         const historyStartX = forkItem.x + forkItem.w + GAP
 
         let hx = historyStartX
@@ -2043,7 +2052,7 @@ export default function ActionFlowVisualization({
               hx + hw / 2,
               historyY,
               'var(--color-text-muted)',
-              `${reactId}-mock-history-${i}-`
+              `${reactId}-mock-history-${i}-`,
             )
           }
 
@@ -2083,8 +2092,8 @@ export default function ActionFlowVisualization({
           .attr('stroke-width', 1.2)
           .attr('marker-end', markerUrl)
           .attr('pointer-events', 'none')
-        }
       }
+    }
 
     /** Rectangles paint after edges by default — re-raise paths so strokes stay readable */
     content.selectAll<SVGPathElement, unknown>('path.afv-edge').raise()
@@ -2145,8 +2154,7 @@ export default function ActionFlowVisualization({
     const DIM = '0.18'
     const durationFilterActive =
       durationHighlightMinMs != null && Number.isFinite(durationHighlightMinMs)
-    const tokenFilterActive =
-      tokenHighlightMin != null && Number.isFinite(tokenHighlightMin)
+    const tokenFilterActive = tokenHighlightMin != null && Number.isFinite(tokenHighlightMin)
     const thresholdFilterActive = durationFilterActive || tokenFilterActive
 
     if (dimAll) {
@@ -2181,14 +2189,9 @@ export default function ActionFlowVisualization({
     for (const g of groups) {
       const k = g.getAttribute('data-action-key') ?? ''
       const filterDimActive =
-        highlightSet === null &&
-        thresholdFilterActive &&
-        g.getAttribute('data-filter-dim') === '1'
-      const selDim =
-        outlineOnlySingleAction
-          ? false
-          : highlightSet !== null && !highlightSet.has(k)
-      g.style.opacity = (selDim || filterDimActive) ? DIM : '1'
+        highlightSet === null && thresholdFilterActive && g.getAttribute('data-filter-dim') === '1'
+      const selDim = outlineOnlySingleAction ? false : highlightSet !== null && !highlightSet.has(k)
+      g.style.opacity = selDim || filterDimActive ? DIM : '1'
     }
 
     for (const e of edges) {
@@ -2204,15 +2207,26 @@ export default function ActionFlowVisualization({
       if (!dim && highlightSet === null && thresholdFilterActive && (fk || tk)) {
         const esc = (s: string) =>
           typeof CSS !== 'undefined' && CSS.escape ? CSS.escape(s) : s.replace(/"/g, '\\"')
-        const fromGroup = fk ? svg.querySelector<SVGGElement>(`g.afv-action[data-action-key="${esc(fk)}"]`) : null
-        const toGroup = tk ? svg.querySelector<SVGGElement>(`g.afv-action[data-action-key="${esc(tk)}"]`) : null
+        const fromGroup = fk
+          ? svg.querySelector<SVGGElement>(`g.afv-action[data-action-key="${esc(fk)}"]`)
+          : null
+        const toGroup = tk
+          ? svg.querySelector<SVGGElement>(`g.afv-action[data-action-key="${esc(tk)}"]`)
+          : null
         const fromFiltered = fromGroup?.getAttribute('data-filter-dim') === '1'
         const toFiltered = toGroup?.getAttribute('data-filter-dim') === '1'
         if (fromFiltered && toFiltered) dim = true
       }
       e.style.opacity = dim ? DIM : '1'
     }
-  }, [highlightedActionType, highlightedActionKey, dimAll, actions, durationHighlightMinMs, tokenHighlightMin])
+  }, [
+    highlightedActionType,
+    highlightedActionKey,
+    dimAll,
+    actions,
+    durationHighlightMinMs,
+    tokenHighlightMin,
+  ])
 
   const mockOffset = mockBranchForkActionIndex !== undefined ? ROW_H : 0
   const contentHeight = layoutEstimate.totalH + mockOffset
@@ -2220,11 +2234,15 @@ export default function ActionFlowVisualization({
   const minContentHeight = MIN_SVG_CONTENT_HEIGHT
   const maxVisibleHeight = Math.max(
     TOP_PAD + MAX_VISIBLE_ROWS * ROW_H + BLOCK_H + BOTTOM_PAD,
-    minContentHeight
+    minContentHeight,
   )
   const normalViewportHeight = Math.min(Math.max(contentHeight, minContentHeight), maxVisibleHeight)
   let viewportHeight = normalViewportHeight
-  if (typeof viewportMaxHeight === 'number' && Number.isFinite(viewportMaxHeight) && viewportMaxHeight > 0) {
+  if (
+    typeof viewportMaxHeight === 'number' &&
+    Number.isFinite(viewportMaxHeight) &&
+    viewportMaxHeight > 0
+  ) {
     viewportHeight = Math.min(viewportHeight, viewportMaxHeight)
   }
   /** `maxHeight` caps overflow only — short content keeps intrinsic height (no phantom scrollbars) */
@@ -2260,55 +2278,55 @@ export default function ActionFlowVisualization({
 
   return (
     <>
-    <div
-      style={{
-        display: 'flex',
-        flexDirection: 'column',
-        minHeight: 0,
-        flexShrink: 0,
-        alignSelf: 'flex-start',
-        width: '100%',
-      }}
-    >
-      {embedded ? (
-        scrollInner
-      ) : (
-        <div
-          style={{
-            boxSizing: 'border-box',
-            border:'1px solid var(--color-border-light)',
-            borderRadius: 8,
-            background: 'var(--color-bg-elevated)',
-            overflow: 'hidden',
-            width: '100%',
-          }}
-        >
-          {scrollInner}
-        </div>
-      )}
-      {tooltipMounted && (
-        <Tooltip
-          id={tooltipId}
-          anchorSelect={`[data-tooltip-id="${tooltipId}"]`}
-          className="action-flow-react-tooltip"
-          variant="light"
-          positionStrategy="fixed"
-          delayShow={150}
-          delayHide={220}
-          opacity={1}
-          clickable
-          /** Inner `overflow:auto` can bubble `scroll` globally and dismiss tooltips prematurely */
-          globalCloseEvents={{ scroll: false, resize: true, escape: true }}
-          arrowColor="var(--color-tip-bg)"
-        />
-      )}
-    </div>
-    <ActionFlowContextMenu
-      menu={contextMenu}
-      onClose={() => setContextMenu(null)}
-      onFork={onForkFromAction}
-      onAnalysis={onAnalyzeFromAction}
-    />
+      <div
+        style={{
+          display: 'flex',
+          flexDirection: 'column',
+          minHeight: 0,
+          flexShrink: 0,
+          alignSelf: 'flex-start',
+          width: '100%',
+        }}
+      >
+        {embedded ? (
+          scrollInner
+        ) : (
+          <div
+            style={{
+              boxSizing: 'border-box',
+              border: '1px solid var(--color-border-light)',
+              borderRadius: 8,
+              background: 'var(--color-bg-elevated)',
+              overflow: 'hidden',
+              width: '100%',
+            }}
+          >
+            {scrollInner}
+          </div>
+        )}
+        {tooltipMounted && (
+          <Tooltip
+            id={tooltipId}
+            anchorSelect={`[data-tooltip-id="${tooltipId}"]`}
+            className="action-flow-react-tooltip"
+            variant="light"
+            positionStrategy="fixed"
+            delayShow={150}
+            delayHide={220}
+            opacity={1}
+            clickable
+            /** Inner `overflow:auto` can bubble `scroll` globally and dismiss tooltips prematurely */
+            globalCloseEvents={{ scroll: false, resize: true, escape: true }}
+            arrowColor="var(--color-tip-bg)"
+          />
+        )}
+      </div>
+      <ActionFlowContextMenu
+        menu={contextMenu}
+        onClose={() => setContextMenu(null)}
+        onFork={onForkFromAction}
+        onAnalysis={onAnalyzeFromAction}
+      />
     </>
   )
 }

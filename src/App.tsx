@@ -33,17 +33,11 @@ import ActionAnalysisModal from './components/ActionAnalysisModal'
 import ForkSessionModal from './components/ForkSessionModal'
 import SubtaskMessageConnector from './components/SubtaskMessageConnector'
 import { groupAssistantSubtasks, isTodoWriteMessage } from './utils/subtaskGrouping'
-import {
-  findSubtaskIndexForTodo,
-  subtaskShouldUseTodoLink,
-} from './utils/subtaskLinkage'
+import { findSubtaskIndexForTodo, subtaskShouldUseTodoLink } from './utils/subtaskLinkage'
 import { actionKeyMessageId } from './utils/actionKey'
 import { firstFlowAnchorKeyForSubtaskSegment } from './utils/actionMapping'
 import { parseActionRelatedSseEvent } from './utils/opencodeSse'
-import {
-  setSubtaskFlowLayoutMode,
-  setSubtaskPanelVisible,
-} from './store/uiSlice'
+import { setSubtaskFlowLayoutMode, setSubtaskPanelVisible } from './store/uiSlice'
 import { useAppDispatch, useAppSelector } from './store/hooks'
 import {
   archivedCompletedList,
@@ -165,12 +159,12 @@ function mergeSessionsById(lists: OcSession[][]): OcSession[] {
   return [...map.values()]
 }
 
-async function fetchSessionsAcrossDirectories(seedDirs: Array<string | undefined>): Promise<OcSession[]> {
+async function fetchSessionsAcrossDirectories(
+  seedDirs: Array<string | undefined>,
+): Promise<OcSession[]> {
   const dedup = Array.from(
     new Set(
-      seedDirs
-        .map((d) => (typeof d === 'string' ? d.trim() : ''))
-        .filter((d) => d.length > 0),
+      seedDirs.map((d) => (typeof d === 'string' ? d.trim() : '')).filter((d) => d.length > 0),
     ),
   )
   const jobs = dedup.map(async (dir) => {
@@ -193,7 +187,9 @@ function App() {
   const [selectedSessionId, setSelectedSessionId] = useState<string>('')
   const [messages, setMessages] = useState<OcMessage[]>([])
   const [todos, setTodos] = useState<OcTodo[]>([])
-  const [todosSnapshotAtMessageIndex, setTodosSnapshotAtMessageIndex] = useState<TodosSnapshotMap>({})
+  const [todosSnapshotAtMessageIndex, setTodosSnapshotAtMessageIndex] = useState<TodosSnapshotMap>(
+    {},
+  )
   const [loading, setLoading] = useState(false)
   const [apiConnected, setApiConnected] = useState(false)
   const [linkedSubtaskIndex, setLinkedSubtaskIndex] = useState<number | null>(null)
@@ -201,14 +197,22 @@ function App() {
   const [todoPanelRevealGeneration, setTodoPanelRevealGeneration] = useState(0)
   const [selectedDirectory, setSelectedDirectory] = useState<string>('')
   const [projectDirectories, setProjectDirectories] = useState<string[]>([])
-  const [manualDirectories, setManualDirectories] = useState<string[]>(() => loadManualDirectories())
-  const [closedDirectories, setClosedDirectories] = useState<string[]>(() => loadClosedDirectories())
+  const [manualDirectories, setManualDirectories] = useState<string[]>(() =>
+    loadManualDirectories(),
+  )
+  const [closedDirectories, setClosedDirectories] = useState<string[]>(() =>
+    loadClosedDirectories(),
+  )
   const [creatingSession, setCreatingSession] = useState(false)
   /** Pending question requests keyed by session (from SSE `question.asked`) */
-  const [pendingQuestions, setPendingQuestions] = useState<Record<string, OcPendingQuestionRequest>>({})
+  const [pendingQuestions, setPendingQuestions] = useState<
+    Record<string, OcPendingQuestionRequest>
+  >({})
   const [questionSubmitting, setQuestionSubmitting] = useState(false)
   const [aborting, setAborting] = useState(false)
-  const [analysisAction, setAnalysisAction] = useState<(MappedAction & { row: number }) | null>(null)
+  const [analysisAction, setAnalysisAction] = useState<(MappedAction & { row: number }) | null>(
+    null,
+  )
   /** Fork workflow: prompt → capture subtask panel snapshot → call OpenCode fork */
   const [pendingFork, setPendingFork] = useState<{
     action: MappedAction & { row: number }
@@ -216,7 +220,9 @@ function App() {
   } | null>(null)
   const [forkBusy, setForkBusy] = useState(false)
   const [archivingSessionId, setArchivingSessionId] = useState<string | null>(null)
-  const [composerModelRef, setComposerModelRef] = useState<string>(() => loadComposerModelRefFromLs())
+  const [composerModelRef, setComposerModelRef] = useState<string>(() =>
+    loadComposerModelRefFromLs(),
+  )
   const [composerModelOptions, setComposerModelOptions] = useState<OcComposerModelOption[]>([])
   const [composerModelsLoading, setComposerModelsLoading] = useState(false)
   const [composerModelsError, setComposerModelsError] = useState<string | null>(null)
@@ -288,7 +294,7 @@ function App() {
 
   const sessionsInFolder = useMemo(() => {
     return sessions
-      .filter(s => sameDirectory(s.directory, selectedDirectory))
+      .filter((s) => sameDirectory(s.directory, selectedDirectory))
       .sort((a, b) => b.time.updated - a.time.updated)
   }, [sessions, selectedDirectory])
 
@@ -304,7 +310,7 @@ function App() {
   const autoAbortedRunningKeysRef = useRef<Set<string>>(new Set())
 
   const activeSessionDirectory = useMemo(
-    () => sessions.find(s => s.id === selectedSessionId)?.directory,
+    () => sessions.find((s) => s.id === selectedSessionId)?.directory,
     [sessions, selectedSessionId],
   )
 
@@ -367,7 +373,9 @@ function App() {
   /** Short-lived hint when OpenCode signals `session.compacted` for the active session */
   const [compactionControlHint, setCompactionControlHint] = useState<string | null>(null)
   /** Action rectangle click toggles per-action highlight */
-  const [selection, setSelection] = useState<{ subtaskIndex: number; actionKey: string } | null>(null)
+  const [selection, setSelection] = useState<{ subtaskIndex: number; actionKey: string } | null>(
+    null,
+  )
   const handleSelectAction = useCallback((subtaskIndex: number, actionKey: string | null) => {
     setSelection((prev) => {
       if (actionKey === null) return null
@@ -414,10 +422,10 @@ function App() {
   /** If the active session disappears from the list, fall back to newest in folder or globally */
   useEffect(() => {
     if (sessions.length === 0) return
-    if (selectedSessionId && sessions.some(s => s.id === selectedSessionId)) return
+    if (selectedSessionId && sessions.some((s) => s.id === selectedSessionId)) return
 
     const inFolder = sessions
-      .filter(s => sameDirectory(s.directory, selectedDirectory))
+      .filter((s) => sameDirectory(s.directory, selectedDirectory))
       .sort((a, b) => b.time.updated - a.time.updated)
 
     if (inFolder.length > 0) {
@@ -480,7 +488,9 @@ function App() {
         const sid = props?.sessionID
         if (sid && sid === selectedSessionIdRef.current) {
           const dir = sessionsRef.current.find((s) => s.id === sid)?.directory
-          getMessages(sid, `SSE:${eventType}`, dir).then(setMessages).catch(() => {})
+          getMessages(sid, `SSE:${eventType}`, dir)
+            .then(setMessages)
+            .catch(() => {})
         }
       }
 
@@ -490,16 +500,20 @@ function App() {
         refreshSessions(eventDir ? [eventDir] : undefined)
           .then(setSessions)
           .catch(() => {})
-        const dir = sessionsRef.current.find(s => s.id === selectedSessionId)?.directory
+        const dir = sessionsRef.current.find((s) => s.id === selectedSessionId)?.directory
         if (selectedSessionId) {
-          getMessages(selectedSessionId, `SSE:${eventType}`, dir).then(setMessages).catch(() => {})
+          getMessages(selectedSessionId, `SSE:${eventType}`, dir)
+            .then(setMessages)
+            .catch(() => {})
         }
       }
 
       if (eventType.startsWith('todo')) {
-        const dir = sessionsRef.current.find(s => s.id === selectedSessionId)?.directory
+        const dir = sessionsRef.current.find((s) => s.id === selectedSessionId)?.directory
         if (selectedSessionId) {
-          getTodos(selectedSessionId, dir).then(setTodos).catch(() => {})
+          getTodos(selectedSessionId, dir)
+            .then(setTodos)
+            .catch(() => {})
         }
       }
 
@@ -604,9 +618,9 @@ function App() {
     if (writeIdxs.length === 0) return
     const lastWrite = writeIdxs[writeIdxs.length - 1]!
     const key = String(lastWrite)
-    setTodosSnapshotAtMessageIndex(prev => ({
+    setTodosSnapshotAtMessageIndex((prev) => ({
       ...prev,
-      [key]: todos.map(t => ({ ...t })),
+      [key]: todos.map((t) => ({ ...t })),
     }))
   }, [messages, todos, selectedSessionId, loading])
 
@@ -626,8 +640,7 @@ function App() {
   )
 
   const assistantSubtasks = useMemo(() => {
-    const fb =
-      sessionTodoModel.latestActive.length > 0 ? sessionTodoModel.latestActive : todos
+    const fb = sessionTodoModel.latestActive.length > 0 ? sessionTodoModel.latestActive : todos
     return groupAssistantSubtasks(messages, {
       canonicalTodosAtMessageIndex(i) {
         const c = sessionTodoModel.canonicalAtMessageIndex.get(i)
@@ -707,21 +720,16 @@ function App() {
   const handleTodoClick = useCallback(
     (todo: OcTodo) => {
       const preferred = findSubtaskIndexForTodo(assistantSubtasks, todo)
-      if (
-        preferred !== null &&
-        subtaskShouldUseTodoLink(assistantSubtasks[preferred]!)
-      ) {
+      if (preferred !== null && subtaskShouldUseTodoLink(assistantSubtasks[preferred]!)) {
         setLinkedSubtaskIndex(preferred)
         return
       }
       const id = todo.id?.trim()
       if (!id) return
-      const fallback = visibleSubtasks.find(({ subtask }) =>
-        subtask.linkedTodoIds.includes(id)
-      )
+      const fallback = visibleSubtasks.find(({ subtask }) => subtask.linkedTodoIds.includes(id))
       if (fallback) setLinkedSubtaskIndex(fallback.sourceIndex)
     },
-    [assistantSubtasks, visibleSubtasks]
+    [assistantSubtasks, visibleSubtasks],
   )
 
   useEffect(() => {
@@ -739,7 +747,7 @@ function App() {
 
   useEffect(() => {
     if (linkedSubtaskIndex !== null) {
-      setTodoPanelRevealGeneration(g => g + 1)
+      setTodoPanelRevealGeneration((g) => g + 1)
     }
   }, [linkedSubtaskIndex])
 
@@ -776,9 +784,7 @@ function App() {
     if (linkedSubtaskIndex === null) return
     const mid = linkedMessageIndexForConnector
     const selMatches =
-      selection !== null &&
-      selection.subtaskIndex === linkedSubtaskIndex &&
-      mid !== null
+      selection !== null && selection.subtaskIndex === linkedSubtaskIndex && mid !== null
     requestAnimationFrame(() => {
       const scrollRoot = messageScrollRef.current
       if (!scrollRoot) return
@@ -791,8 +797,7 @@ function App() {
       const st = assistantSubtasks[linkedSubtaskIndex]
       if (!st || st.assistantMessageIndices.length === 0) return
 
-      const noTodoConnector =
-        linkedTodoIds === null || linkedTodoIds.size === 0
+      const noTodoConnector = linkedTodoIds === null || linkedTodoIds.size === 0
 
       if (noTodoConnector) {
         const anchorKey = firstFlowAnchorKeyForSubtaskSegment(st, messages, Date.now())
@@ -850,7 +855,7 @@ function App() {
   const handleSessionTitleCommit = useCallback(
     async (title: string) => {
       if (!selectedSessionId) return
-      const dir = sessions.find(s => s.id === selectedSessionId)?.directory
+      const dir = sessions.find((s) => s.id === selectedSessionId)?.directory
       await updateSessionTitle(selectedSessionId, title, dir)
       const list = await refreshSessions()
       setSessions(list)
@@ -858,27 +863,30 @@ function App() {
     [selectedSessionId, sessions, refreshSessions],
   )
 
-  const handleQuestionReply = useCallback(async (answers: string[][]) => {
-    const pq = pendingQuestionsRef.current[selectedSessionId]
-    if (!pq) return
-    setQuestionSubmitting(true)
-    try {
-      await replyToQuestion(pq.id, answers, pq.directory)
-      setPendingQuestions((prev) => {
-        const { [pq.sessionID]: _, ...rest } = prev
-        return rest
-      })
-      const dir = sessionsRef.current.find((s) => s.id === selectedSessionId)?.directory
-      const msgs = await getMessages(selectedSessionId, 'after question reply', dir)
-      setMessages(msgs)
-    } catch {
-      window.alert(
-        'Failed to submit answers. Ensure OpenCode exposes POST /question/{requestID}/reply (OpenCode SDK v2 / recent opencode serve).',
-      )
-    } finally {
-      setQuestionSubmitting(false)
-    }
-  }, [selectedSessionId])
+  const handleQuestionReply = useCallback(
+    async (answers: string[][]) => {
+      const pq = pendingQuestionsRef.current[selectedSessionId]
+      if (!pq) return
+      setQuestionSubmitting(true)
+      try {
+        await replyToQuestion(pq.id, answers, pq.directory)
+        setPendingQuestions((prev) => {
+          const { [pq.sessionID]: _, ...rest } = prev
+          return rest
+        })
+        const dir = sessionsRef.current.find((s) => s.id === selectedSessionId)?.directory
+        const msgs = await getMessages(selectedSessionId, 'after question reply', dir)
+        setMessages(msgs)
+      } catch {
+        window.alert(
+          'Failed to submit answers. Ensure OpenCode exposes POST /question/{requestID}/reply (OpenCode SDK v2 / recent opencode serve).',
+        )
+      } finally {
+        setQuestionSubmitting(false)
+      }
+    },
+    [selectedSessionId],
+  )
 
   const handleQuestionReject = useCallback(async () => {
     const pq = pendingQuestionsRef.current[selectedSessionId]
@@ -917,38 +925,49 @@ function App() {
     })
   }, [selectedSessionId])
 
-  const handleSendMessage = useCallback(async (payload: MessageSendPayload) => {
-    if (!selectedSessionId) return
-    const dir = sessions.find(s => s.id === selectedSessionId)?.directory
-    const sid = selectedSessionId
-    const text = buildUserMessageWithGuidance(payload.combinedText)
-    const images = payload.imageParts
-    // OpenCode often finishes POST /message only after the agent turn — awaiting here would keep the composer disabled.
-    // Fire-and-forget like fork’s first message: rely on SSE + a follow-up GET /message poll.
-    void (async () => {
-      try {
-        await sendMessage(sid, text, dir, { imageParts: images, model: composerModelRef.trim() || undefined })
-        const msgs = await getMessages(sid, 'after POST /message completes', dir)
-        setMessages(msgs)
-        const last = msgs[msgs.length - 1]
-        if (last?.info.role === 'user') {
-          setWaitingForAssistantReply(true)
-          try {
-            await pollUntilAssistantMessage(sid, dir, () => selectedSessionIdRef.current === sid, setMessages)
-          } finally {
-            setWaitingForAssistantReply(false)
+  const handleSendMessage = useCallback(
+    async (payload: MessageSendPayload) => {
+      if (!selectedSessionId) return
+      const dir = sessions.find((s) => s.id === selectedSessionId)?.directory
+      const sid = selectedSessionId
+      const text = buildUserMessageWithGuidance(payload.combinedText)
+      const images = payload.imageParts
+      // OpenCode often finishes POST /message only after the agent turn — awaiting here would keep the composer disabled.
+      // Fire-and-forget like fork’s first message: rely on SSE + a follow-up GET /message poll.
+      void (async () => {
+        try {
+          await sendMessage(sid, text, dir, {
+            imageParts: images,
+            model: composerModelRef.trim() || undefined,
+          })
+          const msgs = await getMessages(sid, 'after POST /message completes', dir)
+          setMessages(msgs)
+          const last = msgs[msgs.length - 1]
+          if (last?.info.role === 'user') {
+            setWaitingForAssistantReply(true)
+            try {
+              await pollUntilAssistantMessage(
+                sid,
+                dir,
+                () => selectedSessionIdRef.current === sid,
+                setMessages,
+              )
+            } finally {
+              setWaitingForAssistantReply(false)
+            }
           }
+        } catch (e) {
+          window.alert(`Send failed: ${e instanceof Error ? e.message : String(e)}`)
+          setWaitingForAssistantReply(false)
         }
-      } catch (e) {
-        window.alert(`Send failed: ${e instanceof Error ? e.message : String(e)}`)
-        setWaitingForAssistantReply(false)
-      }
-    })()
-  }, [selectedSessionId, sessions, composerModelRef])
+      })()
+    },
+    [selectedSessionId, sessions, composerModelRef],
+  )
 
   const handleAbortMessage = useCallback(async () => {
     if (!selectedSessionId) return
-    const dir = sessions.find(s => s.id === selectedSessionId)?.directory
+    const dir = sessions.find((s) => s.id === selectedSessionId)?.directory
     setAborting(true)
     try {
       await abortSession(selectedSessionId, dir)
@@ -963,7 +982,7 @@ function App() {
     }
   }, [selectedSessionId, sessions, refreshSessions])
 
-  const selectedSession = sessions.find(s => s.id === selectedSessionId)
+  const selectedSession = sessions.find((s) => s.id === selectedSessionId)
 
   const handleSelectDirectory = useCallback(
     async (dir: string) => {
@@ -974,7 +993,7 @@ function App() {
       setTodosSnapshotAtMessageIndex({})
 
       const currentInFolder = sessions
-        .filter(s => sameDirectory(s.directory, dir))
+        .filter((s) => sameDirectory(s.directory, dir))
         .sort((a, b) => b.time.updated - a.time.updated)
       if (currentInFolder.length > 0) {
         setSelectedSessionId(currentInFolder[0]!.id)
@@ -983,7 +1002,7 @@ function App() {
 
       const list = await refreshSessions([dir])
       const refreshedInFolder = list
-        .filter(s => sameDirectory(s.directory, dir))
+        .filter((s) => sameDirectory(s.directory, dir))
         .sort((a, b) => b.time.updated - a.time.updated)
       if (refreshedInFolder.length > 0) {
         setSelectedSessionId(refreshedInFolder[0]!.id)
@@ -1021,7 +1040,7 @@ function App() {
     setTodosSnapshotAtMessageIndex({})
     const list = await refreshSessions([dir])
     const inFolder = list
-      .filter(s => sameDirectory(s.directory, dir))
+      .filter((s) => sameDirectory(s.directory, dir))
       .sort((a, b) => b.time.updated - a.time.updated)
     if (inFolder.length > 0) {
       setSelectedSessionId(inFolder[0]!.id)
@@ -1105,7 +1124,8 @@ function App() {
         setPendingFork(null)
         return
       }
-      const dir = sessions.find((s) => s.id === targetSessionId)?.directory ?? activeSessionDirectory
+      const dir =
+        sessions.find((s) => s.id === targetSessionId)?.directory ?? activeSessionDirectory
 
       setForkBusy(true)
       try {
@@ -1152,9 +1172,14 @@ function App() {
           // POST /message may return only after the agent turn; don’t block the composer on it.
           void (async () => {
             try {
-              await sendMessage(forked.id, buildUserMessageWithGuidance(userText), forked.directory, {
-                model: composerModelRef.trim() || undefined,
-              })
+              await sendMessage(
+                forked.id,
+                buildUserMessageWithGuidance(userText),
+                forked.directory,
+                {
+                  model: composerModelRef.trim() || undefined,
+                },
+              )
               const msgsAfterSend = await getMessages(
                 forked.id,
                 'after fork first user message',
@@ -1190,7 +1215,15 @@ function App() {
         setForkBusy(false)
       }
     },
-    [selectedSessionId, sessions, activeSessionDirectory, messages, visibleSubtasks, refreshSessions, composerModelRef],
+    [
+      selectedSessionId,
+      sessions,
+      activeSessionDirectory,
+      messages,
+      visibleSubtasks,
+      refreshSessions,
+      composerModelRef,
+    ],
   )
 
   const handleAnalyzeFromAction = useCallback((action: MappedAction & { row: number }) => {
@@ -1277,7 +1310,7 @@ function App() {
               onTodoClick={handleTodoClick}
               onSessionTitleCommit={handleSessionTitleCommit}
               pendingQuestion={
-                selectedSessionId ? pendingQuestions[selectedSessionId] ?? null : null
+                selectedSessionId ? (pendingQuestions[selectedSessionId] ?? null) : null
               }
               onQuestionReply={handleQuestionReply}
               onQuestionReject={handleQuestionReject}
@@ -1295,230 +1328,263 @@ function App() {
         </div>
 
         {subtaskPanelVisible ? (
-        <div
-          style={{
-            width: 630,
-            flexShrink: 0,
-            background: 'var(--color-bg-white)',
-            borderLeft:'1px solid var(--color-border-light)',
-            display: 'flex',
-            flexDirection: 'column',
-            transition: 'width 0.25s ease',
-          }}
-        >
           <div
             style={{
-              height: 44,
-              padding: '0 14px',
+              width: 630,
+              flexShrink: 0,
+              background: 'var(--color-bg-white)',
+              borderLeft: '1px solid var(--color-border-light)',
               display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              borderBottom:'1px solid var(--color-border-light)',
-              fontSize: 12,
-              fontWeight: 500,
-              color: 'var(--color-text-primary)',
+              flexDirection: 'column',
+              transition: 'width 0.25s ease',
             }}
           >
-            <div style={{ display: 'flex', alignItems: 'center', gap: 10, minWidth: 0 }}>
-              <span style={{ flexShrink: 0 }}>VibeTrace</span>
-              {compactionControlHint ? (
-                <span
-                  title="OpenCode SSE: session.compacted — context window was compacted"
-                  style={{
-                    fontSize: 10,
-                    fontWeight: 500,
-                    color: 'var(--color-accent-strong)',
-                    flexShrink: 1,
-                    minWidth: 0,
-                    overflow: 'hidden',
-                    textOverflow: 'ellipsis',
-                    whiteSpace: 'nowrap',
-                  }}
-                >
-                  {compactionControlHint}
-                </span>
-              ) : null}
-              {SHOW_COMPOSER_MODEL_UI && (
-              <span
-                title="与左侧输入框「模型」选择同步"
-                style={{
-                  fontSize: 11,
-                  fontWeight: 400,
-                  color: 'var(--color-text-secondary)',
-                  overflow: 'hidden',
-                  textOverflow: 'ellipsis',
-                  whiteSpace: 'nowrap',
-                }}
-              >
-                {composerModelRef.trim()
-                  ? `模型 ${composerModelRef.trim()}`
-                  : envBootstrapModel
-                    ? `模型 ${envBootstrapModel}（.env）`
-                    : '模型：服务端默认'}
-              </span>
-              )}
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <div
+              style={{
+                height: 44,
+                padding: '0 14px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                borderBottom: '1px solid var(--color-border-light)',
+                fontSize: 12,
+                fontWeight: 500,
+                color: 'var(--color-text-primary)',
+              }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10, minWidth: 0 }}>
+                <span style={{ flexShrink: 0 }}>VibeTrace</span>
+                {compactionControlHint ? (
+                  <span
+                    title="OpenCode SSE: session.compacted — context window was compacted"
+                    style={{
+                      fontSize: 10,
+                      fontWeight: 500,
+                      color: 'var(--color-accent-strong)',
+                      flexShrink: 1,
+                      minWidth: 0,
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                      whiteSpace: 'nowrap',
+                    }}
+                  >
+                    {compactionControlHint}
+                  </span>
+                ) : null}
+                {SHOW_COMPOSER_MODEL_UI && (
+                  <span
+                    title="与左侧输入框「模型」选择同步"
+                    style={{
+                      fontSize: 11,
+                      fontWeight: 400,
+                      color: 'var(--color-text-secondary)',
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                      whiteSpace: 'nowrap',
+                    }}
+                  >
+                    {composerModelRef.trim()
+                      ? `模型 ${composerModelRef.trim()}`
+                      : envBootstrapModel
+                        ? `模型 ${envBootstrapModel}（.env）`
+                        : '模型：服务端默认'}
+                  </span>
+                )}
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <button
+                    type="button"
+                    onClick={() => dispatch(setSubtaskFlowLayoutMode('timeline'))}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 4,
+                      background: 'none',
+                      border: 'none',
+                      cursor: 'pointer',
+                      padding: 0,
+                      fontSize: 11,
+                      lineHeight: '16px',
+                      color:
+                        subtaskFlowLayoutMode === 'timeline'
+                          ? 'var(--color-control-track-on)'
+                          : 'var(--color-text-muted)',
+                    }}
+                  >
+                    <span
+                      style={{
+                        width: 10,
+                        height: 10,
+                        borderRadius: 3,
+                        boxSizing: 'border-box',
+                        background:
+                          subtaskFlowLayoutMode === 'timeline'
+                            ? 'var(--color-control-muted)'
+                            : 'transparent',
+                        border:
+                          subtaskFlowLayoutMode === 'timeline'
+                            ? '1px solid var(--color-control-track-off)'
+                            : '1px solid var(--color-control-muted)',
+                      }}
+                    />
+                    timeline
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => dispatch(setSubtaskFlowLayoutMode('summary'))}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 4,
+                      background: 'none',
+                      border: 'none',
+                      cursor: 'pointer',
+                      padding: 0,
+                      fontSize: 11,
+                      lineHeight: '16px',
+                      color:
+                        subtaskFlowLayoutMode === 'summary'
+                          ? 'var(--color-control-track-on)'
+                          : 'var(--color-text-muted)',
+                    }}
+                  >
+                    <span
+                      style={{
+                        width: 10,
+                        height: 10,
+                        borderRadius: 3,
+                        boxSizing: 'border-box',
+                        background:
+                          subtaskFlowLayoutMode === 'summary'
+                            ? 'var(--color-control-muted)'
+                            : 'transparent',
+                        border:
+                          subtaskFlowLayoutMode === 'summary'
+                            ? '1px solid var(--color-control-track-off)'
+                            : '1px solid var(--color-control-muted)',
+                      }}
+                    />
+                    summary
+                  </button>
+                </div>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
                 <button
                   type="button"
-                  onClick={() => dispatch(setSubtaskFlowLayoutMode('timeline'))}
+                  onClick={() => dispatch(setSubtaskPanelVisible(false))}
+                  aria-label="Hide VibeTrace panel"
+                  title="Hide VibeTrace panel"
                   style={{
+                    width: 26,
+                    height: 26,
+                    border: 'none',
+                    background: 'transparent',
+                    cursor: 'pointer',
                     display: 'flex',
                     alignItems: 'center',
-                    gap: 4,
-                    background: 'none',
-                    border: 'none',
-                    cursor: 'pointer',
-                    padding: 0,
-                    fontSize: 11,
-                    lineHeight: '16px',
-                    color: subtaskFlowLayoutMode === 'timeline' ? 'var(--color-control-track-on)' : 'var(--color-text-muted)',
+                    justifyContent: 'center',
+                    borderRadius: 6,
+                    color: 'var(--color-text-secondary)',
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.background = 'var(--color-bg-soft)'
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.background = 'transparent'
                   }}
                 >
-                  <span
-                    style={{
-                      width: 10,
-                      height: 10,
-                      borderRadius: 3,
-                      boxSizing: 'border-box',
-                      background: subtaskFlowLayoutMode === 'timeline' ? 'var(--color-control-muted)' : 'transparent',
-                      border:
-                        subtaskFlowLayoutMode === 'timeline'
-                          ? '1px solid var(--color-control-track-off)'
-                          : '1px solid var(--color-control-muted)',
-                    }}
-                  />
-                  timeline
+                  <svg
+                    width="14"
+                    height="14"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <path d="M13 5l7 7-7 7M5 5l7 7-7 7" />
+                  </svg>
                 </button>
                 <button
                   type="button"
-                  onClick={() => dispatch(setSubtaskFlowLayoutMode('summary'))}
+                  onClick={() => setSubtaskFullscreenOpen(true)}
+                  aria-label="Open VibeTrace fullscreen"
+                  title="Open VibeTrace fullscreen"
+                  disabled={visibleSubtasks.length === 0}
                   style={{
+                    width: 26,
+                    height: 26,
+                    border: 'none',
+                    background: 'transparent',
+                    cursor: visibleSubtasks.length === 0 ? 'not-allowed' : 'pointer',
                     display: 'flex',
                     alignItems: 'center',
-                    gap: 4,
-                    background: 'none',
-                    border: 'none',
-                    cursor: 'pointer',
-                    padding: 0,
-                    fontSize: 11,
-                    lineHeight: '16px',
-                    color: subtaskFlowLayoutMode === 'summary' ? 'var(--color-control-track-on)' : 'var(--color-text-muted)',
+                    justifyContent: 'center',
+                    borderRadius: 6,
+                    color:
+                      visibleSubtasks.length === 0
+                        ? 'var(--color-control-muted)'
+                        : 'var(--color-text-secondary)',
+                  }}
+                  onMouseEnter={(e) => {
+                    if (visibleSubtasks.length === 0) return
+                    e.currentTarget.style.background = 'var(--color-bg-soft)'
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.background = 'transparent'
                   }}
                 >
-                  <span
-                    style={{
-                      width: 10,
-                      height: 10,
-                      borderRadius: 3,
-                      boxSizing: 'border-box',
-                      background: subtaskFlowLayoutMode === 'summary' ? 'var(--color-control-muted)' : 'transparent',
-                      border:
-                        subtaskFlowLayoutMode === 'summary'
-                          ? '1px solid var(--color-control-track-off)'
-                          : '1px solid var(--color-control-muted)',
-                    }}
-                  />
-                  summary
+                  <svg
+                    width="14"
+                    height="14"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <path d="M3 9V3h6" />
+                    <path d="M21 9V3h-6" />
+                    <path d="M3 15v6h6" />
+                    <path d="M21 15v6h-6" />
+                  </svg>
                 </button>
               </div>
             </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-              <button
-                type="button"
-                onClick={() => dispatch(setSubtaskPanelVisible(false))}
-                aria-label="Hide VibeTrace panel"
-                title="Hide VibeTrace panel"
-                style={{
-                  width: 26,
-                  height: 26,
-                  border: 'none',
-                  background: 'transparent',
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  borderRadius: 6,
-                  color: 'var(--color-text-secondary)',
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.background = 'var(--color-bg-soft)'
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.background = 'transparent'
-                }}
-              >
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M13 5l7 7-7 7M5 5l7 7-7 7" />
-                </svg>
-              </button>
-              <button
-                type="button"
-                onClick={() => setSubtaskFullscreenOpen(true)}
-                aria-label="Open VibeTrace fullscreen"
-                title="Open VibeTrace fullscreen"
-                disabled={visibleSubtasks.length === 0}
-                style={{
-                  width: 26,
-                  height: 26,
-                  border: 'none',
-                  background: 'transparent',
-                  cursor: visibleSubtasks.length === 0 ? 'not-allowed' : 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  borderRadius: 6,
-                  color: visibleSubtasks.length === 0 ? 'var(--color-control-muted)' : 'var(--color-text-secondary)',
-                }}
-                onMouseEnter={(e) => {
-                  if (visibleSubtasks.length === 0) return
-                  e.currentTarget.style.background = 'var(--color-bg-soft)'
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.background = 'transparent'
-                }}
-              >
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M3 9V3h6" />
-                  <path d="M21 9V3h-6" />
-                  <path d="M3 15v6h6" />
-                  <path d="M21 15v6h-6" />
-                </svg>
-              </button>
+            <div
+              style={{
+                flex: 1,
+                display: 'flex',
+                flexDirection: 'column',
+                minHeight: 0,
+                padding: '12px 14px',
+                gap: 12,
+              }}
+            >
+              <SubtaskDebugPanel
+                messages={messages}
+                visibleSubtasks={visibleSubtasks}
+                linkedSubtaskIndex={linkedSubtaskIndex}
+                onSelectSubtask={toggleSubtaskLink}
+                onForkFromAction={handleForkFromAction}
+                onAnalyzeFromAction={handleAnalyzeFromAction}
+                listScrollRef={subtaskScrollRef}
+                sessionDirectory={activeSessionDirectory}
+                forkPanelSnapshotBundle={forkPanelSnapshotBundle}
+                flowLayoutMode={subtaskFlowLayoutMode}
+                selection={selection}
+                onSelectAction={handleSelectAction}
+              />
             </div>
           </div>
-          <div
-            style={{
-              flex: 1,
-              display: 'flex',
-              flexDirection: 'column',
-              minHeight: 0,
-              padding: '12px 14px',
-              gap: 12,
-            }}
-          >
-            <SubtaskDebugPanel
-              messages={messages}
-              visibleSubtasks={visibleSubtasks}
-              linkedSubtaskIndex={linkedSubtaskIndex}
-              onSelectSubtask={toggleSubtaskLink}
-              onForkFromAction={handleForkFromAction}
-              onAnalyzeFromAction={handleAnalyzeFromAction}
-              listScrollRef={subtaskScrollRef}
-              sessionDirectory={activeSessionDirectory}
-              forkPanelSnapshotBundle={forkPanelSnapshotBundle}
-              flowLayoutMode={subtaskFlowLayoutMode}
-              selection={selection}
-              onSelectAction={handleSelectAction}
-            />
-          </div>
-        </div>
         ) : (
           <div
             style={{
               width: 36,
               flexShrink: 0,
               background: 'var(--color-bg-white)',
-              borderLeft:'1px solid var(--color-border-light)',
+              borderLeft: '1px solid var(--color-border-light)',
               display: 'flex',
               flexDirection: 'column',
               alignItems: 'center',
@@ -1543,7 +1609,16 @@ function App() {
                 color: 'var(--color-text-secondary)',
               }}
             >
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <svg
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
                 <path d="M9 5l7 7-7 7" />
               </svg>
             </button>

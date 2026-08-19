@@ -93,7 +93,10 @@ export function countUrlLinesInToolOutput(output: string | undefined): number {
   return m?.length ?? 0
 }
 
-export function extractUrlsFromSearchOutput(output: string | undefined, limit = URL_LIST_MAX): string[] {
+export function extractUrlsFromSearchOutput(
+  output: string | undefined,
+  limit = URL_LIST_MAX,
+): string[] {
   if (!output) return []
   const re = /^URL:\s*(https?:\/\/\S+)/gm
   const out: string[] = []
@@ -144,7 +147,10 @@ function collectTodowriteToolParts(messages: OcMessage[]): ToolPart[] {
   return out
 }
 
-function buildTodowriteLines(part: ToolPart, allMessages: OcMessage[] | undefined): TooltipBodyLine[] {
+function buildTodowriteLines(
+  part: ToolPart,
+  allMessages: OcMessage[] | undefined,
+): TooltipBodyLine[] {
   const curr = getTodosArray(part)
   const msgs = allMessages ?? []
   const list = collectTodowriteToolParts(msgs)
@@ -219,7 +225,9 @@ function englishToolBody(part: ToolPart, ctx: { allMessages?: OcMessage[] }): To
 
   switch (tool) {
     case 'read': {
-      const fpRaw = stringField(input.filePath as string | undefined) ?? stringField(st?.title as string | undefined)
+      const fpRaw =
+        stringField(input.filePath as string | undefined) ??
+        stringField(st?.title as string | undefined)
       const lines: TooltipBodyLine[] = []
       if (fpRaw !== undefined) {
         lines.push({
@@ -232,7 +240,8 @@ function englishToolBody(part: ToolPart, ctx: { allMessages?: OcMessage[] }): To
     }
     case 'write': {
       const pathRaw =
-        stringField(st?.title as string | undefined) ?? stringField(input.filePath as string | undefined)
+        stringField(st?.title as string | undefined) ??
+        stringField(input.filePath as string | undefined)
       const outRaw = stringField(st?.output as string | undefined)
       const lines: TooltipBodyLine[] = []
       if (pathRaw !== undefined) {
@@ -248,7 +257,9 @@ function englishToolBody(part: ToolPart, ctx: { allMessages?: OcMessage[] }): To
       return lines
     }
     case 'edit': {
-      const fpRaw = stringField(input.filePath as string | undefined) ?? stringField(st?.title as string | undefined)
+      const fpRaw =
+        stringField(input.filePath as string | undefined) ??
+        stringField(st?.title as string | undefined)
       const outRaw = stringField(st?.output as string | undefined)
       const lines: TooltipBodyLine[] = []
       if (fpRaw !== undefined) {
@@ -316,7 +327,8 @@ function englishToolBody(part: ToolPart, ctx: { allMessages?: OcMessage[] }): To
       const cnt = num(meta.count)
       const lines: TooltipBodyLine[] = [{ kind: 'kv', key: 'Match', value: pat }]
       if (cnt === 0) lines.push({ kind: 'kv', key: 'result num', value: 'No files found' })
-      else lines.push({ kind: 'kv', key: 'result num', value: cnt !== undefined ? String(cnt) : '—' })
+      else
+        lines.push({ kind: 'kv', key: 'result num', value: cnt !== undefined ? String(cnt) : '—' })
       return lines
     }
     case 'glob': {
@@ -324,15 +336,18 @@ function englishToolBody(part: ToolPart, ctx: { allMessages?: OcMessage[] }): To
       const cnt = num(meta.count)
       const lines: TooltipBodyLine[] = [{ kind: 'kv', key: 'Match', value: pat }]
       if (cnt === 0) lines.push({ kind: 'kv', key: 'result num', value: 'No files found' })
-      else lines.push({ kind: 'kv', key: 'result num', value: cnt !== undefined ? String(cnt) : '—' })
+      else
+        lines.push({ kind: 'kv', key: 'result num', value: cnt !== undefined ? String(cnt) : '—' })
       return lines
     }
     case 'webfetch': {
       const lines: TooltipBodyLine[] = []
       const t = stringField(st?.title as string | undefined)
       const url = stringField(input.url as string | undefined)
-      if (t !== undefined) lines.push({ kind: 'kv', key: 'Web fetch', value: t === '' ? '(empty)' : t })
-      if (url !== undefined) lines.push({ kind: 'kv', key: 'URL', value: url === '' ? '(empty)' : url })
+      if (t !== undefined)
+        lines.push({ kind: 'kv', key: 'Web fetch', value: t === '' ? '(empty)' : t })
+      if (url !== undefined)
+        lines.push({ kind: 'kv', key: 'URL', value: url === '' ? '(empty)' : url })
       return lines
     }
     case 'websearch': {
@@ -415,7 +430,9 @@ function englishNonToolBody(part: OcMessagePart): TooltipBodyLine[] {
       return [{ kind: 'text', value: truncateToMaxWords(text, PREVIEW_MAX_WORDS) }]
     }
     case 'compaction':
-      return [{ kind: 'kv', key: 'Note', value: 'Context compaction (summary may follow in session).' }]
+      return [
+        { kind: 'kv', key: 'Note', value: 'Context compaction (summary may follow in session).' },
+      ]
     default:
       return [{ kind: 'kv', key: 'Part', value: part.type }]
   }
@@ -423,7 +440,7 @@ function englishNonToolBody(part: OcMessagePart): TooltipBodyLine[] {
 
 export function buildEnglishTooltipContent(
   part: OcMessagePart,
-  ctx: { allMessages?: OcMessage[] } = {}
+  ctx: { allMessages?: OcMessage[] } = {},
 ): EnglishTooltipContent {
   const primaryLabel = getPrimaryLabel(part)
   const statusLabel = getStatusLabel(part)
@@ -442,7 +459,10 @@ export function buildEnglishTooltipContent(
   }
 }
 
-export function formatEnglishTooltipContentHtml(content: EnglishTooltipContent, escapeHtml: (s: string) => string): string {
+export function formatEnglishTooltipContentHtml(
+  content: EnglishTooltipContent,
+  escapeHtml: (s: string) => string,
+): string {
   const head = `<div class="action-tip-head"><strong class="action-tip-primary">${escapeHtml(content.primaryLabel)}</strong><span class="action-tip-status">${escapeHtml(content.statusLabel)}</span></div>`
   const bodyHtml = content.body
     .map((line) => {
@@ -467,7 +487,10 @@ export function formatEnglishTooltipContentHtml(content: EnglishTooltipContent, 
 /**
  * @deprecated legacy Chinese KV builder
  */
-export function buildTooltipKeyValuesFromPart(part: OcMessagePart, _ctx?: { cwd?: string }): TooltipKeyValue[] {
+export function buildTooltipKeyValuesFromPart(
+  part: OcMessagePart,
+  _ctx?: { cwd?: string },
+): TooltipKeyValue[] {
   const c = buildEnglishTooltipContent(part, {})
   return c.body
     .filter((l): l is { kind: 'kv'; key: string; value: string } => l.kind === 'kv')
@@ -476,7 +499,7 @@ export function buildTooltipKeyValuesFromPart(part: OcMessagePart, _ctx?: { cwd?
 
 export function mergeMessagesForActionTooltipLookup(
   segmentMessages: OcMessage[],
-  childBranchMessages: OcMessage[]
+  childBranchMessages: OcMessage[],
 ): OcMessage[] {
   return [...segmentMessages, ...childBranchMessages]
 }
@@ -585,19 +608,19 @@ export function buildCompactMappedActionTooltipHtml(
 export function resolvePartForMappedAction(
   messages: OcMessage[],
   messageIndex: number | undefined,
-  partIndex: number | undefined
+  partIndex: number | undefined,
 ): OcMessagePart | undefined {
   return resolvePartForAction(messages, { partId: undefined, messageIndex, partIndex })
 }
 
 export function formatTooltipKeyValuesAsHtml(
   rows: TooltipKeyValue[],
-  escapeHtml: (s: string) => string
+  escapeHtml: (s: string) => string,
 ): string {
   return rows
     .map(
       (r) =>
-        `<div class="action-tip-kv"><span class="action-tip-k">${escapeHtml(r.key)}</span><span class="action-tip-v">${escapeHtml(r.value)}</span></div>`
+        `<div class="action-tip-kv"><span class="action-tip-k">${escapeHtml(r.key)}</span><span class="action-tip-v">${escapeHtml(r.value)}</span></div>`,
     )
     .join('')
 }

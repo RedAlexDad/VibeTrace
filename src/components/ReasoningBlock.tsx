@@ -52,7 +52,13 @@ export default function ReasoningBlock({ text, time }: ReasoningBlockProps) {
         </span>
 
         {duration && (
-          <span style={{ fontSize: 10, color: 'var(--color-text-tertiary)', fontFamily: 'IBM Plex Mono, monospace' }}>
+          <span
+            style={{
+              fontSize: 10,
+              color: 'var(--color-text-tertiary)',
+              fontFamily: 'IBM Plex Mono, monospace',
+            }}
+          >
             {duration}s
           </span>
         )}
@@ -90,7 +96,7 @@ export default function ReasoningBlock({ text, time }: ReasoningBlockProps) {
       {expanded && (
         <div
           style={{
-            borderTop:'1px solid var(--color-border-light)',
+            borderTop: '1px solid var(--color-border-light)',
             padding: '8px 10px',
           }}
         >

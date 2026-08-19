@@ -33,39 +33,65 @@ interface MessageBubbleProps {
 /** Minimal markdown pass (fixed font size, italic disabled) */
 function renderMarkdown(text: string): string {
   if (!text) return ''
-  return text
-    // fenced code
-    .replace(/```(\w*)\n([\s\S]*?)```/g, '<pre style="background:var(--color-bg-soft);padding:8px;border-radius:4px;margin:6px 0;font-family:IBM Plex Mono,monospace;font-size:11px"><code>$2</code></pre>')
-    // inline code
-    .replace(/`([^`]+)`/g, '<code style="background:var(--color-bg-soft);padding:1px 3px;border-radius:2px;font-family:IBM Plex Mono,monospace;font-size:11px">$1</code>')
-    // Tables
-    .replace(/(\|.+\|)\n(\|[-:| ]+\|)\n((?:\|.+\|\n?)*)/g, (_match, header, _divider, rows) => {
-      const headerCells = header.split('|').filter((c: string) => c.trim())
-      const rowLines = rows.trim().split('\n')
-      const bodyCells = rowLines.map((row: string) => row.split('|').filter((c: string) => c.trim()))
-      let html = '<table style="border-collapse:collapse;margin:8px 0;font-size:11px">'
-      html += '<thead><tr>' + headerCells.map((c: string) => `<th style="border:1px solid var(--color-border-light);padding:4px 8px;background:var(--color-bg-soft);font-weight:600">${c}</th>`).join('') + '</tr></thead>'
-      html += '<tbody>'
-      bodyCells.forEach((cells: string[]) => {
-        html += '<tr>' + cells.map((c: string) => `<td style="border:1px solid var(--color-border-light);padding:4px 8px">${c}</td>`).join('') + '</tr>'
+  return (
+    text
+      // fenced code
+      .replace(
+        /```(\w*)\n([\s\S]*?)```/g,
+        '<pre style="background:var(--color-bg-soft);padding:8px;border-radius:4px;margin:6px 0;font-family:IBM Plex Mono,monospace;font-size:11px"><code>$2</code></pre>',
+      )
+      // inline code
+      .replace(
+        /`([^`]+)`/g,
+        '<code style="background:var(--color-bg-soft);padding:1px 3px;border-radius:2px;font-family:IBM Plex Mono,monospace;font-size:11px">$1</code>',
+      )
+      // Tables
+      .replace(/(\|.+\|)\n(\|[-:| ]+\|)\n((?:\|.+\|\n?)*)/g, (_match, header, _divider, rows) => {
+        const headerCells = header.split('|').filter((c: string) => c.trim())
+        const rowLines = rows.trim().split('\n')
+        const bodyCells = rowLines.map((row: string) =>
+          row.split('|').filter((c: string) => c.trim()),
+        )
+        let html = '<table style="border-collapse:collapse;margin:8px 0;font-size:11px">'
+        html +=
+          '<thead><tr>' +
+          headerCells
+            .map(
+              (c: string) =>
+                `<th style="border:1px solid var(--color-border-light);padding:4px 8px;background:var(--color-bg-soft);font-weight:600">${c}</th>`,
+            )
+            .join('') +
+          '</tr></thead>'
+        html += '<tbody>'
+        bodyCells.forEach((cells: string[]) => {
+          html +=
+            '<tr>' +
+            cells
+              .map(
+                (c: string) =>
+                  `<td style="border:1px solid var(--color-border-light);padding:4px 8px">${c}</td>`,
+              )
+              .join('') +
+            '</tr>'
+        })
+        html += '</tbody></table>'
+        return html
       })
-      html += '</tbody></table>'
-      return html
-    })
-    // **bold** -> strong
-    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
-    // *italic* -> just text (no italic)
-    .replace(/\*(.+?)\*/g, '$1')
-    // Headers collapse to bold
-    .replace(/^#{1,6} (.+)$/gm, '<strong>$1</strong>')
-    // bullet lists
-    .replace(/^- (.+)$/gm, '<div style="margin-left:16px">• $1</div>')
-    // numbered lists
-    .replace(/^\d+\. (.+)$/gm, '<div style="margin-left:16px">$1</div>')
-    // Paragraph breaks
-    .replace(/\n\n/g, '</p><p style="margin:6px 0">')
-    // Soft line breaks
-    .replace(/\n/g, '<br/>')
+      // **bold** -> strong
+      .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+      // *italic* -> just text (no italic)
+      .replace(/\*(.+?)\*/g, '$1')
+      // Headers collapse to bold
+      .replace(/^#{1,6} (.+)$/gm, '<strong>$1</strong>')
+      // bullet lists
+      .replace(/^- (.+)$/gm, '<div style="margin-left:16px">• $1</div>')
+      // numbered lists
+      .replace(/^\d+\. (.+)$/gm, '<div style="margin-left:16px">$1</div>')
+      // Paragraph breaks
+      .replace(/\n\n/g, '</p><p style="margin:6px 0">')
+      // Soft line breaks
+      .replace(/\n/g, '<br/>')
+  )
 }
 
 /** User bubbles: payload usually lives under text parts while `info.content` may stay empty */
@@ -74,7 +100,7 @@ function userMessageDisplayText(message: OcMessage): string {
   if (c) return message.info.content!
   const fromParts = message.parts
     .filter((p): p is Extract<OcMessagePart, { type: 'text' }> => p.type === 'text')
-    .map(p => p.text || '')
+    .map((p) => p.text || '')
     .join('')
     .trim()
   return fromParts
@@ -136,7 +162,12 @@ function UserMessage({ message }: { message: OcMessage }) {
 
   return (
     <div
-      style={{ display: 'flex', justifyContent: 'flex-end', padding: '4px 0', position: 'relative' }}
+      style={{
+        display: 'flex',
+        justifyContent: 'flex-end',
+        padding: '4px 0',
+        position: 'relative',
+      }}
       onMouseEnter={() => setShowCopy(true)}
       onMouseLeave={() => setShowCopy(false)}
     >
@@ -145,7 +176,7 @@ function UserMessage({ message }: { message: OcMessage }) {
           maxWidth: '70%',
           padding: '8px 12px',
           background: 'var(--color-bg-white)',
-          border:'1px solid var(--color-border-light)',
+          border: '1px solid var(--color-border-light)',
           borderRadius: '12px',
           fontSize: 12,
           lineHeight: 1.5,
@@ -164,7 +195,7 @@ function UserMessage({ message }: { message: OcMessage }) {
             bottom: -4,
             right: 8,
             background: 'var(--color-bg-white)',
-            border:'1px solid var(--color-border-light)',
+            border: '1px solid var(--color-border-light)',
             borderRadius: '4px',
             padding: '2px 6px',
             fontSize: 10,
@@ -194,7 +225,15 @@ function AgentInfo({ info }: { info: OcMessageInfo }) {
   if (!modelName && !totalTokens && !duration) return null
 
   return (
-    <div style={{ marginTop: '8px', fontSize: 11, color: 'var(--color-text-tertiary)', display: 'flex', gap: '12px' }}>
+    <div
+      style={{
+        marginTop: '8px',
+        fontSize: 11,
+        color: 'var(--color-text-tertiary)',
+        display: 'flex',
+        gap: '12px',
+      }}
+    >
       {modelName && <span>{modelName}</span>}
       {duration && <span>{duration}</span>}
       {totalTokens && <span>{totalTokens} tokens</span>}
@@ -287,17 +326,19 @@ function PartView({
 
     case 'text-file':
       return (
-        <div style={{
-          fontSize: 11,
-          background: 'var(--color-bg-soft)',
-          padding: '6px 10px',
-          borderRadius: '4px',
-          margin: '4px 0',
-          fontFamily: 'IBM Plex Mono, monospace',
-          whiteSpace: 'pre-wrap',
-          color: 'var(--color-text-secondary)',
-          overflow: 'hidden',
-        }}>
+        <div
+          style={{
+            fontSize: 11,
+            background: 'var(--color-bg-soft)',
+            padding: '6px 10px',
+            borderRadius: '4px',
+            margin: '4px 0',
+            fontFamily: 'IBM Plex Mono, monospace',
+            whiteSpace: 'pre-wrap',
+            color: 'var(--color-text-secondary)',
+            overflow: 'hidden',
+          }}
+        >
           [{part.path}]
         </div>
       )
@@ -308,7 +349,11 @@ function PartView({
         : null
       return (
         <div style={{ fontSize: 12, color: 'var(--color-text-tertiary)', margin: '4px 0' }}>
-          {url ? <img src={url} alt="image" style={{ maxWidth: '150px', borderRadius: '4px' }} /> : '[image]'}
+          {url ? (
+            <img src={url} alt="image" style={{ maxWidth: '150px', borderRadius: '4px' }} />
+          ) : (
+            '[image]'
+          )}
         </div>
       )
     }
@@ -386,8 +431,7 @@ function ToolCallView({
     ? `${parsedError.name ? `Error: ${parsedError.name}\n` : ''}${parsedError.text ?? errorRaw}`
     : undefined
 
-  const questionItems =
-    toolName === 'question' ? parseQuestionInputQuestions(state?.input) : []
+  const questionItems = toolName === 'question' ? parseQuestionInputQuestions(state?.input) : []
   const showInlineQuestion =
     toolName === 'question' &&
     questionItems.length > 0 &&
@@ -417,7 +461,13 @@ function ToolCallView({
   }, [part.id, hasError, hasOutput])
 
   return (
-    <div style={{ border:'1px solid var(--color-border-light)', borderRadius: '6px', overflow: 'hidden' }}>
+    <div
+      style={{
+        border: '1px solid var(--color-border-light)',
+        borderRadius: '6px',
+        overflow: 'hidden',
+      }}
+    >
       <div
         onClick={() => hasDetails && setExpanded(!expanded)}
         title={errorTooltip}
@@ -430,9 +480,15 @@ function ToolCallView({
           fontSize: 12,
         }}
       >
-        <span style={{ fontFamily: 'IBM Plex Mono, monospace', color: 'var(--color-text-primary)' }}>{toolName}</span>
+        <span
+          style={{ fontFamily: 'IBM Plex Mono, monospace', color: 'var(--color-text-primary)' }}
+        >
+          {toolName}
+        </span>
         {status && (
-          <span style={{ fontSize: 10, color: 'var(--color-text-tertiary)', marginLeft: '8px' }}>{status}</span>
+          <span style={{ fontSize: 10, color: 'var(--color-text-tertiary)', marginLeft: '8px' }}>
+            {status}
+          </span>
         )}
         {hasError && (
           <span style={{ fontSize: 10, color: 'var(--color-error-text)', marginLeft: '8px' }}>
@@ -440,7 +496,9 @@ function ToolCallView({
           </span>
         )}
         {hasDetails && (
-          <span style={{ marginLeft: 'auto', color: 'var(--color-text-muted)', fontSize: 11 }}>{expanded ? '▲' : '▼'}</span>
+          <span style={{ marginLeft: 'auto', color: 'var(--color-text-muted)', fontSize: 11 }}>
+            {expanded ? '▲' : '▼'}
+          </span>
         )}
       </div>
       {showInlineQuestion && (
@@ -453,15 +511,31 @@ function ToolCallView({
         />
       )}
       {hasDetails && expanded && (
-        <div style={{ borderTop:'1px solid var(--color-border-light)', background: 'var(--color-bg-white)' }}>
-          <div style={{ display: 'flex', gap: 4, padding: '6px 8px', borderBottom:'1px solid var(--color-border-faint)' }}>
+        <div
+          style={{
+            borderTop: '1px solid var(--color-border-light)',
+            background: 'var(--color-bg-white)',
+          }}
+        >
+          <div
+            style={{
+              display: 'flex',
+              gap: 4,
+              padding: '6px 8px',
+              borderBottom: '1px solid var(--color-border-faint)',
+            }}
+          >
             {hasInput && (
               <button
                 onClick={() => setActiveTab('input')}
                 style={{
-                  border:'1px solid var(--color-border)',
-                  background: activeTab === 'input' ? 'var(--color-accent-soft)' : 'var(--color-bg-white)',
-                  color: activeTab === 'input' ? 'var(--color-accent-deep)' : 'var(--color-text-secondary)',
+                  border: '1px solid var(--color-border)',
+                  background:
+                    activeTab === 'input' ? 'var(--color-accent-soft)' : 'var(--color-bg-white)',
+                  color:
+                    activeTab === 'input'
+                      ? 'var(--color-accent-deep)'
+                      : 'var(--color-text-secondary)',
                   fontWeight: activeTab === 'input' ? 600 : 400,
                   borderRadius: 4,
                   fontSize: 10,
@@ -476,9 +550,13 @@ function ToolCallView({
               <button
                 onClick={() => setActiveTab('output')}
                 style={{
-                  border:'1px solid var(--color-border)',
-                  background: activeTab === 'output' ? 'var(--color-accent-soft)' : 'var(--color-bg-white)',
-                  color: activeTab === 'output' ? 'var(--color-accent-deep)' : 'var(--color-text-secondary)',
+                  border: '1px solid var(--color-border)',
+                  background:
+                    activeTab === 'output' ? 'var(--color-accent-soft)' : 'var(--color-bg-white)',
+                  color:
+                    activeTab === 'output'
+                      ? 'var(--color-accent-deep)'
+                      : 'var(--color-text-secondary)',
                   fontWeight: activeTab === 'output' ? 600 : 400,
                   borderRadius: 4,
                   fontSize: 10,
@@ -493,9 +571,13 @@ function ToolCallView({
               <button
                 onClick={() => setActiveTab('error')}
                 style={{
-                  border:'1px solid var(--color-border)',
-                  background: activeTab === 'error' ? 'var(--color-error-soft)' : 'var(--color-bg-white)',
-                  color: activeTab === 'error' ? 'var(--color-error-text)' : 'var(--color-text-secondary)',
+                  border: '1px solid var(--color-border)',
+                  background:
+                    activeTab === 'error' ? 'var(--color-error-soft)' : 'var(--color-bg-white)',
+                  color:
+                    activeTab === 'error'
+                      ? 'var(--color-error-text)'
+                      : 'var(--color-text-secondary)',
                   fontWeight: activeTab === 'error' ? 600 : 400,
                   borderRadius: 4,
                   fontSize: 10,
@@ -507,23 +589,26 @@ function ToolCallView({
               </button>
             )}
           </div>
-          <div style={{
-            padding: '8px 10px',
-            fontSize: 11,
-            fontFamily: 'IBM Plex Mono, monospace',
-            whiteSpace: 'pre-wrap',
-            color: activeTab === 'error' ? 'var(--color-error-text)' : 'var(--color-text-secondary)',
-            background: activeTab === 'error' ? 'var(--color-error-soft)' : 'var(--color-bg-white)',
-            maxHeight: '220px',
-            overflowY: 'auto',
-            overflowX: 'hidden',
-            wordBreak: 'break-all',
-          }}>
+          <div
+            style={{
+              padding: '8px 10px',
+              fontSize: 11,
+              fontFamily: 'IBM Plex Mono, monospace',
+              whiteSpace: 'pre-wrap',
+              color:
+                activeTab === 'error' ? 'var(--color-error-text)' : 'var(--color-text-secondary)',
+              background:
+                activeTab === 'error' ? 'var(--color-error-soft)' : 'var(--color-bg-white)',
+              maxHeight: '220px',
+              overflowY: 'auto',
+              overflowX: 'hidden',
+              wordBreak: 'break-all',
+            }}
+          >
             {activeTab === 'input' && (inputText || '(empty input)')}
             {activeTab === 'output' && (output || '(empty output)')}
-            {activeTab === 'error' && (
-              `${parsedError.name || 'Tool Error'}\n${parsedError.text || errorRaw || ''}`.trim()
-            )}
+            {activeTab === 'error' &&
+              `${parsedError.name || 'Tool Error'}\n${parsedError.text || errorRaw || ''}`.trim()}
           </div>
         </div>
       )}
@@ -620,14 +705,16 @@ function QuestionInlineForm({
       const requestId = await resolveRequestId()
       if (!requestId) {
         window.alert(
-          'Could not correlate this question request. Verify OpenCode exposes GET /question and the workspace directory matches.'
+          'Could not correlate this question request. Verify OpenCode exposes GET /question and the workspace directory matches.',
         )
         return
       }
       await replyToQuestion(requestId, answers, directory)
       await onDone?.()
     } catch {
-      window.alert('Submission failed — ensure POST /question/{requestID}/reply exists on your server.')
+      window.alert(
+        'Submission failed — ensure POST /question/{requestID}/reply exists on your server.',
+      )
     } finally {
       setSubmitting(false)
     }
@@ -652,8 +739,9 @@ function QuestionInlineForm({
     <div
       style={{
         padding: '10px 12px',
-        background:'linear-gradient(180deg, var(--color-accent-softer) 0%, var(--color-bg-white) 100%)',
-        borderTop:'1px solid var(--color-border-faint)',
+        background:
+          'linear-gradient(180deg, var(--color-accent-softer) 0%, var(--color-bg-white) 100%)',
+        borderTop: '1px solid var(--color-border-faint)',
       }}
     >
       <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
@@ -661,16 +749,27 @@ function QuestionInlineForm({
           <div
             key={`inline-q-${qi}`}
             style={{
-              border:'1px solid var(--color-border-light)',
+              border: '1px solid var(--color-border-light)',
               borderRadius: 8,
               padding: '8px 10px',
               background: 'var(--color-bg-white)',
             }}
           >
             {q.header ? (
-              <div style={{ fontSize: 10, color: 'var(--color-accent)', marginBottom: 4 }}>{q.header}</div>
+              <div style={{ fontSize: 10, color: 'var(--color-accent)', marginBottom: 4 }}>
+                {q.header}
+              </div>
             ) : null}
-            <div style={{ fontSize: 12, color: 'var(--color-text-primary)', lineHeight: 1.5, marginBottom: 8 }}>{q.question}</div>
+            <div
+              style={{
+                fontSize: 12,
+                color: 'var(--color-text-primary)',
+                lineHeight: 1.5,
+                marginBottom: 8,
+              }}
+            >
+              {q.question}
+            </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
               {q.options.map((opt) => {
                 const sel = selections[qi] ?? []
@@ -698,7 +797,15 @@ function QuestionInlineForm({
                     <span>
                       <span style={{ fontWeight: 500 }}>{opt.label}</span>
                       {opt.description ? (
-                        <span style={{ color: 'var(--color-text-tertiary)', display: 'block', marginTop: 2 }}>{opt.description}</span>
+                        <span
+                          style={{
+                            color: 'var(--color-text-tertiary)',
+                            display: 'block',
+                            marginTop: 2,
+                          }}
+                        >
+                          {opt.description}
+                        </span>
                       ) : null}
                     </span>
                   </label>
@@ -707,7 +814,9 @@ function QuestionInlineForm({
             </div>
             {q.custom !== false && (
               <div style={{ marginTop: 8 }}>
-                <div style={{ fontSize: 10, color: 'var(--color-text-tertiary)', marginBottom: 4 }}>Notes (optional)</div>
+                <div style={{ fontSize: 10, color: 'var(--color-text-tertiary)', marginBottom: 4 }}>
+                  Notes (optional)
+                </div>
                 <input
                   type="text"
                   value={customTexts[qi] ?? ''}
@@ -725,7 +834,7 @@ function QuestionInlineForm({
                     width: '100%',
                     fontSize: 11,
                     padding: '6px 8px',
-                    border:'1px solid var(--color-border-light)',
+                    border: '1px solid var(--color-border-light)',
                     borderRadius: 6,
                     fontFamily: 'inherit',
                   }}
@@ -744,7 +853,7 @@ function QuestionInlineForm({
             fontSize: 11,
             padding: '6px 12px',
             borderRadius: 6,
-            border:'1px solid var(--color-border-light)',
+            border: '1px solid var(--color-border-light)',
             background: 'var(--color-bg-white)',
             color: 'var(--color-text-secondary)',
             cursor: submitting ? 'not-allowed' : 'pointer',

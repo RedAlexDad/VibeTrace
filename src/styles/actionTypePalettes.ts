@@ -59,8 +59,24 @@ export type ActionTypeTriad = { fill: string; stroke: string; accent: string }
  * | 6 | Compaction |
  * UserRequest is separate: white fill + neutral gray icon (outside Pastel 7).
  */
-const PASTEL7_FILL = ['#b3e2cd', '#fdcdac', '#cbd5e8', '#f4cae4', '#e6f5c9', '#fff2ae', '#f1e2cc'] as const
-const PASTEL7_ICON = ['#66c2a5', '#fc8d62', '#8da0cb', '#e78ac3', '#a6d854', '#ffd92f', '#e5c494'] as const
+const PASTEL7_FILL = [
+  '#b3e2cd',
+  '#fdcdac',
+  '#cbd5e8',
+  '#f4cae4',
+  '#e6f5c9',
+  '#fff2ae',
+  '#f1e2cc',
+] as const
+const PASTEL7_ICON = [
+  '#66c2a5',
+  '#fc8d62',
+  '#8da0cb',
+  '#e78ac3',
+  '#a6d854',
+  '#ffd92f',
+  '#e5c494',
+] as const
 
 /** Group index 0..6; UserRequest uses -1 for standalone styling */
 const PASTEL7_GROUP_INDEX: Record<ActionType, number> = {
@@ -320,7 +336,10 @@ const PALETTES: Record<ActionTypePaletteId, Record<ActionType, ActionTypeTriad>>
   })(),
 }
 
-export function getActionTypeTriad(paletteId: ActionTypePaletteId, actionType: ActionType): ActionTypeTriad {
+export function getActionTypeTriad(
+  paletteId: ActionTypePaletteId,
+  actionType: ActionType,
+): ActionTypeTriad {
   const triad = PALETTES[paletteId][actionType]
   return isDarkColorScheme() ? adaptTriadForDark(triad) : triad
 }

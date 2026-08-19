@@ -26,10 +26,11 @@ export function statusColors(status: ActionStatus): { fill: string; stroke: stri
 
 export function effectiveStatusColors(
   status: ActionStatus,
-  durationMs: number
+  durationMs: number,
 ): { fill: string; stroke: string; icon: string; isLongRunning: boolean } {
   const base = statusColors(status)
-  const isLongRunning = (status === 'running' || status === 'pending') && durationMs >= LONG_RUNNING_MS
+  const isLongRunning =
+    (status === 'running' || status === 'pending') && durationMs >= LONG_RUNNING_MS
   if (!isLongRunning) return { ...base, isLongRunning: false }
   return {
     fill: '#FFE9E9',
@@ -41,7 +42,7 @@ export function effectiveStatusColors(
 
 export function tokenColor(
   scale: d3.ScaleSequential<string>,
-  tok: number
+  tok: number,
 ): { fill: string; stroke: string } {
   const c = scale(tok)
   const base = d3.color(c)
@@ -66,7 +67,7 @@ export function resolveActionBlockColors(
   act: MappedAction,
   colorMode: 'status' | 'tokens' | 'type',
   tokenScale: d3.ScaleSequential<string>,
-  typePaletteId: ActionTypePaletteId = DEFAULT_ACTION_TYPE_PALETTE_ID
+  typePaletteId: ActionTypePaletteId = DEFAULT_ACTION_TYPE_PALETTE_ID,
 ): { fill: string; stroke: string; iconFill: string } {
   const isGhost = act.forkGhost === true
 

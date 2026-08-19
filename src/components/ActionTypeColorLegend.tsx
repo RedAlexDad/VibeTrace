@@ -1,7 +1,5 @@
 import type { ActionTypePaletteId } from '../styles/actionTypePalettes'
-import {
-  getActionTypeTriad,
-} from '../styles/actionTypePalettes'
+import { getActionTypeTriad } from '../styles/actionTypePalettes'
 import type { ActionType } from '../types/opencode'
 import { getActionFlowIconSvg } from './actionFlowIcons'
 import { usePrefersDark } from '../utils/usePrefersDark'

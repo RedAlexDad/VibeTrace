@@ -1,4 +1,5 @@
 # VibeTrace: See how your agents think
+
 **Visualizing Agent Runtime Behavior for Human Intervention in Vibe Coding**
 
 A web dashboard for **[OpenCode](https://opencode.ai/)** that connects to a local OpenCode HTTP server (REST + Server-Sent Events), enabling developers to work across multiple directories while inspecting live message streams, todos, subtasks, and visualized agent execution flows. The system provides rich cross-linking between todos, transcripts, and individual action-flow blocks, supporting real-time monitoring, navigation, and intervention during agent runtime execution.
@@ -34,7 +35,6 @@ Follow the [upstream installation guide](https://opencode.ai/download), then ver
 ```bash
 opencode --version
 ```
-
 
 ---
 
@@ -76,10 +76,10 @@ Then set the OpenCode server endpoint:
 VITE_OPENCODE_BASE=http://127.0.0.1:4096
 ```
 
-| Variable | Description |
-| --- | --- |
-| `VITE_OPENCODE_BASE` | Base URL used for all VibeTrace → OpenCode API requests. Must match the running OpenCode server address. |
-| `VITE_OPENCODE_DEFAULT_MODEL` *(optional)* | Overrides the default bootstrap model using the format `provider/model`. If omitted, OpenCode's default model will be used. |
+| Variable                                   | Description                                                                                                                 |
+| ------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------- |
+| `VITE_OPENCODE_BASE`                       | Base URL used for all VibeTrace → OpenCode API requests. Must match the running OpenCode server address.                    |
+| `VITE_OPENCODE_DEFAULT_MODEL` _(optional)_ | Overrides the default bootstrap model using the format `provider/model`. If omitted, OpenCode's default model will be used. |
 
 ---
 

@@ -47,7 +47,7 @@ export type PartType =
 
 export interface OcMessageInfo {
   role: 'user' | 'assistant'
-  content?: string  // plaintext for user rows
+  content?: string // plaintext for user rows
   time: {
     created: number
     completed?: number

@@ -79,13 +79,21 @@ export default function QuestionPromptPanel({
   return (
     <div
       style={{
-        borderTop:'1px solid var(--color-border-light)',
-        background:'linear-gradient(180deg, var(--color-accent-softer) 0%, var(--color-bg-white) 100%)',
+        borderTop: '1px solid var(--color-border-light)',
+        background:
+          'linear-gradient(180deg, var(--color-accent-softer) 0%, var(--color-bg-white) 100%)',
         padding: '12px 16px',
         flexShrink: 0,
       }}
     >
-      <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--color-accent-deep)', marginBottom: 10 }}>
+      <div
+        style={{
+          fontSize: 12,
+          fontWeight: 600,
+          color: 'var(--color-accent-deep)',
+          marginBottom: 10,
+        }}
+      >
         The agent needs your choice
       </div>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
@@ -93,16 +101,27 @@ export default function QuestionPromptPanel({
           <div
             key={`${id}-q-${qi}`}
             style={{
-              border:'1px solid var(--color-border-light)',
+              border: '1px solid var(--color-border-light)',
               borderRadius: 8,
               padding: '10px 12px',
               background: 'var(--color-bg-white)',
             }}
           >
             {q.header ? (
-              <div style={{ fontSize: 11, color: 'var(--color-accent)', marginBottom: 4 }}>{q.header}</div>
+              <div style={{ fontSize: 11, color: 'var(--color-accent)', marginBottom: 4 }}>
+                {q.header}
+              </div>
             ) : null}
-            <div style={{ fontSize: 12, color: 'var(--color-text-primary)', lineHeight: 1.5, marginBottom: 8 }}>{q.question}</div>
+            <div
+              style={{
+                fontSize: 12,
+                color: 'var(--color-text-primary)',
+                lineHeight: 1.5,
+                marginBottom: 8,
+              }}
+            >
+              {q.question}
+            </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
               {q.options.map((opt) => {
                 const sel = selections[qi] ?? []
@@ -130,7 +149,15 @@ export default function QuestionPromptPanel({
                     <span>
                       <span style={{ fontWeight: 500 }}>{opt.label}</span>
                       {opt.description ? (
-                        <span style={{ color: 'var(--color-text-tertiary)', display: 'block', marginTop: 2 }}>{opt.description}</span>
+                        <span
+                          style={{
+                            color: 'var(--color-text-tertiary)',
+                            display: 'block',
+                            marginTop: 2,
+                          }}
+                        >
+                          {opt.description}
+                        </span>
                       ) : null}
                     </span>
                   </label>
@@ -139,7 +166,9 @@ export default function QuestionPromptPanel({
             </div>
             {q.custom !== false && (
               <div style={{ marginTop: 8 }}>
-                <div style={{ fontSize: 10, color: 'var(--color-text-tertiary)', marginBottom: 4 }}>Notes (optional)</div>
+                <div style={{ fontSize: 10, color: 'var(--color-text-tertiary)', marginBottom: 4 }}>
+                  Notes (optional)
+                </div>
                 <input
                   type="text"
                   value={customTexts[qi] ?? ''}
@@ -157,7 +186,7 @@ export default function QuestionPromptPanel({
                     width: '100%',
                     fontSize: 11,
                     padding: '6px 8px',
-                    border:'1px solid var(--color-border-light)',
+                    border: '1px solid var(--color-border-light)',
                     borderRadius: 6,
                     fontFamily: 'inherit',
                   }}
@@ -177,7 +206,7 @@ export default function QuestionPromptPanel({
               fontSize: 11,
               padding: '6px 12px',
               borderRadius: 6,
-              border:'1px solid var(--color-border-light)',
+              border: '1px solid var(--color-border-light)',
               background: 'var(--color-bg-white)',
               color: 'var(--color-text-secondary)',
               cursor: disabled || submitting ? 'not-allowed' : 'pointer',

@@ -10,8 +10,7 @@ export function parseActionRelatedSseEvent(raw: unknown): OcSseActionEvent | nul
   const payload = (o.payload as Record<string, unknown> | undefined) ?? o
   const type = (payload.type as string) ?? (o.type as string)
   /** 与 OpenCode Bus 对齐：权限常见为 permission.asked；部分版本/插件为 permission.updated */
-  const isPermission =
-    type === 'permission.asked' || type === 'permission.updated'
+  const isPermission = type === 'permission.asked' || type === 'permission.updated'
   const isCompaction = type === 'session.compacted'
   if (!isPermission && !isCompaction) return null
 
@@ -42,7 +41,12 @@ function extractSessionId(payload: Record<string, unknown>): string | undefined 
 
 function extractTime(payload: Record<string, unknown>, root: Record<string, unknown>): number {
   const t = payload.time
-  if (t && typeof t === 'object' && 'created' in t && typeof (t as { created: unknown }).created === 'number') {
+  if (
+    t &&
+    typeof t === 'object' &&
+    'created' in t &&
+    typeof (t as { created: unknown }).created === 'number'
+  ) {
     return (t as { created: number }).created
   }
   if (typeof payload.timestamp === 'number') return payload.timestamp

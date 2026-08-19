@@ -1,9 +1,4 @@
-import type {
-  OcSession,
-  OcTodo,
-  OcMessage,
-  OcPendingQuestionItem,
-} from '../types/opencode'
+import type { OcSession, OcTodo, OcMessage, OcPendingQuestionItem } from '../types/opencode'
 
 /**
  * OpenCode HTTP base URL (must match the address printed by `opencode serve` in your terminal).
@@ -51,7 +46,10 @@ function basicAuthHeader(): Record<string, string> {
   return { Authorization: `Basic ${btoa(bin)}` }
 }
 
-function withDirectoryHeaders(base: Record<string, string>, directory?: string): Record<string, string> {
+function withDirectoryHeaders(
+  base: Record<string, string>,
+  directory?: string,
+): Record<string, string> {
   const out = { ...base, ...basicAuthHeader() }
   if (directory) out['x-opencode-directory'] = directory
   return out
@@ -209,7 +207,11 @@ export async function getTodos(sessionId: string, directory?: string): Promise<O
   return res.json()
 }
 
-export async function getMessages(sessionId: string, _reason?: string, directory?: string): Promise<OcMessage[]> {
+export async function getMessages(
+  sessionId: string,
+  _reason?: string,
+  directory?: string,
+): Promise<OcMessage[]> {
   const url = `${BASE}/session/${sessionId}/message`
   const res = await fetch(url, { headers: withDirectoryHeaders({}, directory) })
   if (!res.ok) throw new Error(`Failed to fetch messages: ${res.status}`)
@@ -251,7 +253,8 @@ export async function getComposerModelOptions(directory?: string): Promise<{
     const pr = p as Record<string, unknown>
     const pid = typeof pr.id === 'string' ? pr.id.trim() : ''
     if (!pid) continue
-    const models = pr.models && typeof pr.models === 'object' ? (pr.models as Record<string, unknown>) : {}
+    const models =
+      pr.models && typeof pr.models === 'object' ? (pr.models as Record<string, unknown>) : {}
     for (const m of Object.values(models)) {
       if (!m || typeof m !== 'object') continue
       const mr = m as Record<string, unknown>
@@ -300,12 +303,14 @@ export async function sendMessage(
   const parts: UserMessagePartBody[] = [...imageParts, { type: 'text', text }]
   const modelRef =
     (options?.model && options.model.trim()) ||
-    (typeof import.meta.env.VITE_OPENCODE_DEFAULT_MODEL === 'string' && import.meta.env.VITE_OPENCODE_DEFAULT_MODEL.trim()) ||
+    (typeof import.meta.env.VITE_OPENCODE_DEFAULT_MODEL === 'string' &&
+      import.meta.env.VITE_OPENCODE_DEFAULT_MODEL.trim()) ||
     undefined
   const modelBody = modelRef ? parseModelRefToBody(modelRef) : undefined
   const agent =
     (options?.agent && options.agent.trim()) ||
-    (typeof import.meta.env.VITE_OPENCODE_DEFAULT_AGENT === 'string' && import.meta.env.VITE_OPENCODE_DEFAULT_AGENT.trim()) ||
+    (typeof import.meta.env.VITE_OPENCODE_DEFAULT_AGENT === 'string' &&
+      import.meta.env.VITE_OPENCODE_DEFAULT_AGENT.trim()) ||
     undefined
   const reqBody: Record<string, unknown> = { parts }
   if (modelBody) reqBody.model = modelBody
@@ -340,7 +345,7 @@ export async function abortSession(sessionId: string, directory?: string): Promi
 
 export async function forkSession(
   sessionId: string,
-  options?: { messageID?: string; directory?: string }
+  options?: { messageID?: string; directory?: string },
 ): Promise<OcSession> {
   const url = `${BASE}/session/${sessionId}/fork`
   const body = options?.messageID ? { messageID: options.messageID } : {}
@@ -441,7 +446,7 @@ function sleep(ms: number): Promise<void> {
 }
 
 function createSseLineDispatcher(
-  onDispatch: (eventName: string, data: string) => void
+  onDispatch: (eventName: string, data: string) => void,
 ): (line: string) => void {
   let eventName = 'message'
   const dataLines: string[] = []
@@ -475,7 +480,7 @@ function createSseLineDispatcher(
 async function streamGlobalSse(
   url: string,
   signal: AbortSignal,
-  onEvent: (event: unknown) => void
+  onEvent: (event: unknown) => void,
 ): Promise<void> {
   const res = await fetch(url, {
     headers: { Accept: 'text/event-stream', ...basicAuthHeader() },
@@ -512,9 +517,7 @@ async function streamGlobalSse(
   }
 }
 
-export function subscribeGlobalEvents(
-  onEvent: (event: any) => void
-): () => void {
+export function subscribeGlobalEvents(onEvent: (event: any) => void): () => void {
   const url = `${BASE}/global/event`
   const ac = new AbortController()
 

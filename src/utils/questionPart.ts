@@ -7,7 +7,9 @@ import type {
 } from '../types/opencode'
 
 /** 从 tool part 的 state.input 解析 question 工具的题干与选项（与 GET /message 一致） */
-export function parseQuestionInputQuestions(input: Record<string, unknown> | undefined): OcQuestionInfo[] {
+export function parseQuestionInputQuestions(
+  input: Record<string, unknown> | undefined,
+): OcQuestionInfo[] {
   if (!input || !Array.isArray(input.questions)) return []
   return input.questions as OcQuestionInfo[]
 }
@@ -26,10 +28,7 @@ export function messagesHaveOpenQuestionWithInput(messages: OcMessage[]): boolea
   return false
 }
 
-function toolPartMatchesPending(
-  tool: OcPendingQuestionItem['tool'],
-  part: ToolPart,
-): boolean {
+function toolPartMatchesPending(tool: OcPendingQuestionItem['tool'], part: ToolPart): boolean {
   if (!tool) return false
   const mid = tool.messageID ?? tool.messageId
   const cid = tool.callID ?? tool.callId

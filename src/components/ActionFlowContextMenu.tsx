@@ -66,17 +66,13 @@ function IconExplain({ size = 18, clipId }: { size?: number; clipId: string }) {
 
 function rectsOverlap(
   a: { left: number; top: number; right: number; bottom: number },
-  b: { left: number; top: number; right: number; bottom: number }
+  b: { left: number; top: number; right: number; bottom: number },
 ): boolean {
   return !(a.right <= b.left || a.left >= b.right || a.bottom <= b.top || a.top >= b.bottom)
 }
 
 /** 优先紧贴 action 右下角；仅在贴边或遮挡时平移 */
-function clampMenuPosition(
-  anchor: DOMRect,
-  vw: number,
-  vh: number
-): { left: number; top: number } {
+function clampMenuPosition(anchor: DOMRect, vw: number, vh: number): { left: number; top: number } {
   const w = MENU_EST_W
   const h = MENU_EST_H
   let left = anchor.right + ANCHOR_GAP
@@ -193,7 +189,8 @@ export default function ActionFlowContextMenu({ menu, onClose, onFork, onAnalysi
         maxWidth: 260,
         padding: 6,
         borderRadius: 12,
-        background: 'linear-gradient(145deg, var(--color-bg-white) 0%, var(--color-bg-elevated) 100%)',
+        background:
+          'linear-gradient(145deg, var(--color-bg-white) 0%, var(--color-bg-elevated) 100%)',
         boxShadow:
           '0 12px 40px rgba(15, 23, 42, 0.12), 0 0 0 1px rgba(15, 23, 42, 0.06), inset 0 1px 0 var(--color-bg-white)',
         backdropFilter: 'blur(10px)',
@@ -214,7 +211,14 @@ export default function ActionFlowContextMenu({ menu, onClose, onFork, onAnalysi
             onClose()
           }}
         >
-          <span style={{ color: 'var(--color-tip-faint)', display: 'flex', alignItems: 'center', flexShrink: 0 }}>
+          <span
+            style={{
+              color: 'var(--color-tip-faint)',
+              display: 'flex',
+              alignItems: 'center',
+              flexShrink: 0,
+            }}
+          >
             <IconForkSession />
           </span>
           <span style={labelStyle}>Fork session</span>
@@ -235,7 +239,14 @@ export default function ActionFlowContextMenu({ menu, onClose, onFork, onAnalysi
             onClose()
           }}
         >
-          <span style={{ color: 'var(--color-tip-faint)', display: 'flex', alignItems: 'center', flexShrink: 0 }}>
+          <span
+            style={{
+              color: 'var(--color-tip-faint)',
+              display: 'flex',
+              alignItems: 'center',
+              flexShrink: 0,
+            }}
+          >
             <IconExplain clipId={explainClipId} />
           </span>
           <span style={labelStyle}>Explain</span>

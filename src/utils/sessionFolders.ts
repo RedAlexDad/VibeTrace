@@ -58,7 +58,9 @@ export function groupDirectoriesByParent(
   return [...map.entries()]
     .map(([parent, list]) => ({
       parent,
-      dirs: list.sort((a, b) => byRecency(a, b) || folderDisplayName(a).localeCompare(folderDisplayName(b), 'en')),
+      dirs: list.sort(
+        (a, b) => byRecency(a, b) || folderDisplayName(a).localeCompare(folderDisplayName(b), 'en'),
+      ),
     }))
     .sort((a, b) => {
       const aMax = Math.max(0, ...a.dirs.map(ts))

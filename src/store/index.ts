@@ -4,8 +4,7 @@ import uiReducer from './uiSlice'
 
 /** localStorage-backed WebStorage for redux-persist (Vite ESM-safe). */
 const storage: WebStorage = {
-  getItem: (key) =>
-    new Promise((resolve) => resolve(window.localStorage.getItem(key))),
+  getItem: (key) => new Promise((resolve) => resolve(window.localStorage.getItem(key))),
   setItem: (key, value) =>
     new Promise((resolve) => {
       window.localStorage.setItem(key, value)

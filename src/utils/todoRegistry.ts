@@ -31,7 +31,7 @@ function assignStableIds(prev: CanonicalTodo[] | null, raw: OcTodo[]): Canonical
       continue
     }
     const c = normalizeTodoContent(r.content)
-    const match = prev?.find(p => !used.has(p.id) && normalizeTodoContent(p.content) === c)
+    const match = prev?.find((p) => !used.has(p.id) && normalizeTodoContent(p.content) === c)
     if (match) {
       used.add(match.id)
       out.push({ ...r, id: match.id })
@@ -61,7 +61,7 @@ function mergeCompletedArchive(archive: Map<string, CanonicalTodo>, list: Canoni
 export function buildSessionTodoModel(
   messages: OcMessage[],
   apiTodos: OcTodo[],
-  snapshotMap: Record<string, OcTodo[]>
+  snapshotMap: Record<string, OcTodo[]>,
 ): SessionTodoModel {
   const canonicalAtMessageIndex = new Map<number, CanonicalTodo[]>()
   const completedArchive = new Map<string, CanonicalTodo>()
@@ -74,7 +74,7 @@ export function buildSessionTodoModel(
     let raw: OcTodo[] | null = parseTodowriteTodosFromMessage(msg)
     if (!raw || raw.length === 0) {
       const cached = snapshotMap[String(i)]
-      if (cached && cached.length > 0) raw = cached.map(t => ({ ...t }))
+      if (cached && cached.length > 0) raw = cached.map((t) => ({ ...t }))
     }
     if (!raw || raw.length === 0) continue
 
@@ -84,12 +84,11 @@ export function buildSessionTodoModel(
     prev = canonical
   }
 
-  const latestActive =
-    apiTodos.length > 0 ? assignStableIds(prev, apiTodos) : prev ?? []
+  const latestActive = apiTodos.length > 0 ? assignStableIds(prev, apiTodos) : (prev ?? [])
 
   mergeCompletedArchive(completedArchive, latestActive)
 
-  const activeIds = new Set(latestActive.map(t => t.id))
+  const activeIds = new Set(latestActive.map((t) => t.id))
   for (const id of activeIds) {
     completedArchive.delete(id)
   }
@@ -145,13 +144,13 @@ export interface LatestTodowriteBatchProgress {
  */
 export function getLatestTodowriteBatchProgress(
   model: SessionTodoModel,
-  archivedList: CanonicalTodo[]
+  archivedList: CanonicalTodo[],
 ): LatestTodowriteBatchProgress | null {
   const batch = latestTodowriteSnapshotTodos(model)
   if (!batch?.length) return null
 
-  const activeById = new Map(model.latestActive.map(t => [t.id, t]))
-  const archivedIds = new Set(archivedList.map(t => t.id))
+  const activeById = new Map(model.latestActive.map((t) => [t.id, t]))
+  const archivedIds = new Set(archivedList.map((t) => t.id))
 
   let completed = 0
   let ongoing = false

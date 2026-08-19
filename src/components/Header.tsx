@@ -42,7 +42,14 @@ export default function Header({
           }}
           title="Expand sidebar"
         >
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--color-text-primary)" strokeWidth="2">
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="var(--color-text-primary)"
+            strokeWidth="2"
+          >
             <path d="M3 12h18M3 6h18M3 18h18" />
           </svg>
         </button>
@@ -112,7 +119,14 @@ export default function Header({
           cursor: 'pointer',
         }}
       >
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--color-text-tertiary)" strokeWidth="2">
+        <svg
+          width="16"
+          height="16"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="var(--color-text-tertiary)"
+          strokeWidth="2"
+        >
           <circle cx="12" cy="12" r="1" />
           <circle cx="12" cy="5" r="1" />
           <circle cx="12" cy="19" r="1" />

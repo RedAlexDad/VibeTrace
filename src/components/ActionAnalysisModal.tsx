@@ -51,9 +51,8 @@ export default function ActionAnalysisModal({ action, onClose }: Props) {
     overflow: 'auto',
     borderRadius: 16,
     padding: '20px 22px 18px',
-    background:'linear-gradient(180deg, var(--color-bg-white) 0%, var(--color-bg-subtle) 100%)',
-    boxShadow:
-      '0 24px 80px rgba(15, 23, 42, 0.18), 0 0 0 1px rgba(15, 23, 42, 0.06)',
+    background: 'linear-gradient(180deg, var(--color-bg-white) 0%, var(--color-bg-subtle) 100%)',
+    boxShadow: '0 24px 80px rgba(15, 23, 42, 0.18), 0 0 0 1px rgba(15, 23, 42, 0.06)',
   }
 
   const hint =
@@ -127,7 +126,10 @@ export default function ActionAnalysisModal({ action, onClose }: Props) {
         <div style={{ marginTop: 4 }}>
           {row('Action', String(action.actionType))}
           {row('Status', String(action.status))}
-          {row('Duration', action.durationMs > 0 ? `${(action.durationMs / 1000).toFixed(2)}s` : undefined)}
+          {row(
+            'Duration',
+            action.durationMs > 0 ? `${(action.durationMs / 1000).toFixed(2)}s` : undefined,
+          )}
           {row('Source', action.source)}
           {row('Session', action.sessionID)}
           {row('Message', action.messageID)}

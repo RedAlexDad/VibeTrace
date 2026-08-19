@@ -127,7 +127,7 @@ const RAW: Record<ActionType, string> = {
 const FALLBACK = `<svg viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg"><circle cx="8" cy="8" r="2" fill="currentColor"/></svg>`
 
 export const ACTION_FLOW_ICON_SVG: Record<ActionType, string> = Object.fromEntries(
-  (Object.keys(RAW) as ActionType[]).map(k => [k, normalizeIconColors(RAW[k]!)])
+  (Object.keys(RAW) as ActionType[]).map((k) => [k, normalizeIconColors(RAW[k]!)]),
 ) as Record<ActionType, string>
 
 export function getActionFlowIconSvg(type: ActionType): string {
@@ -148,7 +148,7 @@ export function appendActionFlowIcon(
   cy: number,
   iconColor: string,
   idPrefix: string,
-  iconBox: number = ICON_BOX
+  iconBox: number = ICON_BOX,
 ): void {
   const marked = prefixSvgIds(svgMarkup, idPrefix)
   const parser = new DOMParser()

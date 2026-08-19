@@ -29,7 +29,7 @@ function toolStatusToActionStatus(
   part: ToolPart,
   message: OcMessage,
   nowMs: number,
-  staleToolCallIDs: Set<string>
+  staleToolCallIDs: Set<string>,
 ): ActionStatus {
   void message
   void nowMs
@@ -55,7 +55,10 @@ function mapToolToActionType(tool: string): ActionType | null {
   return null
 }
 
-function durationForReasoning(part: { time?: { start?: number; end?: number }; text?: string }): number {
+function durationForReasoning(part: {
+  time?: { start?: number; end?: number }
+  text?: string
+}): number {
   const { start, end } = part.time ?? {}
   if (typeof start === 'number' && typeof end === 'number' && end >= start) {
     if (end > start) return Math.max(10, end - start)
@@ -94,7 +97,7 @@ function durationForTool(part: ToolPart, message: OcMessage, nowMs: number): num
 function toolWallClockWindow(
   part: ToolPart,
   message: OcMessage,
-  nowMs: number
+  nowMs: number,
 ): { startMs: number; endMs: number } | undefined {
   const st = part.state?.status
   let start = part.state?.time?.start
@@ -257,7 +260,9 @@ export function collectTaskChildDescriptors(messages: OcMessage[]): TaskChildDes
       seen.add(key)
       const input = part.state?.input
       const description =
-        input && typeof input === 'object' && typeof (input as { description?: unknown }).description === 'string'
+        input &&
+        typeof input === 'object' &&
+        typeof (input as { description?: unknown }).description === 'string'
           ? String((input as { description: string }).description)
           : undefined
       out.push({
@@ -348,7 +353,7 @@ export function buildMappedActionsFromMessages(
         sortTime,
         mid,
         nowMs,
-        staleToolCallIDs
+        staleToolCallIDs,
       )
       if (!mapped) return
 
@@ -368,7 +373,7 @@ function partToMappedAction(
   sortTime: number,
   messageID: string,
   nowMs: number,
-  staleToolCallIDs: Set<string>
+  staleToolCallIDs: Set<string>,
 ): MappedAction | null {
   switch (part.type) {
     case 'reasoning': {
@@ -453,9 +458,7 @@ function partToMappedAction(
         errorName: parsedErr.name,
         errorMessage:
           parsedErr.message ??
-          (status === 'error'
-            ? 'Tool did not finalize before next assistant turn.'
-            : undefined),
+          (status === 'error' ? 'Tool did not finalize before next assistant turn.' : undefined),
       }
     }
     default:
@@ -506,9 +509,7 @@ export function firstFlowAnchorKeyForSubtaskSegment(
   const indices = [...(subtask.userMessageIndices ?? []), ...subtask.assistantMessageIndices].sort(
     (a, b) => a - b,
   )
-  const segmentMessages = indices
-    .map((i) => messages[i])
-    .filter((m): m is OcMessage => m != null)
+  const segmentMessages = indices.map((i) => messages[i]).filter((m): m is OcMessage => m != null)
   if (segmentMessages.length === 0) return null
   const actions = buildMappedActionsFromMessages(segmentMessages, { nowMs })
   if (actions.length === 0) return null
@@ -541,7 +542,9 @@ export function collectStaleToolCallIDs(messages: OcMessage[]): Set<string> {
   return stale
 }
 
-export function mapSseToMappedActions(events: OcSseActionEvent[]): (MappedAction & { row: number })[] {
+export function mapSseToMappedActions(
+  events: OcSseActionEvent[],
+): (MappedAction & { row: number })[] {
   const out: (MappedAction & { row: number })[] = []
   for (const ev of events) {
     if (ev.type === 'permission.asked') {
@@ -582,7 +585,7 @@ function safeDetail(raw: unknown): string {
 /** 合并 part 与 SSE 动作，按时间排序；SSE 项保持 row=1（无子任务上下文） */
 export function mergeActions(
   fromMessages: (MappedAction & { row: number })[],
-  fromSse: (MappedAction & { row: number })[]
+  fromSse: (MappedAction & { row: number })[],
 ): (MappedAction & { row: number })[] {
   return [...fromMessages, ...fromSse].sort((a, b) => a.sortTime - b.sortTime)
 }
@@ -595,7 +598,7 @@ export function callIdStem(callID: string): string {
 
 function windowsOverlap(
   a: { startMs: number; endMs: number },
-  b: { startMs: number; endMs: number }
+  b: { startMs: number; endMs: number },
 ): boolean {
   return a.startMs < b.endMs && b.startMs < a.endMs
 }
@@ -606,7 +609,10 @@ export type ParallelCallInfo = { parallelGroupId: string; parallelLaneIndex: num
  * 同一 assistant 消息内：call_id 同 stem、且 wall-clock 区间重叠 → 判为并行（含多工具并行）。
  * 返回 callID → 组 id + lane（按 start 升序 0..n-1）。
  */
-export function detectParallelCallMapping(messages: OcMessage[], nowMs: number): Map<string, ParallelCallInfo> {
+export function detectParallelCallMapping(
+  messages: OcMessage[],
+  nowMs: number,
+): Map<string, ParallelCallInfo> {
   const out = new Map<string, ParallelCallInfo>()
   type ToolMeta = {
     messageId: string
@@ -689,7 +695,7 @@ export function detectParallelCallMapping(messages: OcMessage[], nowMs: number):
 /** 将并行组 id / lane 写入 mapped action（子会话动作按 parentTaskCallID 继承） */
 export function applyParallelLayoutFromCalls(
   actions: (MappedAction & { row: number })[],
-  parallelByCallId: Map<string, ParallelCallInfo>
+  parallelByCallId: Map<string, ParallelCallInfo>,
 ): (MappedAction & { row: number })[] {
   return actions.map((a) => {
     const direct = a.callID ? parallelByCallId.get(a.callID) : undefined
@@ -706,7 +712,7 @@ export function applyParallelLayoutFromCalls(
  */
 export function buildChildSessionBandMap(
   descriptors: TaskChildDescriptor[],
-  parallelByCallId: Map<string, ParallelCallInfo>
+  parallelByCallId: Map<string, ParallelCallInfo>,
 ): Map<string, number> {
   const m = new Map<string, number>()
   const groupBand = new Map<string, number>()

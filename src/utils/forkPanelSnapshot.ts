@@ -51,7 +51,10 @@ function storageKey(sessionId: string): string {
   return `${STORAGE_KEYS.forkPanelPrefix}${sessionId}`
 }
 
-export function saveForkPanelSnapshotBundle(sessionId: string, bundle: ForkPanelSnapshotBundle): void {
+export function saveForkPanelSnapshotBundle(
+  sessionId: string,
+  bundle: ForkPanelSnapshotBundle,
+): void {
   try {
     sessionStorage.setItem(storageKey(sessionId), JSON.stringify(bundle))
   } catch {
@@ -137,7 +140,9 @@ export async function buildFlowSnapshotForSubtask(
     }
   }
 
-  const merged = [...parentFlowActions, ...childBranchActions].sort((a, b) => a.sortTime - b.sortTime)
+  const merged = [...parentFlowActions, ...childBranchActions].sort(
+    (a, b) => a.sortTime - b.sortTime,
+  )
   const flowActions = applyParallelLayoutFromCalls(merged, parallelByCallId)
   const tooltipMessages = mergeMessagesForActionTooltipLookup(segmentMessages, childBranchMessages)
   return { flowActions, tooltipMessages }

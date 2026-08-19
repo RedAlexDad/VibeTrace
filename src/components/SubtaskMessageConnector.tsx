@@ -49,11 +49,13 @@ function pickTodoRowRectRelative(
   if (cands.length === 0) return null
   const pick =
     preferredViewportY != null && Number.isFinite(preferredViewportY)
-      ? cands.reduce((best, cur) =>
-          Math.abs(cur.mid - preferredViewportY!) < Math.abs(best.mid - preferredViewportY!)
-            ? cur
-            : best,
-        cands[0]!)
+      ? cands.reduce(
+          (best, cur) =>
+            Math.abs(cur.mid - preferredViewportY!) < Math.abs(best.mid - preferredViewportY!)
+              ? cur
+              : best,
+          cands[0]!,
+        )
       : (cands[0] ?? null)
   if (!pick) return null
   const { r } = pick
@@ -61,12 +63,7 @@ function pickTodoRowRectRelative(
 }
 
 /** Keeps elbows near the todo column so the jog does not drift to the viewport center. */
-function orthogonalTodoBridge(
-  x1: number,
-  y1: number,
-  x2: number,
-  y2: number,
-): string {
+function orthogonalTodoBridge(x1: number, y1: number, x2: number, y2: number): string {
   const gap = Math.abs(x2 - x1)
   if (gap < 10) {
     return `M ${x1} ${y1} L ${x2} ${y2}`
@@ -112,8 +109,7 @@ export default function SubtaskMessageConnector({
 
       let nextTodoPath = ''
       let nextMsgAction = ''
-      const useTodo =
-        subtaskIndex !== null && linkedTodoIds !== null && linkedTodoIds.size > 0
+      const useTodo = subtaskIndex !== null && linkedTodoIds !== null && linkedTodoIds.size > 0
       const selectedLink =
         linkedMessageToAction &&
         linkedMessageToAction.subtaskIndex === subtaskIndex &&

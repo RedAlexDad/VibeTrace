@@ -77,9 +77,10 @@ export default function SubtaskDebugPanel({
   const summarySegments = useMemo(
     () =>
       visibleSubtasks.map(({ subtask, sourceIndex }, rowIndex) => {
-        const indices = [...(subtask.userMessageIndices ?? []), ...subtask.assistantMessageIndices].sort(
-          (a, b) => a - b,
-        )
+        const indices = [
+          ...(subtask.userMessageIndices ?? []),
+          ...subtask.assistantMessageIndices,
+        ].sort((a, b) => a - b)
         const segmentMessages = indices
           .map((i) => messages[i])
           .filter((m): m is OcMessage => m != null)
@@ -108,7 +109,11 @@ export default function SubtaskDebugPanel({
       const entries = await Promise.all(
         ids.map(async (sid) => {
           try {
-            const msgs = await getMessages(sid, `summary child session ${sid.slice(0, 8)}`, sessionDirectory)
+            const msgs = await getMessages(
+              sid,
+              `summary child session ${sid.slice(0, 8)}`,
+              sessionDirectory,
+            )
             return [sid, msgs] as const
           } catch {
             return [sid, [] as OcMessage[]] as const
@@ -190,7 +195,10 @@ export default function SubtaskDebugPanel({
     const maxActionCount = Math.max(1, ...summaryRowsSorted.map((r) => r.actions.length))
     const availableW = Math.max(1, summaryViewportSize.width)
     const availableH = Math.max(1, summaryViewportSize.height)
-    const blockWidth = Math.max(2, Math.floor(Math.min(DEFAULT_BLOCK_W, availableW / maxActionCount)))
+    const blockWidth = Math.max(
+      2,
+      Math.floor(Math.min(DEFAULT_BLOCK_W, availableW / maxActionCount)),
+    )
     const blockHeight = Math.max(2, Math.floor(Math.min(DEFAULT_BLOCK_H, availableH / rowCount)))
     return { blockWidth, blockHeight }
   }, [summaryRowsSorted, summaryViewportSize.width, summaryViewportSize.height])
@@ -244,10 +252,15 @@ export default function SubtaskDebugPanel({
                     }}
                   >
                     {row.actions.length === 0 ? (
-                      <span style={{ color: 'var(--color-text-muted)', fontSize: 10 }}>No actions</span>
+                      <span style={{ color: 'var(--color-text-muted)', fontSize: 10 }}>
+                        No actions
+                      </span>
                     ) : (
                       row.actions.map((action) => {
-                        const paletteTriad = getActionTypeTriad(actionTypePaletteId, action.actionType)
+                        const paletteTriad = getActionTypeTriad(
+                          actionTypePaletteId,
+                          action.actionType,
+                        )
                         const tipHtml = buildCompactMappedActionTooltipHtml(
                           action,
                           tooltipMessages,
@@ -265,7 +278,9 @@ export default function SubtaskDebugPanel({
                               borderRadius: 0,
                               flexShrink: 0,
                               background:
-                                action.actionType === 'UserRequest' ? 'var(--color-text-tertiary)' : paletteTriad.fill,
+                                action.actionType === 'UserRequest'
+                                  ? 'var(--color-text-tertiary)'
+                                  : paletteTriad.fill,
                               border: 'none',
                             }}
                           />
@@ -311,7 +326,7 @@ export default function SubtaskDebugPanel({
         style={{
           flexShrink: 0,
           padding: '0 0 8px',
-          borderBottom:'1px solid var(--color-border-light)',
+          borderBottom: '1px solid var(--color-border-light)',
           marginBottom: 8,
         }}
       >
@@ -336,28 +351,28 @@ export default function SubtaskDebugPanel({
             <Fragment
               key={`${st.subtask_id}:${sourceIndex}:${st.assistantMessageIndices[0] ?? -1}:${st.assistantMessageIndices[st.assistantMessageIndices.length - 1] ?? -1}:${st.assistantMessageIndices.length}`}
             >
-            <SubtaskCard
-              subtask={st}
-              messages={messages}
-              displayIndex={si}
-              cardIndex={sourceIndex}
-              isLinked={linkedSubtaskIndex === sourceIndex}
-              onSelectSubtask={() => onSelectSubtask(sourceIndex)}
-              onForkFromAction={onForkFromAction}
-              onAnalyzeFromAction={onAnalyzeFromAction}
-              sessionDirectory={sessionDirectory}
-              forkPanelSnapshotBundle={forkPanelSnapshotBundle}
-              selectedActionKey={
-                selection && selection.subtaskIndex === sourceIndex ? selection.actionKey : null
-              }
-              otherSubtaskHasSelection={false}
-              onSelectActionFromFlow={
-                onSelectAction ? (key) => onSelectAction(sourceIndex, key) : undefined
-              }
-              colorBy={colorBy}
-              onColorByChange={setColorBy}
-              actionTypePaletteId={actionTypePaletteId}
-            />
+              <SubtaskCard
+                subtask={st}
+                messages={messages}
+                displayIndex={si}
+                cardIndex={sourceIndex}
+                isLinked={linkedSubtaskIndex === sourceIndex}
+                onSelectSubtask={() => onSelectSubtask(sourceIndex)}
+                onForkFromAction={onForkFromAction}
+                onAnalyzeFromAction={onAnalyzeFromAction}
+                sessionDirectory={sessionDirectory}
+                forkPanelSnapshotBundle={forkPanelSnapshotBundle}
+                selectedActionKey={
+                  selection && selection.subtaskIndex === sourceIndex ? selection.actionKey : null
+                }
+                otherSubtaskHasSelection={false}
+                onSelectActionFromFlow={
+                  onSelectAction ? (key) => onSelectAction(sourceIndex, key) : undefined
+                }
+                colorBy={colorBy}
+                onColorByChange={setColorBy}
+                actionTypePaletteId={actionTypePaletteId}
+              />
             </Fragment>
           ))
         )}

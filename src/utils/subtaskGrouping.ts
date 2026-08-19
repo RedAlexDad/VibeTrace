@@ -1,11 +1,6 @@
 import type { OcMessage, OcMessagePart, OcTodo, ToolPart } from '../types/opencode'
 
-const TODO_WRITE_TOOL_NAMES = new Set([
-  'todowrite',
-  'todo_write',
-  'write_todos',
-  'update_todos',
-])
+const TODO_WRITE_TOOL_NAMES = new Set(['todowrite', 'todo_write', 'write_todos', 'update_todos'])
 
 export function isTodoWriteTool(toolName: string): boolean {
   const t = toolName.toLowerCase().replace(/-/g, '_')
@@ -17,7 +12,7 @@ export function isTodoWriteTool(toolName: string): boolean {
 
 export function isTodoWriteMessage(message: OcMessage): boolean {
   if (message.info.role !== 'assistant') return false
-  return message.parts.some(p => p.type === 'tool' && isTodoWriteTool(p.tool))
+  return message.parts.some((p) => p.type === 'tool' && isTodoWriteTool(p.tool))
 }
 
 function partIsStepFinishStop(part: OcMessagePart): boolean {
@@ -162,7 +157,7 @@ function linkedTodoIdsForHighlight(newly: OcTodo[]): string[] {
 
 /** Non-empty list and every item is completed */
 function allTodosCompleted(s: OcTodo[]): boolean {
-  return s.length > 0 && s.every(t => t.status === 'completed')
+  return s.length > 0 && s.every((t) => t.status === 'completed')
 }
 
 /**
@@ -210,7 +205,7 @@ function resolveSnapshotForSegment(
   lastTodowriteSnapshot: OcTodo[] | null,
   resolver: ((index: number) => OcTodo[] | undefined) | undefined,
   fallback: OcTodo[],
-  canonicalAt?: (index: number) => OcTodo[] | undefined
+  canonicalAt?: (index: number) => OcTodo[] | undefined,
 ): OcTodo[] {
   const c = canonicalAt?.(lastIdx)
   if (c !== undefined && c.length > 0) {
@@ -236,7 +231,7 @@ function resolveSnapshotForSegment(
  * Todo snapshot completion rules still refine segments inside each range.
  */
 function assistantRangesSplitByUser(
-  messages: OcMessage[]
+  messages: OcMessage[],
 ): Array<{ assistantIndices: number[]; userMessageIndices: number[] }> {
   const out: Array<{ assistantIndices: number[]; userMessageIndices: number[] }> = []
   let pendingUsers: number[] = []
@@ -278,7 +273,7 @@ export function groupAssistantSubtasks(
     /** Canonical todo list assigned at each message index — wins over raw tool parsing */
     canonicalTodosAtMessageIndex?: (index: number) => OcTodo[] | undefined
     fallbackSessionTodos?: OcTodo[]
-  }
+  },
 ): AssistantSubtask[] {
   const resolver = options?.todosAfterMessageIndex
   const canonicalAt = options?.canonicalTodosAtMessageIndex
@@ -292,12 +287,7 @@ export function groupAssistantSubtasks(
   for (const { assistantIndices: range, userMessageIndices } of ranges) {
     const rangeSubtasks: AssistantSubtask[] = []
 
-    const push = (
-      indices: number[],
-      phase: SubtaskPhase,
-      todos: OcTodo[],
-      newly: OcTodo[]
-    ) => {
+    const push = (indices: number[], phase: SubtaskPhase, todos: OcTodo[], newly: OcTodo[]) => {
       if (indices.length === 0) return
       const td = todos.map(shallowCloneTodo)
       const nw = newly.map(shallowCloneTodo)
@@ -341,7 +331,7 @@ export function groupAssistantSubtasks(
         lastTodowriteSnapshot,
         resolver,
         fallback,
-        canonicalAt
+        canonicalAt,
       )
       snapAtTw.set(idx, snap)
       lastTodowriteSnapshot = snap
@@ -386,7 +376,7 @@ export function groupAssistantSubtasks(
 
 export function getAssistantSubtaskIndexForMessage(
   subtasks: AssistantSubtask[],
-  messageIndex: number
+  messageIndex: number,
 ): number {
-  return subtasks.findIndex(s => s.assistantMessageIndices.includes(messageIndex))
+  return subtasks.findIndex((s) => s.assistantMessageIndices.includes(messageIndex))
 }

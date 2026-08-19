@@ -48,13 +48,15 @@ export default function ForkSessionModal({ open, submitting, onClose, onConfirm 
           background: 'var(--color-bg-white)',
           borderRadius: 14,
           boxShadow: '0 18px 48px rgba(15, 23, 42, 0.18)',
-          border:'1px solid var(--color-border-light)',
+          border: '1px solid var(--color-border-light)',
           overflow: 'hidden',
           fontFamily: fontSans,
         }}
         onMouseDown={(e) => e.stopPropagation()}
       >
-        <div style={{ padding: '14px 16px 10px', borderBottom: '1px solid var(--color-border-faint)' }}>
+        <div
+          style={{ padding: '14px 16px 10px', borderBottom: '1px solid var(--color-border-faint)' }}
+        >
           <h2
             id="fork-session-modal-title"
             style={{
@@ -67,12 +69,35 @@ export default function ForkSessionModal({ open, submitting, onClose, onConfirm 
           >
             Fork session
           </h2>
-          <p style={{ margin: '8px 0 0', fontSize: 12, color: 'var(--color-tip-muted)', lineHeight: 1.45 }}>
+          <p
+            style={{
+              margin: '8px 0 0',
+              fontSize: 12,
+              color: 'var(--color-tip-muted)',
+              lineHeight: 1.45,
+            }}
+          >
             Enter the <strong>first user message</strong> for the forked session, then confirm.
           </p>
         </div>
-        <div style={{ padding: '12px 16px', flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column' }}>
-          <label htmlFor="fork-prompt-input" style={{ fontSize: 11, fontWeight: 600, color: 'var(--color-tip-subtle)', marginBottom: 6 }}>
+        <div
+          style={{
+            padding: '12px 16px',
+            flex: 1,
+            minHeight: 0,
+            display: 'flex',
+            flexDirection: 'column',
+          }}
+        >
+          <label
+            htmlFor="fork-prompt-input"
+            style={{
+              fontSize: 11,
+              fontWeight: 600,
+              color: 'var(--color-tip-subtle)',
+              marginBottom: 6,
+            }}
+          >
             Message
           </label>
           <textarea

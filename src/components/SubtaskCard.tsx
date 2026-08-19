@@ -1,7 +1,11 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties } from 'react'
 import type { MappedAction, OcMessage } from '../types/opencode'
 import type { AssistantSubtask } from '../utils/subtaskGrouping'
-import { buildSubtaskCardMetrics, formatDurationMs, formatSubtaskCostDisplay } from '../utils/subtaskMetrics'
+import {
+  buildSubtaskCardMetrics,
+  formatDurationMs,
+  formatSubtaskCostDisplay,
+} from '../utils/subtaskMetrics'
 import {
   applyParallelLayoutFromCalls,
   buildChildSessionBandMap,
@@ -15,9 +19,7 @@ import {
 import type { ForkFromActionContext, ForkPanelSnapshotBundle } from '../utils/forkPanelSnapshot'
 import { mergeMessagesForActionTooltipLookup } from '../utils/actionTooltipMapping'
 import ActionFlowVisualization from './ActionFlowVisualization'
-import {
-  type ActionTypePaletteId,
-} from '../styles/actionTypePalettes'
+import { type ActionTypePaletteId } from '../styles/actionTypePalettes'
 import { getMessages } from '../services/opencodeApi'
 import { actionKey } from '../utils/actionKey'
 
@@ -73,7 +75,7 @@ function MetricBox({ label, value, alert }: { label: string; value: string; aler
         minWidth: 0,
         flex: '1 1 0',
         minHeight: 44,
-        border:'1px solid var(--color-border)',
+        border: '1px solid var(--color-border)',
         borderRadius: 10,
         background: 'var(--color-bg-elevated)',
       }}
@@ -133,7 +135,9 @@ export default function SubtaskCard({
   const [filterMode, setFilterMode] = useState<FilterMode>('duration')
   /** DOM anchor only — use outer wrapper for fork/scroll */
   const cardRef = useRef<HTMLDivElement | null>(null)
-  const [childBranchActions, setChildBranchActions] = useState<(MappedAction & { row: number })[]>([])
+  const [childBranchActions, setChildBranchActions] = useState<(MappedAction & { row: number })[]>(
+    [],
+  )
   /** Raw child-session messages merged into Changes (write/edit paths) */
   const [childBranchMessages, setChildBranchMessages] = useState<OcMessage[]>([])
 
@@ -152,28 +156,26 @@ export default function SubtaskCard({
       ...(subtask.userMessageIndices ?? []),
       ...subtask.assistantMessageIndices,
     ].sort((a, b) => a - b)
-    return indices
-      .map(i => messages[i])
-      .filter((msg): msg is OcMessage => msg != null)
+    return indices.map((i) => messages[i]).filter((msg): msg is OcMessage => msg != null)
   }, [subtask.userMessageIndices, subtask.assistantMessageIndices, messages])
 
   const parentFlowActions = useMemo(
     () => buildMappedActionsFromMessages(segmentMessages, { nowMs: nowTick }),
-    [segmentMessages, nowTick]
+    [segmentMessages, nowTick],
   )
 
   const taskDescriptors = useMemo(
     () => collectTaskChildDescriptors(segmentMessages),
-    [segmentMessages]
+    [segmentMessages],
   )
   const parallelByCallId = useMemo(
     () => detectParallelCallMapping(segmentMessages, nowTick),
-    [segmentMessages, nowTick]
+    [segmentMessages, nowTick],
   )
   /** Parallel children share one band lane; sequential children still bump by session id order */
   const childSessionBandMap = useMemo(
     () => buildChildSessionBandMap(taskDescriptors, parallelByCallId),
-    [taskDescriptors, parallelByCallId]
+    [taskDescriptors, parallelByCallId],
   )
 
   const hasRunningTaskWithChild = useMemo(() => {
@@ -236,7 +238,9 @@ export default function SubtaskCard({
   }, [hasRunningTaskWithChild, loadChildBranches])
 
   const flowActions = useMemo(() => {
-    const merged = [...parentFlowActions, ...childBranchActions].sort((a, b) => a.sortTime - b.sortTime)
+    const merged = [...parentFlowActions, ...childBranchActions].sort(
+      (a, b) => a.sortTime - b.sortTime,
+    )
     return applyParallelLayoutFromCalls(merged, parallelByCallId)
   }, [parentFlowActions, childBranchActions, parallelByCallId])
 
@@ -307,12 +311,12 @@ export default function SubtaskCard({
     if (filterMode === 'duration') {
       if (!durationDomain) return flowActions.length
       return flowActions.filter(
-        (a) => Number.isFinite(a.durationMs) && a.durationMs >= effectiveFilterMin
+        (a) => Number.isFinite(a.durationMs) && a.durationMs >= effectiveFilterMin,
       ).length
     }
     if (!tokenDomain) return flowActions.length
     return flowActions.filter(
-      (a) => Number.isFinite(a.tokenEstimate) && a.tokenEstimate >= effectiveFilterMin
+      (a) => Number.isFinite(a.tokenEstimate) && a.tokenEstimate >= effectiveFilterMin,
     ).length
   }, [filterMode, flowActions, durationDomain, tokenDomain, effectiveFilterMin])
   const activeFilterMaxLabel = useMemo(() => {
@@ -389,9 +393,7 @@ export default function SubtaskCard({
     )
 
     /** Old branch tail from snapshot — mark `forkGhost` */
-    const ghostSuffix = oldActions
-      .slice(oldAnchorIdx + 1)
-      .map((a) => ({ ...a, forkGhost: true }))
+    const ghostSuffix = oldActions.slice(oldAnchorIdx + 1).map((a) => ({ ...a, forkGhost: true }))
 
     /** Forked trajectory after anchor — tag `forkCompareRow = 2` */
     const newBranch = postAnchorCurrent.map((a) => ({ ...a, forkCompareRow: 2 as const }))
@@ -401,7 +403,13 @@ export default function SubtaskCard({
     )
     const mergedTooltips = [...b.snapshot.tooltipMessages, ...tooltipLookupMessages]
     return { merged, mergedTooltips, anchorActionKey, sessionActions }
-  }, [forkPanelSnapshotBundle, subtask.subtask_id, displayIndex, flowActions, tooltipLookupMessages])
+  }, [
+    forkPanelSnapshotBundle,
+    subtask.subtask_id,
+    displayIndex,
+    flowActions,
+    tooltipLookupMessages,
+  ])
   const hasActiveRunningAction = useMemo(
     () => flowActions.some((a) => a.status === 'running' || a.status === 'pending'),
     [flowActions],
@@ -409,7 +417,8 @@ export default function SubtaskCard({
   const hasLongRunningAction = useMemo(
     () =>
       flowActions.some(
-        (a) => (a.status === 'running' || a.status === 'pending') && a.durationMs >= LONG_RUNNING_MS,
+        (a) =>
+          (a.status === 'running' || a.status === 'pending') && a.durationMs >= LONG_RUNNING_MS,
       ),
     [flowActions],
   )
@@ -482,7 +491,7 @@ export default function SubtaskCard({
       </h3>
 
       <div
-        onClick={e => e.stopPropagation()}
+        onClick={(e) => e.stopPropagation()}
         style={{
           display: 'flex',
           flexDirection: 'row',
@@ -512,19 +521,28 @@ export default function SubtaskCard({
               gap: 8,
             }}
           >
-            <span style={{ fontSize: 10, fontWeight: 400, lineHeight: '14px', color: 'var(--color-control-track-on)' }}>
+            <span
+              style={{
+                fontSize: 10,
+                fontWeight: 400,
+                lineHeight: '14px',
+                color: 'var(--color-control-track-on)',
+              }}
+            >
               Actions duration
             </span>
             <button
               type="button"
               role="switch"
               aria-checked={actionsDurationOn}
-              onClick={() => setActionsDurationOn(v => !v)}
+              onClick={() => setActionsDurationOn((v) => !v)}
               style={{
                 width: 26,
                 height: 13,
                 borderRadius: 80,
-                background: actionsDurationOn ? 'var(--color-control-track-on)' : 'var(--color-control-track-off)',
+                background: actionsDurationOn
+                  ? 'var(--color-control-track-on)'
+                  : 'var(--color-control-track-off)',
                 border: 'none',
                 padding: 2,
                 cursor: 'pointer',
@@ -561,7 +579,14 @@ export default function SubtaskCard({
               gap: 6,
             }}
           >
-            <span style={{ fontSize: 10, fontWeight: 400, lineHeight: '14px', color: 'var(--color-control-track-on)' }}>
+            <span
+              style={{
+                fontSize: 10,
+                fontWeight: 400,
+                lineHeight: '14px',
+                color: 'var(--color-control-track-on)',
+              }}
+            >
               Actions color
             </span>
             <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: 8 }}>
@@ -580,7 +605,10 @@ export default function SubtaskCard({
                   fontFamily: fontSans,
                   fontSize: 11,
                   lineHeight: '16px',
-                  color: colorBy === 'tokens' ? 'var(--color-control-track-on)' : 'var(--color-control-muted)',
+                  color:
+                    colorBy === 'tokens'
+                      ? 'var(--color-control-track-on)'
+                      : 'var(--color-control-muted)',
                 }}
               >
                 <span
@@ -590,7 +618,10 @@ export default function SubtaskCard({
                     borderRadius: 3,
                     boxSizing: 'border-box',
                     background: colorBy === 'tokens' ? 'var(--color-control-muted)' : 'transparent',
-                    border: colorBy === 'tokens' ? '1px solid var(--color-control-track-off)' : '1px solid var(--color-control-muted)',
+                    border:
+                      colorBy === 'tokens'
+                        ? '1px solid var(--color-control-track-off)'
+                        : '1px solid var(--color-control-muted)',
                   }}
                 />
                 tokens
@@ -610,7 +641,10 @@ export default function SubtaskCard({
                   fontFamily: fontSans,
                   fontSize: 11,
                   lineHeight: '16px',
-                  color: colorBy === 'type' ? 'var(--color-control-track-on)' : 'var(--color-control-muted)',
+                  color:
+                    colorBy === 'type'
+                      ? 'var(--color-control-track-on)'
+                      : 'var(--color-control-muted)',
                 }}
               >
                 <span
@@ -620,7 +654,10 @@ export default function SubtaskCard({
                     borderRadius: 3,
                     boxSizing: 'border-box',
                     background: colorBy === 'type' ? 'var(--color-control-muted)' : 'transparent',
-                    border: colorBy === 'type' ? '1px solid var(--color-control-track-off)' : '1px solid var(--color-control-muted)',
+                    border:
+                      colorBy === 'type'
+                        ? '1px solid var(--color-control-track-off)'
+                        : '1px solid var(--color-control-muted)',
                   }}
                 />
                 type
@@ -678,7 +715,10 @@ export default function SubtaskCard({
                   fontFamily: fontSans,
                   fontSize: 10,
                   lineHeight: '14px',
-                  color: filterMode === 'duration' ? 'var(--color-control-track-on)' : 'var(--color-control-muted)',
+                  color:
+                    filterMode === 'duration'
+                      ? 'var(--color-control-track-on)'
+                      : 'var(--color-control-muted)',
                 }}
               >
                 <span
@@ -687,8 +727,12 @@ export default function SubtaskCard({
                     height: 8,
                     borderRadius: 2,
                     boxSizing: 'border-box',
-                    background: filterMode === 'duration' ? 'var(--color-control-muted)' : 'transparent',
-                    border: filterMode === 'duration' ? '1px solid var(--color-control-track-off)' : '1px solid var(--color-control-muted)',
+                    background:
+                      filterMode === 'duration' ? 'var(--color-control-muted)' : 'transparent',
+                    border:
+                      filterMode === 'duration'
+                        ? '1px solid var(--color-control-track-off)'
+                        : '1px solid var(--color-control-muted)',
                   }}
                 />
                 duration
@@ -708,7 +752,10 @@ export default function SubtaskCard({
                   fontFamily: fontSans,
                   fontSize: 10,
                   lineHeight: '14px',
-                  color: filterMode === 'tokens' ? 'var(--color-control-track-on)' : 'var(--color-control-muted)',
+                  color:
+                    filterMode === 'tokens'
+                      ? 'var(--color-control-track-on)'
+                      : 'var(--color-control-muted)',
                 }}
               >
                 <span
@@ -717,8 +764,12 @@ export default function SubtaskCard({
                     height: 8,
                     borderRadius: 2,
                     boxSizing: 'border-box',
-                    background: filterMode === 'tokens' ? 'var(--color-control-muted)' : 'transparent',
-                    border: filterMode === 'tokens' ? '1px solid var(--color-control-track-off)' : '1px solid var(--color-control-muted)',
+                    background:
+                      filterMode === 'tokens' ? 'var(--color-control-muted)' : 'transparent',
+                    border:
+                      filterMode === 'tokens'
+                        ? '1px solid var(--color-control-track-off)'
+                        : '1px solid var(--color-control-muted)',
                   }}
                 />
                 tokens
@@ -789,7 +840,9 @@ export default function SubtaskCard({
            */
           const useForkMerged = forkMergedFlow != null
           const renderActions = useForkMerged ? forkMergedFlow!.merged : flowActions
-          const renderTooltips = useForkMerged ? forkMergedFlow!.mergedTooltips : tooltipLookupMessages
+          const renderTooltips = useForkMerged
+            ? forkMergedFlow!.mergedTooltips
+            : tooltipLookupMessages
           const forkAnchor = useForkMerged ? forkMergedFlow!.anchorActionKey : null
           return (
             <ActionFlowVisualization
@@ -853,8 +906,12 @@ export default function SubtaskCard({
     cursor: onSelectSubtask ? 'pointer' : 'default',
     transition: 'box-shadow 0.15s ease, border-color 0.15s ease, background-color 0.15s ease',
     border: hasLongRunningAction
-      ? (isLinked ? '2px solid var(--color-error-text)' : '1px solid var(--color-error-text)')
-      : (isLinked ? '2px solid var(--color-link)' : '1px solid var(--color-border)'),
+      ? isLinked
+        ? '2px solid var(--color-error-text)'
+        : '1px solid var(--color-error-text)'
+      : isLinked
+        ? '2px solid var(--color-link)'
+        : '1px solid var(--color-border)',
     boxShadow: isLinked
       ? `0 0 0 3px rgba(90, 143, 255, 0.22), 0 6px 18px rgba(90, 143, 255, 0.12)`
       : 'none',
