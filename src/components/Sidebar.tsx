@@ -1,11 +1,13 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import type { OcSession } from '../types/opencode'
-import { folderDisplayName } from '../utils/sessionFolders'
+import { folderDisplayName, groupDirectoriesByParent } from '../utils/sessionFolders'
 
 interface SidebarProps {
   /** Sessions in the selected folder (sorted, filtered). */
   sessionsInFolder: OcSession[]
   directories: string[]
+  /** Directory → most recent session update time, for recency ordering. */
+  recencyMap?: Map<string, number>
   selectedDirectory: string
   onSelectDirectory: (dir: string) => void | Promise<void>
   selectedSessionId: string
@@ -15,19 +17,19 @@ interface SidebarProps {
   /** Calls OpenCode DELETE /session/:id — removes session from UI (server deletes data). */
   onArchiveSession?: (sessionId: string) => void | Promise<void>
   archivingSessionId?: string | null
-  collapsed: boolean
-  onToggle: () => void
   apiConnected: boolean
   onAddDirectory?: () => void
   onCloseDirectory?: (dir: string) => void
 }
 
-const RAIL_WIDTH = 44
+const WORKSPACE_WIDTH = 208
+const SESSION_WIDTH = 240
 type DirMenu = { x: number; y: number; dir: string }
 
 export default function Sidebar({
   sessionsInFolder,
   directories,
+  recencyMap,
   selectedDirectory,
   onSelectDirectory,
   selectedSessionId,
@@ -36,13 +38,13 @@ export default function Sidebar({
   creatingSession,
   onArchiveSession,
   archivingSessionId,
-  collapsed,
-  onToggle,
   apiConnected,
   onAddDirectory,
   onCloseDirectory,
 }: SidebarProps) {
   const [hoverSessionId, setHoverSessionId] = useState<string | null>(null)
+  const [wsCollapsed, setWsCollapsed] = useState(false)
+  const [sessionsCollapsed, setSessionsCollapsed] = useState(false)
   const [dirMenu, setDirMenu] = useState<DirMenu | null>(null)
   const dirMenuRef = useRef<HTMLDivElement>(null)
   const titleName = useMemo(
@@ -70,43 +72,41 @@ export default function Sidebar({
     }
   }, [dirMenu])
 
-  if (collapsed) {
-    return (
-      <div
+  /** Collapsed rail button — restores a hidden panel when clicked. */
+  const renderRail = (label: string, icon: React.ReactNode, onExpand: () => void) => (
+    <div
+      style={{
+        width: 36,
+        height: '100%',
+        background: 'var(--color-bg-subtle)',
+        borderRight:'1px solid var(--color-border-light)',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        paddingTop: 10,
+        flexShrink: 0,
+      }}
+    >
+      <button
+        onClick={onExpand}
+        title={label}
         style={{
-          width: 48,
-          height: '100%',
-          background: 'var(--color-bg-white)',
-          borderRight:'1px solid var(--color-border-light)',
+          width: 30,
+          height: 30,
           display: 'flex',
-          flexDirection: 'column',
           alignItems: 'center',
-          paddingTop: 12,
-          flexShrink: 0,
+          justifyContent: 'center',
+          background: 'transparent',
+          border: 'none',
+          borderRadius: 6,
+          cursor: 'pointer',
+          color: 'var(--color-text-secondary)',
         }}
       >
-        <button
-          onClick={onToggle}
-          style={{
-            width: 32,
-            height: 32,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            background: 'transparent',
-            border: 'none',
-            borderRadius: 6,
-            cursor: 'pointer',
-          }}
-          title="Expand sidebar"
-        >
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--color-text-primary)" strokeWidth="2">
-            <path d="M3 12h18M3 6h18M3 18h18" />
-          </svg>
-        </button>
-      </div>
-    )
-  }
+        {icon}
+      </button>
+    </div>
+  )
 
   return (
     <div
@@ -116,82 +116,171 @@ export default function Sidebar({
         flexShrink: 0,
       }}
     >
-      {/* Folder rail */}
-      <div
-        style={{
-          width: RAIL_WIDTH,
-          background: 'var(--color-bg-subtle)',
-          borderRight:'1px solid var(--color-border-light)',
-          display: 'flex',
+      {!wsCollapsed ? (
+        /* Workspace panel: directories grouped under their parent folder */
+        <div
+          style={{
+            width: WORKSPACE_WIDTH,
+            background: 'var(--color-bg-subtle)',
+            borderRight:'1px solid var(--color-border-light)',
+            display: 'flex',
           flexDirection: 'column',
-          alignItems: 'center',
-          paddingTop: 8,
-          paddingBottom: 8,
-          gap: 6,
-          overflowY: 'auto',
+          minWidth: 0,
+          overflow: 'hidden',
         }}
       >
-        {onAddDirectory && (
-          <button
-            type="button"
-            title="Add workspace directory"
-            onClick={onAddDirectory}
-            style={{
-              width: 32,
-              height: 32,
-              borderRadius: 8,
-              border:'1px solid var(--color-accent-border)',
-              background:'linear-gradient(180deg, var(--color-accent-softer) 0%, var(--color-accent-soft) 100%)',
-              cursor: 'pointer',
-              color: 'var(--color-accent-deep)',
-              fontSize: 18,
-              fontWeight: 500,
-              lineHeight: '28px',
-              boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.75)',
-            }}
-          >
-            +
-          </button>
-        )}
-        {directories.map((dir) => {
-          const active = dir === selectedDirectory
-          const label = folderDisplayName(dir).slice(0, 2)
-          return (
+        <div
+          style={{
+            height: 48,
+            padding: '0 10px',
+            display: 'flex',
+            alignItems: 'center',
+            gap: 6,
+            borderBottom:'1px solid var(--color-border-light)',
+            flexShrink: 0,
+          }}
+        >
+          <span style={{ fontSize: 11, fontWeight: 600, color: 'var(--color-text-secondary)', flex: 1, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+            Workspaces
+          </span>
+          {onAddDirectory && (
             <button
-              key={dir || '__root__'}
               type="button"
-              title={dir}
-              onClick={() => onSelectDirectory(dir)}
-              onContextMenu={(e) => {
-                if (!onCloseDirectory) return
-                e.preventDefault()
-                setDirMenu({ x: e.clientX, y: e.clientY, dir })
-              }}
+              title="Add workspace directory"
+              onClick={onAddDirectory}
               style={{
-                width: 32,
-                minHeight: 32,
-                padding: '4px 2px',
-                borderRadius: 8,
-                border: active ? '1px solid var(--color-accent)' : '1px solid transparent',
-                background: active ? 'var(--color-accent-soft)' : 'transparent',
+                width: 22,
+                height: 22,
+                borderRadius: 6,
+                border:'1px solid var(--color-accent-border)',
+                background:'linear-gradient(180deg, var(--color-accent-softer) 0%, var(--color-accent-soft) 100%)',
                 cursor: 'pointer',
-                fontSize: 11,
+                color: 'var(--color-accent-deep)',
+                fontSize: 15,
                 fontWeight: 600,
-                color: active ? 'var(--color-accent-deep)' : 'var(--color-text-secondary)',
-                lineHeight: 1.15,
-                wordBreak: 'break-all',
+                lineHeight: '18px',
+                flexShrink: 0,
               }}
             >
-              {label}
+              +
             </button>
-          )
-        })}
-      </div>
+          )}
+          <button
+            type="button"
+            title="Hide workspaces"
+            onClick={() => setWsCollapsed(true)}
+            style={{
+              width: 22,
+              height: 22,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              background: 'transparent',
+              border: 'none',
+              borderRadius: 4,
+              cursor: 'pointer',
+              color: 'var(--color-text-tertiary)',
+              flexShrink: 0,
+            }}
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M15 19l-7-7 7-7" />
+            </svg>
+          </button>
+        </div>
+        <div style={{ flex: 1, overflowY: 'auto', padding: '6px 0 8px' }}>
+          {groupDirectoriesByParent(directories, recencyMap).map((group) => {
+            const groupLabel = group.parent ? folderDisplayName(group.parent) : 'Other'
+            return (
+              <div key={group.parent || '__root__'} style={{ marginBottom: 6 }}>
+                <div
+                  style={{
+                    padding: '4px 12px 2px',
+                    fontSize: 10,
+                    fontWeight: 600,
+                    letterSpacing: 0.3,
+                    textTransform: 'uppercase',
+                    color: 'var(--color-text-tertiary)',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                    whiteSpace: 'nowrap',
+                  }}
+                  title={group.parent}
+                >
+                  {groupLabel}
+                </div>
+                {group.dirs.map((dir) => {
+                  const active = dir === selectedDirectory
+                  const name = folderDisplayName(dir)
+                  return (
+                    <button
+                      key={dir || '__root__'}
+                      type="button"
+                      title={dir}
+                      onClick={() => onSelectDirectory(dir)}
+                      onContextMenu={(e) => {
+                        if (!onCloseDirectory) return
+                        e.preventDefault()
+                        setDirMenu({ x: e.clientX, y: e.clientY, dir })
+                      }}
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 8,
+                        width: 'calc(100% - 12px)',
+                        margin: '0 6px',
+                        minHeight: 30,
+                        padding: '4px 8px',
+                        borderRadius: 7,
+                        border: active ? '1px solid var(--color-accent)' : '1px solid transparent',
+                        background: active ? 'var(--color-accent-soft)' : 'transparent',
+                        cursor: 'pointer',
+                        textAlign: 'left',
+                        fontSize: 12,
+                        fontWeight: active ? 600 : 400,
+                        color: active ? 'var(--color-accent-deep)' : 'var(--color-text-primary)',
+                        lineHeight: 1.2,
+                      }}
+                    >
+                      <span
+                        style={{
+                          width: 6,
+                          height: 6,
+                          borderRadius: '50%',
+                          background: active ? 'var(--color-accent)' : 'var(--color-gray-200)',
+                          flexShrink: 0,
+                        }}
+                      />
+                      <span style={{ flex: 1, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                        {name}
+                      </span>
+                    </button>
+                  )
+                })}
+              </div>
+            )
+          })}
+          {directories.length === 0 && (
+            <div style={{ padding: '8px 12px', fontSize: 11, color: 'var(--color-text-tertiary)', lineHeight: 1.4 }}>
+              No workspaces yet. Use &quot;+&quot; to add a directory.
+            </div>
+          )}
+        </div>
+        </div>
+      ) : (
+        renderRail(
+          'Show workspaces',
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <path d="M9 5l7 7-7 7" />
+          </svg>,
+          () => setWsCollapsed(false),
+        )
+      )}
 
-      {/* Session list */}
+      {!sessionsCollapsed ? (
       <div
         style={{
-          width: 240,
+          width: SESSION_WIDTH,
           height: '100%',
           background: 'var(--color-bg-white)',
           borderRight:'1px solid var(--color-border-light)',
@@ -237,7 +326,7 @@ export default function Sidebar({
             />
           </div>
           <button
-            onClick={onToggle}
+            onClick={() => setSessionsCollapsed(true)}
             style={{
               width: 24,
               height: 24,
@@ -250,7 +339,7 @@ export default function Sidebar({
               cursor: 'pointer',
               flexShrink: 0,
             }}
-            title="Collapse sidebar"
+            title="Hide sessions"
           >
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--color-text-tertiary)" strokeWidth="2">
               <path d="M11 19l-7-7 7-7M18 19l-7-7 7-7" />
@@ -387,6 +476,15 @@ export default function Sidebar({
           )}
         </div>
       </div>
+      ) : (
+        renderRail(
+          'Show sessions',
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <path d="M9 5l7 7-7 7" />
+          </svg>,
+          () => setSessionsCollapsed(false),
+        )
+      )}
       {dirMenu && onCloseDirectory && (
         <div
           ref={dirMenuRef}

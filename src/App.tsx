@@ -19,6 +19,7 @@ import {
   type OcComposerModelOption,
 } from './services/opencodeApi'
 import {
+  lastActivityByDirectory,
   normalizeSessionDirectory,
   uniqueDirectoriesFromSessions,
 } from './utils/sessionFolders'
@@ -190,7 +191,6 @@ function App() {
   const [todosSnapshotAtMessageIndex, setTodosSnapshotAtMessageIndex] = useState<TodosSnapshotMap>({})
   const [loading, setLoading] = useState(false)
   const [apiConnected, setApiConnected] = useState(false)
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
   const [linkedSubtaskIndex, setLinkedSubtaskIndex] = useState<number | null>(null)
   /** Bumps when a subtask is selected so the Todo panel auto-expands the right section */
   const [todoPanelRevealGeneration, setTodoPanelRevealGeneration] = useState(0)
@@ -274,6 +274,8 @@ function App() {
   useEffect(() => {
     window.localStorage.setItem(STORAGE_KEYS.manualDirectories, JSON.stringify(manualDirectories))
   }, [manualDirectories])
+
+  const recencyMap = useMemo(() => lastActivityByDirectory(sessions), [sessions])
 
   useEffect(() => {
     window.localStorage.setItem(STORAGE_KEYS.closedDirectories, JSON.stringify(closedDirectories))
@@ -1188,6 +1190,7 @@ function App() {
       <Sidebar
         sessionsInFolder={sessionsInFolder}
         directories={directories}
+        recencyMap={recencyMap}
         selectedDirectory={selectedDirectory}
         onSelectDirectory={handleSelectDirectory}
         selectedSessionId={selectedSessionId}
@@ -1196,8 +1199,6 @@ function App() {
         creatingSession={creatingSession}
         onArchiveSession={handleArchiveSession}
         archivingSessionId={archivingSessionId}
-        collapsed={sidebarCollapsed}
-        onToggle={() => setSidebarCollapsed(!sidebarCollapsed)}
         apiConnected={apiConnected}
         onAddDirectory={handleAddDirectory}
         onCloseDirectory={handleCloseDirectory}
