@@ -26,6 +26,8 @@ interface SidebarProps {
 
 const WORKSPACE_WIDTH = 208
 const SESSION_WIDTH = 240
+/** A session is "active" if updated within this window */
+const ACTIVE_SESSION_WINDOW_MS = 30_000
 type DirMenu = { x: number; y: number; dir: string }
 
 export default function Sidebar({
@@ -50,6 +52,11 @@ export default function Sidebar({
   const dispatch = useAppDispatch()
   const [dirMenu, setDirMenu] = useState<DirMenu | null>(null)
   const dirMenuRef = useRef<HTMLDivElement>(null)
+  const [nowMs, setNowMs] = useState(() => Date.now())
+  useEffect(() => {
+    const id = window.setInterval(() => setNowMs(Date.now()), 5000)
+    return () => window.clearInterval(id)
+  }, [])
   const titleName = useMemo(
     () => folderDisplayName(selectedDirectory),
     [selectedDirectory],
@@ -421,12 +428,28 @@ export default function Sidebar({
                   }}
                 >
                   <div
+                    title={
+                      session.id === selectedSessionId
+                        ? 'Active session'
+                        : nowMs - session.time.updated <= ACTIVE_SESSION_WINDOW_MS
+                          ? 'Running'
+                          : undefined
+                    }
                     style={{
                       width: 6,
                       height: 6,
                       borderRadius: '50%',
-                      background: session.id === selectedSessionId ? 'var(--color-accent)' : 'var(--color-gray-200)',
+                      background:
+                        session.id === selectedSessionId
+                          ? 'var(--color-accent)'
+                          : nowMs - session.time.updated <= ACTIVE_SESSION_WINDOW_MS
+                            ? 'var(--color-success)'
+                            : 'var(--color-gray-200)',
                       flexShrink: 0,
+                      ...(nowMs - session.time.updated <= ACTIVE_SESSION_WINDOW_MS && {
+                        boxShadow: `0 0 0 0 ${session.id === selectedSessionId ? 'var(--color-accent)' : 'var(--color-success)'}`,
+                        animation: 'actionFlowRunningPulse 1.2s ease-in-out infinite',
+                      }),
                     }}
                   />
                   <span
