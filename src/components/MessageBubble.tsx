@@ -459,8 +459,10 @@ function ToolCallView({
               <button
                 onClick={() => setActiveTab('input')}
                 style={{
-                  border:'1px solid var(--color-border-light)',
-                  background: activeTab === 'input' ? 'var(--color-bg-soft)' : 'var(--color-bg-white)',
+                  border:'1px solid var(--color-border)',
+                  background: activeTab === 'input' ? 'var(--color-accent-soft)' : 'var(--color-bg-white)',
+                  color: activeTab === 'input' ? 'var(--color-accent-deep)' : 'var(--color-text-secondary)',
+                  fontWeight: activeTab === 'input' ? 600 : 400,
                   borderRadius: 4,
                   fontSize: 10,
                   padding: '2px 6px',
@@ -474,8 +476,10 @@ function ToolCallView({
               <button
                 onClick={() => setActiveTab('output')}
                 style={{
-                  border:'1px solid var(--color-border-light)',
-                  background: activeTab === 'output' ? 'var(--color-bg-soft)' : 'var(--color-bg-white)',
+                  border:'1px solid var(--color-border)',
+                  background: activeTab === 'output' ? 'var(--color-accent-soft)' : 'var(--color-bg-white)',
+                  color: activeTab === 'output' ? 'var(--color-accent-deep)' : 'var(--color-text-secondary)',
+                  fontWeight: activeTab === 'output' ? 600 : 400,
                   borderRadius: 4,
                   fontSize: 10,
                   padding: '2px 6px',
@@ -489,9 +493,10 @@ function ToolCallView({
               <button
                 onClick={() => setActiveTab('error')}
                 style={{
-                  border:'1px solid var(--color-border-light)',
+                  border:'1px solid var(--color-border)',
                   background: activeTab === 'error' ? 'var(--color-error-soft)' : 'var(--color-bg-white)',
-                  color: 'var(--color-error-text)',
+                  color: activeTab === 'error' ? 'var(--color-error-text)' : 'var(--color-text-secondary)',
+                  fontWeight: activeTab === 'error' ? 600 : 400,
                   borderRadius: 4,
                   fontSize: 10,
                   padding: '2px 6px',

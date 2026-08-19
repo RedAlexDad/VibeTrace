@@ -4,6 +4,7 @@ import {
 } from '../styles/actionTypePalettes'
 import type { ActionType } from '../types/opencode'
 import { getActionFlowIconSvg } from './actionFlowIcons'
+import { usePrefersDark } from '../utils/usePrefersDark'
 
 const fontSans =
   "'PingFang SC', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Microsoft YaHei', sans-serif"
@@ -17,6 +18,7 @@ type Props = {
  * (UserRequest is a hollow ring, no square base).
  */
 export default function ActionTypeColorLegend({ paletteId }: Props) {
+  usePrefersDark()
   const buildIconMarkup = (type: ActionType): string => {
     const raw = getActionFlowIconSvg(type)
     return raw.replace(/<svg\b/, '<svg width="12" height="12"')

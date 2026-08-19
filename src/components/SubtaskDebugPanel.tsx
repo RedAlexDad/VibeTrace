@@ -13,6 +13,7 @@ import {
 import { buildMappedActionsFromMessages, collectTaskChildDescriptors } from '../utils/actionMapping'
 import { actionKey } from '../utils/actionKey'
 import { getMessages } from '../services/opencodeApi'
+import { usePrefersDark } from '../utils/usePrefersDark'
 import {
   buildCompactMappedActionTooltipHtml,
   mergeMessagesForActionTooltipLookup,
@@ -59,6 +60,7 @@ export default function SubtaskDebugPanel({
   onSelectAction,
   flowLayoutMode = 'timeline',
 }: SubtaskDebugPanelProps) {
+  usePrefersDark()
   const summaryTooltipSafeId = useId().replace(/:/g, '')
   const summaryTooltipId = `subtask-summary-tip-${summaryTooltipSafeId}`
   const [tooltipMounted, setTooltipMounted] = useState(false)

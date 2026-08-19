@@ -12,6 +12,7 @@ import { effectiveStatusColors, resolveActionBlockColors, statusColors } from '.
 import { appendActionFlowIcon, getActionFlowIconSvg } from './actionFlowIcons'
 import ActionFlowContextMenu, { type ActionFlowContextMenuState } from './ActionFlowContextMenu'
 import { actionKey } from '../utils/actionKey'
+import { usePrefersDark } from '../utils/usePrefersDark'
 
 type FlowNode =
   | { kind: 'end'; row: number; sessionRegion: 'main' | 'fork-new-branch' }
@@ -1226,6 +1227,7 @@ export default function ActionFlowVisualization({
   const svgRef = useRef<SVGSVGElement | null>(null)
   const scrollRef = useRef<HTMLDivElement | null>(null)
   const [contextMenu, setContextMenu] = useState<ActionFlowContextMenuState | null>(null)
+  const prefersDark = usePrefersDark()
   const reactId = useId().replace(/:/g, '')
   const markerId = `action-flow-arrow-${reactId}`
   const tooltipId = `action-flow-tip-${reactId}`
@@ -2111,6 +2113,7 @@ export default function ActionFlowVisualization({
     durationMode,
     colorMode,
     actionTypePaletteId,
+    prefersDark,
     durationHighlightMinMs,
     tokenHighlightMin,
     autoScrollFirstFilteredMatch,

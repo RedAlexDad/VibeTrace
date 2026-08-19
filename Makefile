@@ -78,7 +78,8 @@ dev-bg: check-opencode ## Запустить dev-сервер Vite в фоне
 	@printf "$(COLOR_YELLOW)==> npm run dev (background)$(COLOR_RESET)\n"
 	@nohup npm run dev > /tmp/vibetrace-dev.log 2>&1 &
 	@sleep 2
-	@printf "$(COLOR_GREEN)dev запущен, лог: /tmp/vibetrace-dev.log$(COLOR_RESET)\n"
+	@printf "$(COLOR_GREEN)dev запущен: http://localhost:5173$(COLOR_RESET)\n"
+	@printf "$(COLOR_DIM)лог: /tmp/vibetrace-dev.log$(COLOR_RESET)\n"
 
 .PHONY: build
 build: ## Собрать production-сборку
