@@ -5,6 +5,7 @@ import AgentInfo from './AgentInfo'
 import { renderMarkdown } from '@/shared/lib/format/markdown'
 import ToolCallView from './ToolCallView'
 import UserMessage from './UserMessage'
+import MermaidBlock from './MermaidBlock'
 
 interface MessageBubbleProps {
   message: OcMessage
@@ -93,6 +94,22 @@ function partViewPropsEqual(prev: PartViewProps, next: PartViewProps): boolean {
   )
 }
 
+/** Splits text into normal markdown segments and fenced ```mermaid blocks. */
+function splitMermaidBlocks(text: string): Array<{ type: 'md' | 'mermaid'; text?: string; code?: string }> {
+  const segments: Array<{ type: 'md' | 'mermaid'; text?: string; code?: string }> = []
+  const re = /```mermaid\s*\n([\s\S]*?)```/g
+  let last = 0
+  let m: RegExpExecArray | null
+  while ((m = re.exec(text)) !== null) {
+    if (m.index > last) segments.push({ type: 'md', text: text.slice(last, m.index) })
+    segments.push({ type: 'mermaid', code: m[1]! })
+    last = re.lastIndex
+  }
+  if (last < text.length) segments.push({ type: 'md', text: text.slice(last) })
+  if (segments.length === 0) segments.push({ type: 'md', text })
+  return segments
+}
+
 const PartView = memo(function PartView({
   message,
   part,
@@ -112,6 +129,22 @@ const PartView = memo(function PartView({
         transcriptAnchorNowMs,
         staleToolCallIds,
       )
+      const segments = splitMermaidBlocks(part.text || '')
+      if (segments.length === 1 && segments[0]!.type === 'md') {
+        return (
+          <div
+            data-transcript-action-key={ak ?? undefined}
+            style={{
+              fontSize: 12,
+              lineHeight: 1.6,
+              color: 'var(--color-text-primary)',
+              overflowWrap: 'break-word',
+              wordBreak: 'break-word',
+            }}
+            dangerouslySetInnerHTML={{ __html: renderMarkdown(part.text || '') }}
+          />
+        )
+      }
       return (
         <div
           data-transcript-action-key={ak ?? undefined}
@@ -122,8 +155,18 @@ const PartView = memo(function PartView({
             overflowWrap: 'break-word',
             wordBreak: 'break-word',
           }}
-          dangerouslySetInnerHTML={{ __html: renderMarkdown(part.text || '') }}
-        />
+        >
+          {segments.map((seg, i) =>
+            seg.type === 'mermaid' && seg.code !== undefined ? (
+              <MermaidBlock key={i} code={seg.code} />
+            ) : (
+              <span
+                key={i}
+                dangerouslySetInnerHTML={{ __html: renderMarkdown(seg.text ?? '') }}
+              />
+            ),
+          )}
+        </div>
       )
     }
 
