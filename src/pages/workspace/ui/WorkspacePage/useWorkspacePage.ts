@@ -640,6 +640,12 @@ export function useWorkspacePage() {
             setMessages(msgs)
           }
         }
+        // A step-finish marks the end of a generation turn — flush any
+        // throttled deltas so the final text chunk renders immediately instead
+        // of waiting for session.idle (which may lag behind).
+        if (part?.type === 'step-finish') {
+          flushDeltaCommit()
+        }
       }
 
       if (eventType === 'message.part.delta') {
