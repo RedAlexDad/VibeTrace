@@ -1,36 +1,36 @@
-# VibeTrace: See how your agents think
+# VibeTrace: посмотри, как думают твои агенты
 
-**Visualizing Agent Runtime Behavior for Human Intervention in Vibe Coding**
+**Визуализация поведения агентов в рантайме для вмешательства человека в Vibe-кодинг**
 
-A web dashboard for **[OpenCode](https://opencode.ai/)** that connects to a local OpenCode HTTP server (REST + Server-Sent Events), enabling developers to work across multiple directories while inspecting live message streams, todos, subtasks, and visualized agent execution flows. The system provides rich cross-linking between todos, transcripts, and individual action-flow blocks, supporting real-time monitoring, navigation, and intervention during agent runtime execution.
+Веб-дашборд для **[OpenCode](https://opencode.ai/)**. Подключается к локальному HTTP-серверу OpenCode (REST + Server-Sent Events) и позволяет работать сразу с несколькими каталогами, наблюдая в реальном времени за потоками сообщений, todo, подзадачами и визуализированными графами выполнения агента. Система даёт перекрёстные связи между todo, транскриптами и отдельными блоками action-flow, поддерживая мониторинг, навигацию и вмешательство в ходе выполнения агента.
 
 ---
 
-## UI preview
+## Превью интерфейса
 
 <p align="center">
-<img src="./fig/timeline-view.png" alt="VibeTrace action-flow view" width="100%" />
+<img src="./fig/timeline-view.png" alt="Просмотр action-flow в VibeTrace" width="100%" />
 </p>
 
 ---
 
-## What’s included
+## Что входит
 
-- **Action-flow visualization** — Orthogonal layout of mapped tool/agent steps, branching forks, contextual tooltips, and click-to-focus that ties the flow to todos and transcripts. **`Actions duration`** toggles between fixed step spacing and horizontally scaled blocks keyed to measured duration. **`Actions color`** switches the palette between **tokens** and **tool type** lenses. Toolbar **`timeline` / `summary`** changes how planner subtasks are arranged in the rail; fullscreen is available for the flow view.
-- **Multi-directory sessions** via `x-opencode-directory`, aligned with how OpenCode labels workspaces from the CLI.
-- **Realtime harness UI** — Streamed assistant turns, todos and `todo_write` batch replay, approve/reject for question tooling.
-- **Subtask linkage** — Optional connectors from todo rows into a linked card **or into the focused action** when one is selected.
-- **Session operations** — Rename, fork, SSE with polling fallback, optional outbound harness guidance prefix on user prompts.
+- **Визуализация action-flow** — ортогональная раскладка шагов инструментов/агента, ветвления-форки, контекстные тултипы и клик для фокусировки, связывающий поток с todo и транскриптами. Переключатель **`Actions duration`** меняет фиксированный шаг между блоками на горизонтальное масштабирование по измеренной длительности. **`Actions color`** переключает палитру между **токенами** и **типами инструментов**. Кнопки тулбара **`timeline` / `summary`** меняют раскладку подзадач планировщика в рейле; для просмотра потока доступен полноэкранный режим.
+- **Сессии из нескольких каталогов** через `x-opencode-directory` — согласовано с тем, как OpenCode помечает воркспейсы из CLI.
+- **Интерфейс harness в реальном времени** — стриминг ответов ассистента, повторный показ батчей todo и `todo_write`, approve/reject для вопросов инструментов.
+- **Связывание подзадач** — опциональные коннекторы от строк todo к связанной карточке **или к фокусированному действию**, когда оно выбрано.
+- **Операции с сессиями** — переименование, форк, SSE с фолбэком на polling, опциональный исходящий префикс guidance к пользовательским промптам.
 
 ---
 
-## Installation & Running
+## Установка и запуск
 
-### 1. Install the OpenCode CLI
+### 1. Установите CLI OpenCode
 
-VibeTrace requires the OpenCode CLI running in HTTP headless mode.
+VibeTrace требует запущенный CLI OpenCode в headless-HTTP-режиме.
 
-Follow the [upstream installation guide](https://opencode.ai/download), then verify the installation:
+Следуйте [официальной инструкции по установке](https://opencode.ai/download), затем проверьте установку:
 
 ```bash
 opencode --version
@@ -38,23 +38,23 @@ opencode --version
 
 ---
 
-### 2. Start the OpenCode HTTP Server
+### 2. Запустите HTTP-сервер OpenCode
 
-Launch the server with:
+Запустите сервер командой:
 
 ```bash
 opencode serve
 ```
 
-By default, the server listens on an address similar to:
+По умолчанию сервер слушает адрес вида:
 
 ```txt
 http://127.0.0.1:4096
 ```
 
-If the port changes, make sure to update it in `.env.local` as well.
+Если порт изменится, не забудьте обновить его в `.env.local`.
 
-You can also specify a fixed port explicitly:
+Можно указать фиксированный порт явно:
 
 ```bash
 opencode serve --port 4096
@@ -62,72 +62,80 @@ opencode serve --port 4096
 
 ---
 
-### 3. Configure Environment Variables
+### 3. Настройте переменные окружения
 
-Create a local environment file:
+Создайте локальный файл окружения:
 
 ```bash
 cp .env.example .env.local
 ```
 
-Then set the OpenCode server endpoint:
+Затем задайте адрес сервера OpenCode:
 
 ```env
 VITE_OPENCODE_BASE=http://127.0.0.1:4096
 ```
 
-| Variable                                   | Description                                                                                                                 |
-| ------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------- |
-| `VITE_OPENCODE_BASE`                       | Base URL used for all VibeTrace → OpenCode API requests. Must match the running OpenCode server address.                    |
-| `VITE_OPENCODE_DEFAULT_MODEL` _(optional)_ | Overrides the default bootstrap model using the format `provider/model`. If omitted, OpenCode's default model will be used. |
+| Переменная                                   | Описание                                                                                                        |
+| -------------------------------------------- | --------------------------------------------------------------------------------------------------------------- |
+| `VITE_OPENCODE_BASE`                         | Базовый URL для всех запросов VibeTrace → OpenCode API. Должен совпадать с адресом запущенного сервера OpenCode. |
+| `VITE_OPENCODE_DEFAULT_MODEL` _(необязательно)_ | Переопределяет модель по умолчанию в формате `provider/model`. Если не задано, используется модель OpenCode по умолчанию. |
 
 ---
 
-### 4. Install Dependencies & Start the UI
+### 4. Установите зависимости и запустите интерфейс
 
-Install project dependencies:
+Установите зависимости проекта:
 
 ```bash
 npm install
 ```
 
-Start the development server:
+Запустите dev-сервер:
 
 ```bash
 npm run dev
 ```
 
-The frontend development server runs at:
+Фронтенд-сервер разработки работает по адресу:
 
 ```txt
 http://localhost:5173
 ```
 
-(See `vite.config.ts` for configuration details.)
+(Подробности конфигурации — в `vite.config.ts`.)
 
-Make sure the `opencode serve` process remains running while using the UI.
-
----
-
-## Repository layout
-
-- **`src/App.tsx`** and **`src/components/`** wire sessions, transcripts, todos, connectors, dialogs, fullscreen views.
-- **`src/services/opencodeApi.ts`** is the canonical HTTP/SSE client.
-- **`src/utils/`** contains folder helpers, todo materialization, SSE parsing, **`MappedAction`** construction, grouping, and forks.
-- **`docs/`** stores design/integration notes outside the runtime bundle.
-- **`fig/`** holds README imagery.
-- **`scripts/`** holds tooling such as `smoke-opencode-session.mjs` for probing a live daemon.
-
-Treat the authoritative API contract as the pair **running `opencode serve`** + **`src/services/opencodeApi.ts`**.
+Следите, чтобы процесс `opencode serve` оставался запущенным во время работы с интерфейсом.
 
 ---
 
-## Tech stack
+## Структура репозитория
+
+Интерфейс следует **Feature-Sliced Design (FSD)** — shared, entities, features, widgets, pages, app:
+
+- **`src/app/`** — точка входа: `main.tsx`, `App.tsx`, `ErrorBoundary`, глобальные стили и Redux-стор (`store/` с персистентным слайсом `ui`).
+- **`src/pages/`** — композиционные корни. `workspace/` содержит главную страницу `WorkspacePage`.
+- **`src/widgets/`** — самостоятельные блоки: `sidebar`, `chat`, `todo-panel`, `action-flow`, `vibetrace-panel`, `header`.
+- **`src/features/`** — пользовательские сценарии: `subtask-linking`, `peak-pricing`, `action-analysis`, `fork-session`.
+- **`src/entities/`** — доменные модели и lib: `action`, `subtask`, `todo`, `message`, `workspace`.
+- **`src/shared/`** — `api/opencodeApi.ts` (канонический HTTP/SSE-клиент), `config/`, `types/`, `styles/`, `lib/hooks/`.
+
+Внутренние импорты используют алиас `@/`, указывающий на `src/`. Правила пересечения границ следуют FSD (entities/widgets могут импортировать `app/store` для типизированных хуков и слайсов).
+
+- **`docs/`** хранит заметки по дизайну и интеграции вне рантайм-бандла.
+- **`fig/`** содержит изображения для README.
+- **`scripts/`** содержит инструменты, например `smoke-opencode-session.mjs` для проверки живого демона.
+
+Авторитетным контрактом API считайте пару **запущенный `opencode serve`** + **`src/shared/api/opencodeApi.ts`**.
+
+---
+
+## Технологический стек
 
 React 19 · TypeScript · Vite · Tailwind CSS 4 · d3 · react-tooltip
 
 ---
 
-## License
+## Лицензия
 
 [MIT](./LICENSE).
