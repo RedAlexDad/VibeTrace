@@ -1,3 +1,4 @@
+import { memo } from 'react'
 import type { OcMessage, OcMessagePart, OcPendingQuestionRequest } from '@/shared/types/opencode'
 import { transcriptAnchorKeyForPart } from '@/entities/action/lib/actionMapping'
 import AgentInfo from './AgentInfo'
@@ -19,7 +20,7 @@ interface MessageBubbleProps {
   onQuestionAnswered?: () => Promise<void>
 }
 
-export default function MessageBubble({
+export default memo(function MessageBubble({
   message,
   staleToolCallIds,
   transcriptAnchorNowMs,
@@ -54,18 +55,20 @@ export default function MessageBubble({
       {isLastInTurn && <AgentInfo info={info} />}
     </div>
   )
+}, bubblePropsEqual)
+
+function bubblePropsEqual(prev: MessageBubbleProps, next: MessageBubbleProps): boolean {
+  return (
+    prev.message === next.message &&
+    prev.staleToolCallIds === next.staleToolCallIds &&
+    prev.isLastInTurn === next.isLastInTurn &&
+    prev.sessionDirectory === next.sessionDirectory &&
+    prev.ssePendingQuestion === next.ssePendingQuestion &&
+    prev.onQuestionAnswered === next.onQuestionAnswered
+  )
 }
 
-function PartView({
-  message,
-  part,
-  partIndex,
-  staleToolCallIds,
-  transcriptAnchorNowMs,
-  sessionDirectory,
-  ssePendingQuestion,
-  onQuestionAnswered,
-}: {
+type PartViewProps = {
   message: OcMessage
   part: OcMessagePart
   partIndex: number
@@ -74,7 +77,32 @@ function PartView({
   sessionDirectory?: string
   ssePendingQuestion?: OcPendingQuestionRequest | null
   onQuestionAnswered?: () => Promise<void>
-}) {
+}
+
+/** Ignore the wall-clock tick: anchor keys only matter for tool parts and don't
+ * need a re-render every second. Re-render only when the part data actually changes. */
+function partViewPropsEqual(prev: PartViewProps, next: PartViewProps): boolean {
+  return (
+    prev.message === next.message &&
+    prev.part === next.part &&
+    prev.partIndex === next.partIndex &&
+    prev.staleToolCallIds === next.staleToolCallIds &&
+    prev.sessionDirectory === next.sessionDirectory &&
+    prev.ssePendingQuestion === next.ssePendingQuestion &&
+    prev.onQuestionAnswered === next.onQuestionAnswered
+  )
+}
+
+const PartView = memo(function PartView({
+  message,
+  part,
+  partIndex,
+  staleToolCallIds,
+  transcriptAnchorNowMs,
+  sessionDirectory,
+  ssePendingQuestion,
+  onQuestionAnswered,
+}: PartViewProps) {
   switch (part.type) {
     case 'text': {
       const ak = transcriptAnchorKeyForPart(
@@ -211,4 +239,4 @@ function PartView({
     default:
       return null
   }
-}
+}, partViewPropsEqual)

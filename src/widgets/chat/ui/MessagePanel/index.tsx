@@ -115,7 +115,12 @@ export default function MessagePanel({
   })
 
   const staleToolCallIds = useMemo(() => collectStaleToolCallIDs(messages), [messages])
-  const transcriptAnchorNowMs = Date.now()
+  // Stable wall clock for anchor keys — refreshed on a slow tick instead of every render.
+  const [transcriptAnchorNowMs, setTranscriptAnchorNowMs] = useState(() => Date.now())
+  useEffect(() => {
+    const id = window.setInterval(() => setTranscriptAnchorNowMs(Date.now()), 1000)
+    return () => window.clearInterval(id)
+  }, [])
 
   /** Whether the message list is scrolled to the very bottom (controls the floating button). */
   const [atBottom, setAtBottom] = useState(true)
@@ -255,67 +260,67 @@ export default function MessagePanel({
             overflowWrap: 'break-word',
           }}
         >
-        {loading ? (
-          <div
-            style={{
-              display: 'flex',
-              justifyContent: 'center',
-              padding: '32px',
-              color: 'var(--color-text-tertiary)',
-              fontSize: 12,
-            }}
-          >
-            Loading…
-          </div>
-        ) : messages.length === 0 ? (
-          <div
-            style={{
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              justifyContent: 'center',
-              height: '100%',
-              color: 'var(--color-text-tertiary)',
-              fontSize: 12,
-            }}
-          >
-            Pick a session to start chatting
-          </div>
-        ) : (
-          messages.map((msg, idx) => {
-            const hl = highlightMessageIndices?.has(idx) ?? false
-            return (
-              <div
-                key={msg.info.id || `msg-${idx}`}
-                data-message-index={idx}
-                style={{
-                  borderRadius: 10,
-                  padding: hl ? '6px 8px' : '2px 0',
-                  margin: hl ? '2px -4px' : 0,
-                  outline: hl ? `2px solid ${actionFlowPalette.completed.stroke}` : 'none',
-                  outlineOffset: hl ? 1 : 0,
-                  background: hl ? 'rgba(245, 255, 234, 0.55)' : 'transparent',
-                  boxShadow: hl ? `0 0 0 1px rgba(145, 163, 123, 0.25)` : 'none',
-                  transition: 'background 0.15s ease, outline 0.15s ease',
-                }}
-              >
-                <MessageBubble
-                  message={msg}
-                  staleToolCallIds={staleToolCallIds}
-                  transcriptAnchorNowMs={transcriptAnchorNowMs}
-                  isLastInTurn={isLastMessageInTurn(messages, idx)}
-                  sessionDirectory={sessionDirectory}
-                  ssePendingQuestion={
-                    pendingQuestion && pendingQuestion.sessionID === sessionId
-                      ? pendingQuestion
-                      : null
-                  }
-                  onQuestionAnswered={onQuestionAnswered}
-                />
-              </div>
-            )
-          })
-        )}
+          {loading ? (
+            <div
+              style={{
+                display: 'flex',
+                justifyContent: 'center',
+                padding: '32px',
+                color: 'var(--color-text-tertiary)',
+                fontSize: 12,
+              }}
+            >
+              Loading…
+            </div>
+          ) : messages.length === 0 ? (
+            <div
+              style={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'center',
+                height: '100%',
+                color: 'var(--color-text-tertiary)',
+                fontSize: 12,
+              }}
+            >
+              Pick a session to start chatting
+            </div>
+          ) : (
+            messages.map((msg, idx) => {
+              const hl = highlightMessageIndices?.has(idx) ?? false
+              return (
+                <div
+                  key={msg.info.id || `msg-${idx}`}
+                  data-message-index={idx}
+                  style={{
+                    borderRadius: 10,
+                    padding: hl ? '6px 8px' : '2px 0',
+                    margin: hl ? '2px -4px' : 0,
+                    outline: hl ? `2px solid ${actionFlowPalette.completed.stroke}` : 'none',
+                    outlineOffset: hl ? 1 : 0,
+                    background: hl ? 'rgba(245, 255, 234, 0.55)' : 'transparent',
+                    boxShadow: hl ? `0 0 0 1px rgba(145, 163, 123, 0.25)` : 'none',
+                    transition: 'background 0.15s ease, outline 0.15s ease',
+                  }}
+                >
+                  <MessageBubble
+                    message={msg}
+                    staleToolCallIds={staleToolCallIds}
+                    transcriptAnchorNowMs={transcriptAnchorNowMs}
+                    isLastInTurn={isLastMessageInTurn(messages, idx)}
+                    sessionDirectory={sessionDirectory}
+                    ssePendingQuestion={
+                      pendingQuestion && pendingQuestion.sessionID === sessionId
+                        ? pendingQuestion
+                        : null
+                    }
+                    onQuestionAnswered={onQuestionAnswered}
+                  />
+                </div>
+              )
+            })
+          )}
         </div>
 
         {/* Floating "scroll to latest" button — pinned above the composer, inside the message area */}

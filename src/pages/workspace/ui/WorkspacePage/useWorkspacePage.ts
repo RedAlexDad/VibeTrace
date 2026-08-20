@@ -119,6 +119,31 @@ export function useWorkspacePage() {
   const pendingForkRef = useRef(pendingFork)
   pendingForkRef.current = pendingFork
 
+  /** Merge incoming messages with the current list, reusing existing message
+   * objects by id so `memo`-wrapped bubbles skip re-render for unchanged rows. */
+  const messagesRef = useRef<OcMessage[]>([])
+  const setMessagesStable = useCallback((next: OcMessage[]) => {
+    const prev = messagesRef.current
+    if (next.length === prev.length) {
+      let same = true
+      for (let i = 0; i < next.length; i++) {
+        if (next[i] !== prev[i] && next[i]?.info.id !== prev[i]?.info.id) {
+          same = false
+          break
+        }
+      }
+      if (same) {
+        messagesRef.current = next
+        return
+      }
+    }
+    const byId = new Map<string, OcMessage>()
+    for (const m of prev) if (m.info.id) byId.set(m.info.id, m)
+    const merged = next.map((m) => (m.info.id && byId.get(m.info.id)) || m)
+    messagesRef.current = merged
+    setMessages(merged)
+  }, [])
+
   const sessionsRef = useRef(sessions)
   sessionsRef.current = sessions
 
@@ -465,22 +490,25 @@ export function useWorkspacePage() {
   }, [selectedSessionId, refreshSessions])
 
   // Load messages + todos when session changes
-  const loadSessionData = useCallback(async (sessionId: string, directory?: string) => {
-    if (!sessionId) return
-    setLoading(true)
-    try {
-      const [msgs, td] = await Promise.all([
-        getMessages(sessionId, 'initial load / session switch', directory),
-        getTodos(sessionId, directory),
-      ])
-      setMessages(msgs)
-      setTodos(td)
-    } catch {
-      /* loading errors surface via empty state; avoid noisy console */
-    } finally {
-      setLoading(false)
-    }
-  }, [])
+  const loadSessionData = useCallback(
+    async (sessionId: string, directory?: string) => {
+      if (!sessionId) return
+      setLoading(true)
+      try {
+        const [msgs, td] = await Promise.all([
+          getMessages(sessionId, 'initial load / session switch', directory),
+          getTodos(sessionId, directory),
+        ])
+        setMessagesStable(msgs)
+        setTodos(td)
+      } catch {
+        /* loading errors surface via empty state; avoid noisy console */
+      } finally {
+        setLoading(false)
+      }
+    },
+    [setMessagesStable],
+  )
 
   useEffect(() => {
     void loadSessionData(selectedSessionId, activeSessionDirectory)
@@ -524,14 +552,14 @@ export function useWorkspacePage() {
           getMessages(selectedSessionId, 'auto abort stuck running >24h', dir),
         ])
         setSessions(list)
-        setMessages(msgs)
+        setMessagesStable(msgs)
       } catch {
         autoAbortedRunningKeysRef.current.delete(runKey)
       } finally {
         setAborting(false)
       }
     })()
-  }, [messages, selectedSessionId, aborting, refreshSessions])
+  }, [messages, selectedSessionId, aborting, refreshSessions, setMessagesStable])
 
   useEffect(() => {
     setTodosSnapshotAtMessageIndex({})
@@ -816,7 +844,7 @@ export function useWorkspacePage() {
         })
         const dir = sessionsRef.current.find((s) => s.id === selectedSessionId)?.directory
         const msgs = await getMessages(selectedSessionId, 'after question reply', dir)
-        setMessages(msgs)
+        setMessagesStable(msgs)
       } catch {
         window.alert(
           'Failed to submit answers. Ensure OpenCode exposes POST /question/{requestID}/reply (OpenCode SDK v2 / recent opencode serve).',
@@ -825,7 +853,7 @@ export function useWorkspacePage() {
         setQuestionSubmitting(false)
       }
     },
-    [selectedSessionId],
+    [selectedSessionId, setMessagesStable],
   )
 
   const handleQuestionReject = useCallback(async () => {
@@ -840,13 +868,13 @@ export function useWorkspacePage() {
       })
       const dir = sessionsRef.current.find((s) => s.id === selectedSessionId)?.directory
       const msgs = await getMessages(selectedSessionId, 'after question reject', dir)
-      setMessages(msgs)
+      setMessagesStable(msgs)
     } catch {
       window.alert('Action failed.')
     } finally {
       setQuestionSubmitting(false)
     }
-  }, [selectedSessionId])
+  }, [selectedSessionId, setMessagesStable])
 
   /** Inline question answered in a bubble: mirror bottom panel refresh + clear SSE pending bucket */
   const handleQuestionAnswered = useCallback(async () => {
@@ -854,7 +882,7 @@ export function useWorkspacePage() {
     const dir = sessionsRef.current.find((s) => s.id === selectedSessionId)?.directory
     try {
       const msgs = await getMessages(selectedSessionId, 'after inline question submit', dir)
-      setMessages(msgs)
+      setMessagesStable(msgs)
     } catch {
       /* transcript refresh best-effort */
     }
@@ -863,7 +891,7 @@ export function useWorkspacePage() {
       delete next[selectedSessionId]
       return next
     })
-  }, [selectedSessionId])
+  }, [selectedSessionId, setMessagesStable])
 
   const handleSendMessage = useCallback(
     async (payload: MessageSendPayload) => {
@@ -881,7 +909,7 @@ export function useWorkspacePage() {
             model: composerModelRef.trim() || undefined,
           })
           const msgs = await getMessages(sid, 'after POST /message completes', dir)
-          setMessages(msgs)
+          setMessagesStable(msgs)
           const last = msgs[msgs.length - 1]
           if (last?.info.role === 'user') {
             setWaitingForAssistantReply(true)
@@ -902,7 +930,7 @@ export function useWorkspacePage() {
         }
       })()
     },
-    [selectedSessionId, sessions, composerModelRef],
+    [selectedSessionId, sessions, composerModelRef, setMessagesStable],
   )
 
   const handleAbortMessage = useCallback(async () => {
@@ -916,11 +944,11 @@ export function useWorkspacePage() {
         getMessages(selectedSessionId, 'after abort refresh', dir),
       ])
       setSessions(list)
-      setMessages(msgs)
+      setMessagesStable(msgs)
     } finally {
       setAborting(false)
     }
-  }, [selectedSessionId, sessions, refreshSessions])
+  }, [selectedSessionId, sessions, refreshSessions, setMessagesStable])
 
   const selectedSession = sessions.find((s) => s.id === selectedSessionId)
 
@@ -928,7 +956,7 @@ export function useWorkspacePage() {
     async (dir: string) => {
       setSelectedDirectory(dir)
       setSelectedSessionId('')
-      setMessages([])
+      setMessagesStable([])
       setTodos([])
       setTodosSnapshotAtMessageIndex({})
 
@@ -948,7 +976,7 @@ export function useWorkspacePage() {
         setSelectedSessionId(refreshedInFolder[0]!.id)
       }
     },
-    [sessions, refreshSessions],
+    [sessions, refreshSessions, setMessagesStable],
   )
 
   const handleCreateSession = useCallback(async () => {
@@ -975,7 +1003,7 @@ export function useWorkspacePage() {
     setClosedDirectories((prev) => prev.filter((d) => d !== dir))
     setSelectedDirectory(dir)
     setSelectedSessionId('')
-    setMessages([])
+    setMessagesStable([])
     setTodos([])
     setTodosSnapshotAtMessageIndex({})
     const list = await refreshSessions([dir])
@@ -985,7 +1013,7 @@ export function useWorkspacePage() {
     if (inFolder.length > 0) {
       setSelectedSessionId(inFolder[0]!.id)
     }
-  }, [selectedDirectory, refreshSessions])
+  }, [selectedDirectory, refreshSessions, setMessagesStable])
 
   const handleCloseDirectory = useCallback(
     (dir: string) => {
@@ -995,13 +1023,13 @@ export function useWorkspacePage() {
       if (sameDirectory(selectedDirectory, normalized)) {
         setSelectedDirectory('')
         setSelectedSessionId('')
-        setMessages([])
+        setMessagesStable([])
         setTodos([])
         setTodosSnapshotAtMessageIndex({})
       }
       void refreshSessions()
     },
-    [selectedDirectory, refreshSessions],
+    [selectedDirectory, refreshSessions, setMessagesStable],
   )
 
   const handleArchiveSession = useCallback(
@@ -1028,11 +1056,11 @@ export function useWorkspacePage() {
         setApiConnected(true)
         if (list.length === 0) {
           setSelectedSessionId('')
-          setMessages([])
+          setMessagesStable([])
           setTodos([])
           setTodosSnapshotAtMessageIndex({})
         } else if (selectedSessionId === sessionId) {
-          setMessages([])
+          setMessagesStable([])
           setTodos([])
           setTodosSnapshotAtMessageIndex({})
         }
@@ -1042,7 +1070,7 @@ export function useWorkspacePage() {
         setArchivingSessionId(null)
       }
     },
-    [sessions, selectedSessionId, refreshSessions],
+    [sessions, selectedSessionId, refreshSessions, setMessagesStable],
   )
 
   const handleForkFromAction = useCallback(
@@ -1104,7 +1132,7 @@ export function useWorkspacePage() {
           getMessages(forked.id, 'after fork load session', forked.directory),
           getTodos(forked.id, forked.directory),
         ])
-        setMessages(msgs)
+        setMessagesStable(msgs)
         setTodos(td)
 
         const userText = forkPrompt.trim()
@@ -1125,7 +1153,7 @@ export function useWorkspacePage() {
                 'after fork first user message',
                 forked.directory,
               )
-              setMessages(msgsAfterSend)
+              setMessagesStable(msgsAfterSend)
               const lastFork = msgsAfterSend[msgsAfterSend.length - 1]
               if (lastFork?.info.role === 'user') {
                 setWaitingForAssistantReply(true)
@@ -1163,6 +1191,7 @@ export function useWorkspacePage() {
       visibleSubtasks,
       refreshSessions,
       composerModelRef,
+      setMessagesStable,
     ],
   )
 

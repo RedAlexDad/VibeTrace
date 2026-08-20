@@ -1,6 +1,22 @@
-/** Minimal markdown pass (fixed font size, italic disabled) */
+/** Minimal markdown pass (fixed font size, italic disabled). Results are memoized
+ * by input string so repeated renders of the same transcript text are cheap. */
+const markdownCache = new Map<string, string>()
+const MARKDOWN_CACHE_MAX = 500
+
 export function renderMarkdown(text: string): string {
   if (!text) return ''
+  const cached = markdownCache.get(text)
+  if (cached !== undefined) return cached
+  const html = renderMarkdownUncached(text)
+  if (markdownCache.size >= MARKDOWN_CACHE_MAX) {
+    const oldest = markdownCache.keys().next().value
+    if (oldest !== undefined) markdownCache.delete(oldest)
+  }
+  markdownCache.set(text, html)
+  return html
+}
+
+function renderMarkdownUncached(text: string): string {
   return (
     text
       // fenced code
@@ -20,7 +36,8 @@ export function renderMarkdown(text: string): string {
         const bodyCells = rowLines.map((row: string) =>
           row.split('|').filter((c: string) => c.trim()),
         )
-        let html = '<table style="border-collapse:collapse;margin:8px 0;font-size:11px;max-width:100%;table-layout:fixed">'
+        let html =
+          '<table style="border-collapse:collapse;margin:8px 0;font-size:11px;max-width:100%;table-layout:fixed">'
         html +=
           '<thead><tr>' +
           headerCells
