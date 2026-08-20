@@ -131,6 +131,9 @@ export default function SubtaskCard({
   actionTypePaletteId,
 }: SubtaskCardProps) {
   const [nowTick, setNowTick] = useState(() => Date.now())
+  /** Latest tick accessible from stable callbacks without re-creating them each tick. */
+  const nowTickRef = useRef(nowTick)
+  nowTickRef.current = nowTick
   const [actionsDurationOn, setActionsDurationOn] = useState(false)
   const [filterMode, setFilterMode] = useState<FilterMode>('duration')
   /** DOM anchor only — use outer wrapper for fork/scroll */
@@ -209,7 +212,7 @@ export default function SubtaskCard({
             anchorSortTime: d.anchorSortTime,
             /** Stable lane index per distinct child session: first unique id = 1, second = 2, … */
             sessionBandIndex: childSessionBandMap.get(d.childSessionID) ?? 1,
-            nowMs: nowTick,
+            nowMs: nowTickRef.current,
           }
           const actions = buildChildSessionBranchActions(msgs, branchOpts)
           return { msgs, actions }
@@ -223,7 +226,7 @@ export default function SubtaskCard({
     )
     setChildBranchActions(results.flatMap((r) => r.actions))
     setChildBranchMessages(results.flatMap((r) => r.msgs))
-  }, [taskDescriptors, sessionDirectory, childSessionBandMap, nowTick])
+  }, [taskDescriptors, sessionDirectory, childSessionBandMap])
 
   useEffect(() => {
     void loadChildBranches()
@@ -426,11 +429,11 @@ export default function SubtaskCard({
   useEffect(() => {
     if (!hasActiveRunningAction) return
     /**
-     * 2s heartbeat: bumps `parentFlowActions`/`flowActions` references so ActionFlowVisualization’s D3 effect
-     * rebuilds (~one visible flash per tick). 1 Hz felt too frantic during streamed generation — 2s balances
-     * “live duration” readability with calmer visuals.
+     * Heartbeat bumps `nowTick` so live durations of running actions keep ticking.
+     * 5s keeps the "live duration" feel while avoiding a full D3 rebuild of every
+     * card every couple of seconds (the SVG re-render was the main CPU cost).
      */
-    const id = window.setInterval(() => setNowTick(Date.now()), 2000)
+    const id = window.setInterval(() => setNowTick(Date.now()), 5000)
     return () => window.clearInterval(id)
   }, [hasActiveRunningAction])
 

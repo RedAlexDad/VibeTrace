@@ -27,6 +27,63 @@ function formatSummaryTooltipDuration(durationMs: number): string {
   return `${sec.toFixed(2)}s`
 }
 
+/** Estimated height for a not-yet-mounted card while windowing (placeholder sizing). */
+const CARD_ESTIMATED_HEIGHT = 320
+/** Extra cards rendered above/below the visible window to avoid blank gaps while scrolling. */
+const CARD_OVERSCAN = 2
+
+interface CardWindow {
+  start: number
+  end: number
+  topSpacer: number
+  bottomSpacer: number
+}
+
+/** Compute which cards to mount + spacer heights given scrollTop and measured card heights. */
+function computeCardWindow(
+  scrollTop: number,
+  viewportH: number,
+  count: number,
+  heights: number[],
+  forceIndex?: number | null,
+): CardWindow {
+  if (count === 0) return { start: 0, end: -1, topSpacer: 0, bottomSpacer: 0 }
+  // running prefix sums
+  let acc = 0
+  const topByIndex = heights.map((h) => {
+    const at = acc
+    acc += h
+    return at
+  })
+  const totalH = acc
+
+  const viewTop = Math.max(0, scrollTop - CARD_OVERSCAN * CARD_ESTIMATED_HEIGHT)
+  const viewBottom = scrollTop + viewportH + CARD_OVERSCAN * CARD_ESTIMATED_HEIGHT
+
+  let start = 0
+  let end = count - 1
+  for (let i = 0; i < count; i++) {
+    if (topByIndex[i] + heights[i] > viewTop) {
+      start = i
+      break
+    }
+  }
+  for (let i = start; i < count; i++) {
+    if (topByIndex[i] <= viewBottom) end = i
+    else break
+  }
+
+  // Ensure the linked card is mounted so connector scrollIntoView can find it.
+  if (forceIndex != null && forceIndex >= 0 && forceIndex < count) {
+    start = Math.min(start, forceIndex)
+    end = Math.max(end, forceIndex)
+  }
+
+  const topSpacer = topByIndex[start] ?? 0
+  const bottomSpacer = Math.max(0, totalH - (topByIndex[end] ?? 0) - heights[end])
+  return { start, end, topSpacer, bottomSpacer }
+}
+
 interface SubtaskDebugPanelProps {
   messages: OcMessage[]
   visibleSubtasks: Array<{ subtask: AssistantSubtask; sourceIndex: number }>
@@ -69,6 +126,11 @@ export default function SubtaskDebugPanel({
   const [childSessionMessages, setChildSessionMessages] = useState<Record<string, OcMessage[]>>({})
   const summaryViewportRef = useRef<HTMLDivElement | null>(null)
   const [summaryViewportSize, setSummaryViewportSize] = useState({ width: 0, height: 0 })
+  /** Virtualized card window state (timeline mode only). */
+  const [scrollTop, setScrollTop] = useState(0)
+  const [viewportHeight, setViewportHeight] = useState(600)
+  const cardHeightsRef = useRef<number[]>([])
+  const timelineListRef = useRef<HTMLDivElement | null>(null)
 
   useEffect(() => {
     setTooltipMounted(true)
@@ -144,6 +206,42 @@ export default function SubtaskDebugPanel({
     observer.observe(el)
     return () => observer.disconnect()
   }, [flowLayoutMode])
+
+  /** Track the timeline list container size + scroll for windowed card rendering. */
+  useEffect(() => {
+    if (flowLayoutMode === 'summary') return
+    const el = timelineListRef.current ?? listScrollRef?.current
+    if (!el) return
+    const update = () => setViewportHeight(el.clientHeight)
+    update()
+    const observer = new ResizeObserver(update)
+    observer.observe(el)
+    return () => observer.disconnect()
+  }, [flowLayoutMode, listScrollRef])
+
+  /** Reset cached heights when the subtask set changes (keys shift). */
+  useEffect(() => {
+    cardHeightsRef.current = []
+    setScrollTop(0)
+  }, [visibleSubtasks, flowLayoutMode])
+
+  const cardWindow = useMemo(() => {
+    if (flowLayoutMode === 'summary') return { start: 0, end: -1, topSpacer: 0, bottomSpacer: 0 }
+    const heights = visibleSubtasks.map((_, i) => cardHeightsRef.current[i] ?? CARD_ESTIMATED_HEIGHT)
+    return computeCardWindow(
+      scrollTop,
+      viewportHeight,
+      visibleSubtasks.length,
+      heights,
+      linkedSubtaskIndex,
+    )
+  }, [scrollTop, viewportHeight, visibleSubtasks, flowLayoutMode, linkedSubtaskIndex])
+
+  const handleCardHeight = (index: number, height: number) => {
+    if (cardHeightsRef.current[index] === height) return
+    cardHeightsRef.current = [...cardHeightsRef.current]
+    cardHeightsRef.current[index] = height
+  }
 
   const summaryRows = summarySegments.map(
     ({ sourceIndex, rowIndex, subtaskId, parentActions, childDescriptors, segmentMessages }) => {
@@ -333,7 +431,11 @@ export default function SubtaskDebugPanel({
         <ActionTypeColorLegend paletteId={actionTypePaletteId} />
       </div>
       <div
-        ref={listScrollRef}
+        ref={(node) => {
+          timelineListRef.current = node
+          if (listScrollRef) listScrollRef.current = node
+        }}
+        onScroll={(e) => setScrollTop(e.currentTarget.scrollTop)}
         style={{
           flex: 1,
           overflowY: flowLayoutMode === 'summary' ? 'hidden' : 'auto',
@@ -347,36 +449,81 @@ export default function SubtaskDebugPanel({
         ) : visibleSubtasks.length === 0 ? (
           <span style={{ color: 'var(--color-text-muted)', fontSize: 11 }}>No subtasks</span>
         ) : (
-          visibleSubtasks.map(({ subtask: st, sourceIndex }, si) => (
-            <Fragment
-              key={`${st.subtask_id}:${sourceIndex}:${st.assistantMessageIndices[0] ?? -1}:${st.assistantMessageIndices[st.assistantMessageIndices.length - 1] ?? -1}:${st.assistantMessageIndices.length}`}
-            >
-              <SubtaskCard
-                subtask={st}
-                messages={messages}
-                displayIndex={si}
-                cardIndex={sourceIndex}
-                isLinked={linkedSubtaskIndex === sourceIndex}
-                onSelectSubtask={() => onSelectSubtask(sourceIndex)}
-                onForkFromAction={onForkFromAction}
-                onAnalyzeFromAction={onAnalyzeFromAction}
-                sessionDirectory={sessionDirectory}
-                forkPanelSnapshotBundle={forkPanelSnapshotBundle}
-                selectedActionKey={
-                  selection && selection.subtaskIndex === sourceIndex ? selection.actionKey : null
-                }
-                otherSubtaskHasSelection={false}
-                onSelectActionFromFlow={
-                  onSelectAction ? (key) => onSelectAction(sourceIndex, key) : undefined
-                }
-                colorBy={colorBy}
-                onColorByChange={setColorBy}
-                actionTypePaletteId={actionTypePaletteId}
-              />
-            </Fragment>
-          ))
+          <>
+            {cardWindow.topSpacer > 0 && (
+              <div style={{ height: cardWindow.topSpacer, flexShrink: 0 }} aria-hidden />
+            )}
+            {visibleSubtasks
+              .slice(cardWindow.start, cardWindow.end + 1)
+              .map(({ subtask: st, sourceIndex }, sliceIdx) => {
+                const si = cardWindow.start + sliceIdx
+                return (
+                  <Fragment
+                    key={`${st.subtask_id}:${sourceIndex}:${st.assistantMessageIndices[0] ?? -1}:${st.assistantMessageIndices[st.assistantMessageIndices.length - 1] ?? -1}:${st.assistantMessageIndices.length}`}
+                  >
+                    <HeightProbe index={si} onHeight={handleCardHeight}>
+                      <SubtaskCard
+                        subtask={st}
+                        messages={messages}
+                        displayIndex={si}
+                        cardIndex={sourceIndex}
+                        isLinked={linkedSubtaskIndex === sourceIndex}
+                        onSelectSubtask={() => onSelectSubtask(sourceIndex)}
+                        onForkFromAction={onForkFromAction}
+                        onAnalyzeFromAction={onAnalyzeFromAction}
+                        sessionDirectory={sessionDirectory}
+                        forkPanelSnapshotBundle={forkPanelSnapshotBundle}
+                        selectedActionKey={
+                          selection && selection.subtaskIndex === sourceIndex
+                            ? selection.actionKey
+                            : null
+                        }
+                        otherSubtaskHasSelection={false}
+                        onSelectActionFromFlow={
+                          onSelectAction
+                            ? (key) => onSelectAction(sourceIndex, key)
+                            : undefined
+                        }
+                        colorBy={colorBy}
+                        onColorByChange={setColorBy}
+                        actionTypePaletteId={actionTypePaletteId}
+                      />
+                    </HeightProbe>
+                  </Fragment>
+                )
+              })}
+            {cardWindow.bottomSpacer > 0 && (
+              <div style={{ height: cardWindow.bottomSpacer, flexShrink: 0 }} aria-hidden />
+            )}
+          </>
         )}
       </div>
     </div>
   )
+}
+
+/** Measures a mounted card's height and reports it back to the windowing logic. */
+function HeightProbe({
+  index,
+  onHeight,
+  children,
+}: {
+  index: number
+  onHeight: (index: number, height: number) => void
+  children: React.ReactNode
+}) {
+  const ref = useRef<HTMLDivElement | null>(null)
+  useEffect(() => {
+    const el = ref.current
+    if (!el) return
+    const update = () => {
+      const h = el.getBoundingClientRect().height
+      onHeight(index, Math.round(h))
+    }
+    update()
+    const observer = new ResizeObserver(update)
+    observer.observe(el)
+    return () => observer.disconnect()
+  }, [index, onHeight])
+  return <div ref={ref}>{children}</div>
 }

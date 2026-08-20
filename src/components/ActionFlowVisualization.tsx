@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useRef, useId, useMemo, useState } from 'react'
+import { memo, useEffect, useLayoutEffect, useRef, useId, useMemo, useState } from 'react'
 import * as d3 from 'd3'
 import { Tooltip } from 'react-tooltip'
 import type { MappedAction, OcMessage } from '../types/opencode'
@@ -1204,7 +1204,7 @@ interface Props {
   actionTypePaletteId?: ActionTypePaletteId
 }
 
-export default function ActionFlowVisualization({
+export default memo(function ActionFlowVisualization({
   actions,
   durationMode,
   colorMode,
@@ -2331,4 +2331,4 @@ export default function ActionFlowVisualization({
       />
     </>
   )
-}
+})
