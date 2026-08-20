@@ -212,6 +212,8 @@ export function useWorkspacePage() {
 
   const linkAreaRef = useRef<HTMLDivElement>(null)
   const messageScrollRef = useRef<HTMLDivElement>(null)
+  /** Set by MessagePanel to scroll the virtualized list to a message index. */
+  const messageScrollToIndexRef = useRef<((index: number) => void) | null>(null)
   const todoPanelScrollRef = useRef<HTMLDivElement>(null)
   const subtaskScrollRef = useRef<HTMLDivElement>(null)
   const selectedSessionIdRef = useRef(selectedSessionId)
@@ -743,12 +745,9 @@ export function useWorkspacePage() {
     const selMatches =
       selection !== null && selection.subtaskIndex === linkedSubtaskIndex && mid !== null
     requestAnimationFrame(() => {
-      const scrollRoot = messageScrollRef.current
-      if (!scrollRoot) return
+      const scrollToIndex = messageScrollToIndexRef.current
       if (selMatches && mid !== null) {
-        scrollRoot
-          .querySelector(`[data-message-index="${mid}"]`)
-          ?.scrollIntoView({ block: 'center', behavior: 'smooth' })
+        scrollToIndex?.(mid)
         return
       }
       const st = assistantSubtasks[linkedSubtaskIndex]
@@ -759,22 +758,19 @@ export function useWorkspacePage() {
       if (noTodoConnector) {
         const anchorKey = firstFlowAnchorKeyForSubtaskSegment(st, messages, Date.now())
         if (anchorKey) {
-          const esc =
-            typeof CSS !== 'undefined' && typeof CSS.escape === 'function'
-              ? CSS.escape(anchorKey)
-              : anchorKey.replace(/\\/g, '\\\\').replace(/"/g, '\\"')
-          const anchorEl = scrollRoot.querySelector(`[data-transcript-action-key="${esc}"]`)
-          if (anchorEl) {
-            anchorEl.scrollIntoView({ block: 'center', behavior: 'smooth' })
-            return
+          const mid2 = actionKeyMessageId(anchorKey)
+          if (mid2) {
+            const messageIndex = messages.findIndex((m) => m.info.id === mid2)
+            if (messageIndex >= 0) {
+              scrollToIndex?.(messageIndex)
+              return
+            }
           }
         }
       }
 
       const first = Math.min(...st.assistantMessageIndices)
-      scrollRoot
-        .querySelector(`[data-message-index="${first}"]`)
-        ?.scrollIntoView({ block: 'center', behavior: 'smooth' })
+      scrollToIndex?.(first)
     })
   }, [
     linkedSubtaskIndex,
@@ -1259,6 +1255,7 @@ export function useWorkspacePage() {
     handleAbortMessage,
     aborting,
     messageScrollRef,
+    messageScrollToIndexRef,
     todoPanelScrollRef,
     linkedTodoIds,
     todoPanelRevealGeneration,

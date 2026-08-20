@@ -35,6 +35,7 @@ function WorkspacePage() {
     handleAbortMessage,
     aborting,
     messageScrollRef,
+    messageScrollToIndexRef,
     todoPanelScrollRef,
     linkedTodoIds,
     todoPanelRevealGeneration,
@@ -245,6 +246,7 @@ function WorkspacePage() {
               onAbortMessage={handleAbortMessage}
               aborting={aborting}
               messageListScrollRef={messageScrollRef}
+              messageScrollToIndexRef={messageScrollToIndexRef}
               todoPanelScrollRef={todoPanelScrollRef}
               highlightMessageIndices={null}
               highlightTodoIds={linkedTodoIds}

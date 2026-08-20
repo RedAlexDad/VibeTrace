@@ -29,6 +29,8 @@ interface MessagePanelProps {
   aborting?: boolean
   /** Scrollable message column ref (connector geometry) */
   messageListScrollRef?: RefObject<HTMLDivElement | null>
+  /** Set by this panel so parents can scroll the virtualized list to an index. */
+  messageScrollToIndexRef?: RefObject<((index: number) => void) | null>
   /** Todo list scroll container (highlight alignment) */
   todoPanelScrollRef?: RefObject<HTMLDivElement | null>
   /** Message indices highlighted for the active subtask */
@@ -71,6 +73,7 @@ export default function MessagePanel({
   onAbortMessage,
   aborting,
   messageListScrollRef,
+  messageScrollToIndexRef,
   todoPanelScrollRef,
   highlightMessageIndices,
   highlightTodoIds,
@@ -166,6 +169,22 @@ export default function MessagePanel({
     estimateSize: () => 60,
     overscan: 12,
   })
+
+  // Expose a scroll-to-index function so parents (subtask selection) can move
+  // the virtualized list to a specific message even if it isn't mounted yet.
+  useEffect(() => {
+    if (!messageScrollToIndexRef) return
+    messageScrollToIndexRef.current = (index: number) => {
+      // Defer past the current render/lifecycle so react-virtual's internal
+      // flushSync isn't triggered from inside a lifecycle method.
+      window.setTimeout(() => {
+        virtualizer.scrollToIndex(index, { align: 'center', behavior: 'auto' })
+      }, 0)
+    }
+    return () => {
+      if (messageScrollToIndexRef) messageScrollToIndexRef.current = null
+    }
+  }, [messageScrollToIndexRef, virtualizer])
 
   /** Keep the floating button hidden when new messages arrive and we are already at the bottom. */
   useEffect(() => {
@@ -334,7 +353,13 @@ export default function MessagePanel({
                     key={msg.info.id || `msg-${idx}`}
                     data-message-index={idx}
                     data-virtual-index={vi.index}
-                    ref={virtualizer.measureElement}
+                    ref={(el) => {
+                      if (el) {
+                        // Defer measurement out of the commit phase to avoid
+                        // react-virtual's internal flushSync during render.
+                        window.requestAnimationFrame(() => virtualizer.measureElement(el))
+                      }
+                    }}
                     data-index={vi.index}
                     style={{
                       position: 'absolute',
