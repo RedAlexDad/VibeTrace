@@ -1,4 +1,4 @@
-import { memo } from 'react'
+import { memo, useState } from 'react'
 import type { OcMessage, OcMessagePart, OcPendingQuestionRequest } from '@/shared/types/opencode'
 import { transcriptAnchorKeyForPart } from '@/entities/action/lib/actionMapping'
 import AgentInfo from './AgentInfo'
@@ -6,6 +6,8 @@ import { renderMarkdown } from '@/shared/lib/format/markdown'
 import ToolCallView from './ToolCallView'
 import UserMessage from './UserMessage'
 import MermaidBlock from './MermaidBlock'
+import { DEFAULT_ACTION_TYPE_PALETTE_ID, getActionTypeTriad } from '@/shared/styles/actionTypePalettes'
+import { getActionFlowIconSvg } from '@/widgets/action-flow/ui/actionFlowIcons'
 
 interface MessageBubbleProps {
   message: OcMessage
@@ -141,6 +143,7 @@ const PartView = memo(function PartView({
   ssePendingQuestion,
   onQuestionAnswered,
 }: PartViewProps) {
+  const [expanded, setExpanded] = useState(false)
   switch (part.type) {
     case 'text': {
       const ak = transcriptAnchorKeyForPart(
@@ -194,6 +197,11 @@ const PartView = memo(function PartView({
         transcriptAnchorNowMs,
         staleToolCallIds,
       )
+      const triad = getActionTypeTriad(DEFAULT_ACTION_TYPE_PALETTE_ID, 'Think')
+      const thinkIcon = getActionFlowIconSvg('Think').replace(
+        /<svg\b/,
+        '<svg width="12" height="12"',
+      )
       return (
         <div
           data-transcript-action-key={ak ?? undefined}
@@ -201,15 +209,65 @@ const PartView = memo(function PartView({
             fontSize: 12,
             color: 'var(--color-text-tertiary)',
             margin: '4px 0',
-            padding: '6px 10px',
-            background: 'var(--color-bg-soft)',
-            borderRadius: '4px',
-            lineHeight: 1.5,
-            overflowWrap: 'break-word',
-            wordBreak: 'break-word',
+            border: '1px solid var(--color-border-light)',
+            borderRadius: '6px',
+            overflow: 'hidden',
           }}
-          dangerouslySetInnerHTML={{ __html: renderMarkdown(part.text || '') }}
-        />
+        >
+          <div
+            onClick={() => setExpanded(!expanded)}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 6,
+              padding: '6px 10px',
+              background: 'var(--color-bg-soft)',
+              cursor: 'pointer',
+            }}
+          >
+            {/* Think swatch — matches the right-panel ActionType block */}
+            <span
+              style={{
+                width: 18,
+                height: 18,
+                borderRadius: 3,
+                boxSizing: 'border-box',
+                background: triad.fill,
+                border: `1.5px solid ${triad.stroke}`,
+                flexShrink: 0,
+                display: 'inline-flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                color: triad.accent,
+              }}
+              dangerouslySetInnerHTML={{ __html: thinkIcon }}
+            />
+            <span style={{ fontSize: 11, fontWeight: 600, color: triad.accent }}>think</span>
+            <span
+              style={{
+                fontSize: 10,
+                color: 'var(--color-text-tertiary)',
+                fontFamily: 'IBM Plex Mono, monospace',
+                marginLeft: 'auto',
+              }}
+            >
+              {expanded ? '▲' : '▼'}
+            </span>
+          </div>
+          {expanded && (
+            <div
+              style={{
+                borderTop: '1px solid var(--color-border-light)',
+                padding: '8px 10px',
+                background: 'var(--color-bg-white)',
+                lineHeight: 1.5,
+                overflowWrap: 'break-word',
+                wordBreak: 'break-word',
+              }}
+              dangerouslySetInnerHTML={{ __html: renderMarkdown(part.text || '') }}
+            />
+          )}
+        </div>
       )
     }
 
