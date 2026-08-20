@@ -28,6 +28,7 @@ import type { MessageSendPayload } from './components/MessageInput'
 import Sidebar from './components/Sidebar'
 import MessagePanel from './components/MessagePanel'
 import SubtaskDebugPanel from './components/SubtaskDebugPanel'
+import PeakPricingWidget from './components/PeakPricingWidget'
 import FullscreenSubtaskPanel from './components/FullscreenSubtaskPanel'
 import ActionAnalysisModal from './components/ActionAnalysisModal'
 import ForkSessionModal from './components/ForkSessionModal'
@@ -1501,6 +1502,7 @@ function App() {
                 </div>
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                <PeakPricingWidget />
                 <button
                   type="button"
                   onClick={() => dispatch(setSubtaskPanelVisible(false))}
