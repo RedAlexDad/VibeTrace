@@ -128,28 +128,50 @@ export function useWorkspacePage() {
   pendingForkRef.current = pendingFork
 
   /** Merge incoming messages with the current list, reusing existing message
-   * objects by id so `memo`-wrapped bubbles skip re-render for unchanged rows. */
+   * objects by id so `memo`-wrapped bubbles skip re-render for unchanged rows.
+   * A message is reused only when its content signature is identical — streaming
+   * updates (longer text / new parts) force a re-render. */
   const messagesRef = useRef<OcMessage[]>([])
   const setMessagesStable = useCallback((next: OcMessage[]) => {
     const prev = messagesRef.current
-    if (next.length === prev.length) {
-      let same = true
-      for (let i = 0; i < next.length; i++) {
-        if (next[i] !== prev[i] && next[i]?.info.id !== prev[i]?.info.id) {
-          same = false
-          break
-        }
+    const sig = (m: OcMessage) => {
+      let s = m.info.role + ':' + m.parts.length + ':'
+      for (const p of m.parts) {
+        s += p.type + ':'
+        if (p.type === 'text' || p.type === 'reasoning') s += (p.text ?? '').length + ':'
+        if (p.type === 'tool') s += (p.state?.status ?? '') + ':'
       }
-      if (same) {
-        messagesRef.current = next
-        return
-      }
+      return s
     }
-    const byId = new Map<string, OcMessage>()
-    for (const m of prev) if (m.info.id) byId.set(m.info.id, m)
-    const merged = next.map((m) => (m.info.id && byId.get(m.info.id)) || m)
+    const nextSig = next.map(sig)
+    const prevSig = prev.map(sig)
+    const merged = next.map((m, i) => {
+      if (i < prev.length && prev[i]?.info.id === m.info.id && prevSig[i] === nextSig[i]) {
+        return prev[i]!
+      }
+      return m
+    })
     messagesRef.current = merged
     setMessages(merged)
+  }, [])
+
+  /** Debounce full /message refetches: SSE bursts during streaming otherwise
+   * fire dozens of parallel getMessages requests and exhaust resources. */
+  const sseMessagesTimerRef = useRef<number | null>(null)
+  const scheduleSseMessagesRefetch = useCallback(() => {
+    if (sseMessagesTimerRef.current !== null) return
+    sseMessagesTimerRef.current = window.setTimeout(() => {
+      sseMessagesTimerRef.current = null
+      const sid = selectedSessionIdRef.current
+      if (!sid) return
+      const dir = sessionsRef.current.find((s) => s.id === sid)?.directory
+      getMessages(sid, 'SSE:message.updated', dir)
+        .then((msgs) => {
+          messagesRef.current = msgs
+          setMessages(msgs)
+        })
+        .catch(() => {})
+    }, 300)
   }, [])
 
   const sessionsRef = useRef(sessions)
@@ -466,18 +488,51 @@ export function useWorkspacePage() {
         }
       }
 
+      if (eventType === 'message.part.updated') {
+        const props = payload.properties as {
+          sessionID?: string
+          part?: {
+            id?: string
+            messageID?: string
+            type?: string
+            text?: string
+            tool?: string
+            state?: { status?: string }
+          }
+        } | null
+        const sid = props?.sessionID
+        const part = props?.part
+        if (
+          sid === selectedSessionIdRef.current &&
+          part?.id &&
+          part?.messageID &&
+          (part.type === 'text' || part.type === 'reasoning')
+        ) {
+          // Patch the part text in place so streaming updates appear live.
+          // No full refetch here — /message refetches run on message.updated.
+          const msgs = messagesRef.current.map((m) => {
+            if (m.info.id !== part.messageID) return m
+            const parts = m.parts.map((p) => {
+              if ('id' in p && p.id === part.id) {
+                return { ...p, text: part.text ?? '' } as (typeof m.parts)[number]
+              }
+              return p
+            })
+            return { ...m, parts }
+          })
+          messagesRef.current = msgs
+          setMessages(msgs)
+        }
+      }
+
       if (eventType.startsWith('message') || eventType.startsWith('session')) {
         const root = event as { directory?: string }
         const eventDir = typeof root.directory === 'string' ? root.directory : undefined
         refreshSessions(eventDir ? [eventDir] : undefined)
           .then(setSessions)
           .catch(() => {})
-        const dir = sessionsRef.current.find((s) => s.id === selectedSessionId)?.directory
-        if (selectedSessionId) {
-          getMessages(selectedSessionId, `SSE:${eventType}`, dir)
-            .then(setMessages)
-            .catch(() => {})
-        }
+        // Debounced full refetch — text streaming already patched live above.
+        scheduleSseMessagesRefetch()
       }
 
       if (eventType.startsWith('todo')) {
@@ -505,7 +560,7 @@ export function useWorkspacePage() {
     })
 
     return unsubscribe
-  }, [selectedSessionId, refreshSessions])
+  }, [selectedSessionId, refreshSessions, scheduleSseMessagesRefetch])
 
   // Load messages + todos when session changes
   const loadSessionData = useCallback(

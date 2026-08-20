@@ -32,13 +32,28 @@ export default function useChildBranches({
   const nowMsRef = useRef(nowMs)
   nowMsRef.current = nowMs
 
+  /** Stable signature over tool parts — streaming text updates don't rebuild branches. */
+  const flowSig = useMemo(() => {
+    let s = ''
+    for (const msg of segmentMessages) {
+      s += msg.info.id + '|'
+      for (const p of msg.parts) {
+        if (p.type === 'tool') s += p.callID + ':' + (p.state?.status ?? '') + ':'
+      }
+      s += ';'
+    }
+    return s
+  }, [segmentMessages])
+
   const taskDescriptors = useMemo(
     () => collectTaskChildDescriptors(segmentMessages),
-    [segmentMessages],
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [flowSig],
   )
   const parallelByCallId = useMemo(
     () => detectParallelCallMapping(segmentMessages, nowMs),
-    [segmentMessages, nowMs],
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [flowSig, nowMs],
   )
   /** Parallel children share one band lane; sequential children still bump by session id order */
   const childSessionBandMap = useMemo(
@@ -55,7 +70,8 @@ export default function useChildBranches({
         return Boolean(extractChildSessionIdFromToolPart(p))
       })
     })
-  }, [segmentMessages])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [flowSig])
 
   const loadChildBranches = useCallback(async () => {
     if (taskDescriptors.length === 0) {

@@ -42,7 +42,8 @@ export default function SubtaskCard({
   /** DOM anchor only — use outer wrapper for fork/scroll */
   const cardRef = useRef<HTMLDivElement | null>(null)
 
-  /** Leading user indices + assistants in global timeline order */
+  /** Leading user indices + assistants in global timeline order.
+   * Memoized by tool-part signature so streaming text updates don't rebuild the flow. */
   const segmentMessages = useMemo((): OcMessage[] => {
     const indices = [
       ...(subtask.userMessageIndices ?? []),
@@ -51,9 +52,25 @@ export default function SubtaskCard({
     return indices.map((i) => messages[i]).filter((msg): msg is OcMessage => msg != null)
   }, [subtask.userMessageIndices, subtask.assistantMessageIndices, messages])
 
+  /** Signature over tool parts + statuses — stable while only text is streaming. */
+  const segmentFlowSig = useMemo(() => {
+    let s = ''
+    for (const msg of segmentMessages) {
+      s += msg.info.id + '|' + msg.info.role + '|'
+      for (const p of msg.parts) {
+        if (p.type === 'tool') {
+          s += p.callID + ':' + (p.state?.status ?? '') + ':'
+        }
+      }
+      s += ';'
+    }
+    return s
+  }, [segmentMessages])
+
   const parentFlowActions = useMemo(
     () => buildMappedActionsFromMessages(segmentMessages, { nowMs: nowTick }),
-    [segmentMessages, nowTick],
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [segmentFlowSig, nowTick],
   )
 
   const { childBranchActions, childBranchMessages, parallelByCallId } = useChildBranches({
