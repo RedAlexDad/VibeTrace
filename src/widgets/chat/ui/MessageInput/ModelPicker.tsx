@@ -135,9 +135,8 @@ export default function ModelPicker({
             fontSize: 12,
             color: o.ref === value ? 'var(--color-accent-deep)' : 'var(--color-text-primary)',
             fontFamily: 'inherit',
-            overflow: 'hidden',
-            textOverflow: 'ellipsis',
-            whiteSpace: 'nowrap',
+            overflowWrap: 'break-word',
+            wordBreak: 'break-word',
           }}
         >
           {o.label}
@@ -193,13 +192,14 @@ export default function ModelPicker({
           background: 'var(--color-bg-white)',
           color: 'var(--color-text-primary)',
           cursor: 'pointer',
-          maxWidth: 240,
+          maxWidth: 420,
           overflow: 'hidden',
           textOverflow: 'ellipsis',
           whiteSpace: 'nowrap',
           display: 'flex',
           alignItems: 'center',
           gap: 6,
+          textAlign: 'left',
         }}
       >
         {loading ? 'Loading…' : currentLabel}
@@ -232,8 +232,10 @@ export default function ModelPicker({
         >
           <div
             style={{
-              width: 'min(680px, 92vw)',
-              maxHeight: '80vh',
+              width: 'max-content',
+              minWidth: 520,
+              maxWidth: 'min(1200px, 94vw)',
+              maxHeight: 'min(70vh, 640px)',
               display: 'flex',
               flexDirection: 'column',
               background: 'var(--color-bg-white)',
