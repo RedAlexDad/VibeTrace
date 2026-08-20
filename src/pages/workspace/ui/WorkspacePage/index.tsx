@@ -102,7 +102,7 @@ function WorkspacePage() {
           height: '100vh',
           width: '100vw',
           overflow: 'hidden',
-          background: 'var(--color-bg-base)',
+          background: 'var(--color-bg-soft)',
         }}
       >
         <Sidebar
@@ -186,7 +186,7 @@ function WorkspacePage() {
         height: '100vh',
         width: '100vw',
         overflow: 'hidden',
-        background: 'var(--color-bg-base)',
+        background: 'var(--color-bg-soft)',
         position: 'relative',
       }}
     >

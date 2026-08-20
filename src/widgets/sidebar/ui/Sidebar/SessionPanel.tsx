@@ -183,7 +183,7 @@ export default function SessionPanel({
             alignItems: 'center',
             justifyContent: 'center',
             gap: 8,
-            background: creatingSession ? 'var(--color-bg-disabled)' : 'var(--color-accent)',
+            background: creatingSession ? 'var(--color-bg-soft)' : 'var(--color-accent)',
             color: 'var(--color-on-accent)',
             border: 'none',
             borderRadius: 8,

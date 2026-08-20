@@ -103,7 +103,7 @@ export default function WorkspacesPage() {
         flexDirection: 'column',
         alignItems: 'center',
         justifyContent: 'center',
-        background: 'var(--color-bg-base)',
+        background: 'var(--color-bg-soft)',
         overflow: 'auto',
       }}
     >
@@ -209,7 +209,7 @@ export default function WorkspacesPage() {
                         }}
                         onMouseEnter={(e) => {
                           e.currentTarget.style.background = 'var(--color-bg-soft)'
-                          e.currentTarget.style.borderColor = 'var(--color-border-strong)'
+                          e.currentTarget.style.borderColor = 'var(--color-border)'
                         }}
                         onMouseLeave={(e) => {
                           e.currentTarget.style.background = 'var(--color-bg-white)'

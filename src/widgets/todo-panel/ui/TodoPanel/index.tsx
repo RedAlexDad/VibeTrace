@@ -198,7 +198,7 @@ export default function TodoPanel({
             gap: 6,
           }}
         >
-          <div style={{ borderTop: '1px solid var(--color-border-faint)', paddingTop: 6 }}>
+          <div style={{ borderTop: '1px solid var(--color-border-light)', paddingTop: 6 }}>
             <button
               type="button"
               onClick={() => setOpenSectionExpanded((v) => !v)}
@@ -248,7 +248,7 @@ export default function TodoPanel({
           </div>
 
           {doneOnList.length > 0 && (
-            <div style={{ borderTop: '1px solid var(--color-border-faint)', paddingTop: 4 }}>
+            <div style={{ borderTop: '1px solid var(--color-border-light)', paddingTop: 4 }}>
               <button
                 type="button"
                 onClick={() => setDoneOnListExpanded((v) => !v)}
@@ -281,7 +281,7 @@ export default function TodoPanel({
           )}
 
           {archivedCompleted.length > 0 && (
-            <div style={{ borderTop: '1px solid var(--color-border-faint)', paddingTop: 4 }}>
+            <div style={{ borderTop: '1px solid var(--color-border-light)', paddingTop: 4 }}>
               <button
                 type="button"
                 onClick={() => setHistoryExpanded((v) => !v)}

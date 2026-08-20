@@ -245,7 +245,7 @@ export default function MessageInput({
               display: 'flex',
               flexWrap: 'wrap',
               gap: 6,
-              borderTop: '1px solid var(--color-border-faint)',
+              borderTop: '1px solid var(--color-border-light)',
             }}
           >
             {files.map((f, i) => (
@@ -296,7 +296,7 @@ export default function MessageInput({
             justifyContent: 'space-between',
             gap: 8,
             padding: '8px 10px',
-            borderTop: '1px solid var(--color-border-faint)',
+            borderTop: '1px solid var(--color-border-light)',
             background: 'var(--color-bg-soft)',
           }}
         >

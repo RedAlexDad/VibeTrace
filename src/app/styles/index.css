@@ -2,15 +2,11 @@
 
 :root {
   /* ── Colors (light) ─────────────────────────────────────────────── */
-  --color-bg-base: #f8f8f8;
   --color-bg-white: #ffffff;
   --color-bg-soft: #f5f5f5;
-  --color-bg-disabled: #ececec;
 
   --color-border: #dbdbdb;
   --color-border-light: #e8e8e8;
-  --color-border-strong: #c1c0c0;
-  --color-border-faint: #f0f0f0;
 
   --color-text-primary: #171717;
   --color-text-secondary: #6f6f6f;
@@ -89,15 +85,11 @@
 /* ── Dark theme (follows the OS) ─────────────────────────────────── */
 @media (prefers-color-scheme: dark) {
   :root {
-    --color-bg-base: #161616;
     --color-bg-white: #1e1e1e;
     --color-bg-soft: #262626;
-    --color-bg-disabled: #303030;
 
     --color-border: #3a3a3a;
     --color-border-light: #333333;
-    --color-border-strong: #4a4a4a;
-    --color-border-faint: #2c2c2c;
 
     --color-text-primary: #ededed;
     --color-text-secondary: #a8a8a8;
@@ -156,7 +148,7 @@ body {
   font-size: var(--font-size-base);
   line-height: var(--line-height-normal);
   color: var(--color-text-primary);
-  background: var(--color-bg-base);
+  background: var(--color-bg-soft);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -177,7 +169,7 @@ body {
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--color-border-strong);
+  background: var(--color-border);
 }
 
 /* Focus States */

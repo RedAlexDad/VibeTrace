@@ -873,7 +873,7 @@ export function useActionFlowD3({
             .attr('width', hw)
             .attr('height', BLOCK_H)
             .attr('rx', 4)
-            .attr('fill', 'var(--color-bg-disabled)')
+            .attr('fill', 'var(--color-bg-soft)')
             .attr('stroke', 'var(--color-text-muted)')
             .attr('stroke-width', 1.5)
             .style('cursor', 'default')

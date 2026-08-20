@@ -55,7 +55,7 @@ export default function ForkSessionModal({ open, submitting, onClose, onConfirm 
         onMouseDown={(e) => e.stopPropagation()}
       >
         <div
-          style={{ padding: '14px 16px 10px', borderBottom: '1px solid var(--color-border-faint)' }}
+          style={{ padding: '14px 16px 10px', borderBottom: '1px solid var(--color-border-light)' }}
         >
           <h2
             id="fork-session-modal-title"
@@ -129,7 +129,7 @@ export default function ForkSessionModal({ open, submitting, onClose, onConfirm 
             justifyContent: 'flex-end',
             gap: 10,
             padding: '12px 16px 14px',
-            borderTop: '1px solid var(--color-border-faint)',
+            borderTop: '1px solid var(--color-border-light)',
             background: 'var(--color-bg-soft)',
           }}
         >

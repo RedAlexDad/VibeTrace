@@ -282,7 +282,7 @@ export default memo(function ToolCallCard({ part, renderInline }: ToolCallCardPr
               display: 'flex',
               gap: 4,
               padding: '6px 8px',
-              borderBottom: '1px solid var(--color-border-faint)',
+              borderBottom: '1px solid var(--color-border-light)',
             }}
           >
             {hasInput && (

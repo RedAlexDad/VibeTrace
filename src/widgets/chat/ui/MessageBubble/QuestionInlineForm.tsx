@@ -132,7 +132,7 @@ export default function QuestionInlineForm({
         padding: '10px 12px',
         background:
           'linear-gradient(180deg, var(--color-accent-softer) 0%, var(--color-bg-white) 100%)',
-        borderTop: '1px solid var(--color-border-faint)',
+        borderTop: '1px solid var(--color-border-light)',
       }}
     >
       <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>

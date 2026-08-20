@@ -52,7 +52,7 @@ export default function MessageSummaryLine({ summary }: { summary: SessionSummar
         padding: '3px 10px',
         borderRadius: 6,
         background: 'var(--color-bg-soft)',
-        border: '1px solid var(--color-border-faint)',
+        border: '1px solid var(--color-border-light)',
       }}
     >
       {parts.join(' · ')}

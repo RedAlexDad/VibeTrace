@@ -17,7 +17,7 @@ export default function Header({
     <header
       style={{
         height: 40,
-        background: 'var(--color-bg-base)',
+        background: 'var(--color-bg-soft)',
         borderBottom: '1px solid var(--color-border-light)',
         display: 'flex',
         alignItems: 'center',
