@@ -1,7 +1,6 @@
 import { memo } from 'react'
 import type { OcMessage, OcMessagePart, OcPendingQuestionRequest } from '@/shared/types/opencode'
 import { transcriptAnchorKeyForPart } from '@/entities/action/lib/actionMapping'
-import type { MessageSummary } from '@/entities/message/lib/messageSummary'
 import AgentInfo from './AgentInfo'
 import { renderMarkdown } from '@/shared/lib/format/markdown'
 import ToolCallView from './ToolCallView'
@@ -19,8 +18,6 @@ interface MessageBubbleProps {
   ssePendingQuestion?: OcPendingQuestionRequest | null
   /** Refresh transcript after inline question answers */
   onQuestionAnswered?: () => Promise<void>
-  /** Summary shown under the last user message (stats of the following reply) */
-  summary?: MessageSummary | null
 }
 
 export default memo(function MessageBubble({
@@ -31,13 +28,12 @@ export default memo(function MessageBubble({
   sessionDirectory,
   ssePendingQuestion,
   onQuestionAnswered,
-  summary,
 }: MessageBubbleProps) {
   const { info, parts } = message
   const isUser = info.role === 'user'
 
   if (isUser) {
-    return <UserMessage message={message} summary={summary} />
+    return <UserMessage message={message} />
   }
 
   // Assistant message
@@ -66,7 +62,6 @@ function bubblePropsEqual(prev: MessageBubbleProps, next: MessageBubbleProps): b
     prev.message === next.message &&
     prev.staleToolCallIds === next.staleToolCallIds &&
     prev.isLastInTurn === next.isLastInTurn &&
-    prev.summary === next.summary &&
     prev.sessionDirectory === next.sessionDirectory &&
     prev.ssePendingQuestion === next.ssePendingQuestion &&
     prev.onQuestionAnswered === next.onQuestionAnswered

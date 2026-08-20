@@ -4,6 +4,7 @@ import type { OcMessage, OcPendingQuestionRequest, OcTodo } from '@/shared/types
 import type { CanonicalTodo, LatestTodowriteBatchProgress } from '@/entities/todo/lib/todoRegistry'
 import { buildMessageSummary } from '@/entities/message/lib/messageSummary'
 import MessageBubble from '@/widgets/chat/ui/MessageBubble'
+import MessageSummaryLine from '@/widgets/chat/ui/MessageBubble/MessageSummaryLine'
 import TodoPanel from '@/widgets/todo-panel/ui/TodoPanel'
 import MessageInput, { type MessageSendPayload } from '@/widgets/chat/ui/MessageInput'
 import QuestionPromptPanel from '@/widgets/chat/ui/QuestionPromptPanel'
@@ -141,12 +142,6 @@ export default function MessagePanel({
 
   // Summary for the last user bubble: stats of the assistant reply that follows it.
   const summary = useMemo(() => buildMessageSummary(messages), [messages])
-  const lastUserIndex = useMemo(() => {
-    for (let i = messages.length - 1; i >= 0; i--) {
-      if (messages[i]?.info.role === 'user') return i
-    }
-    return -1
-  }, [messages])
   // Stable wall clock for anchor keys — refreshed on a slow tick instead of every render.
   const [transcriptAnchorNowMs, setTranscriptAnchorNowMs] = useState(() => Date.now())
   useEffect(() => {
@@ -395,7 +390,6 @@ export default function MessagePanel({
                           : null
                       }
                       onQuestionAnswered={onQuestionAnswered}
-                      summary={idx === lastUserIndex ? summary : null}
                     />
                   </div>
                 )
@@ -493,6 +487,17 @@ export default function MessagePanel({
           composerModelsError={composerModelsError}
           envBootstrapModel={envBootstrapModel}
         />
+        {summary && (
+          <div
+            style={{
+              padding: '4px 16px 6px',
+              display: 'flex',
+              justifyContent: 'center',
+            }}
+          >
+            <MessageSummaryLine summary={summary} />
+          </div>
+        )}
       </div>
     </div>
   )

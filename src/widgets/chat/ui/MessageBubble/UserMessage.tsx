@@ -1,16 +1,8 @@
 import { useState } from 'react'
 import type { OcMessage } from '@/shared/types/opencode'
-import type { MessageSummary } from '@/entities/message/lib/messageSummary'
 import { userMessageBodyForDisplay } from './text'
-import MessageSummaryLine from './MessageSummaryLine'
 
-export default function UserMessage({
-  message,
-  summary,
-}: {
-  message: OcMessage
-  summary?: MessageSummary | null
-}) {
+export default function UserMessage({ message }: { message: OcMessage }) {
   const content = userMessageBodyForDisplay(message)
   const [showCopy, setShowCopy] = useState(false)
   const [copied, setCopied] = useState(false)
@@ -29,8 +21,6 @@ export default function UserMessage({
         justifyContent: 'flex-end',
         padding: '4px 0',
         position: 'relative',
-        flexDirection: 'column',
-        alignItems: 'flex-end',
       }}
       onMouseEnter={() => setShowCopy(true)}
       onMouseLeave={() => setShowCopy(false)}
@@ -50,11 +40,6 @@ export default function UserMessage({
       >
         {content || <span style={{ color: 'var(--color-text-muted)' }}>No text payload</span>}
       </div>
-      {summary ? (
-        <div style={{ maxWidth: '70%', width: '100%' }}>
-          <MessageSummaryLine summary={summary} />
-        </div>
-      ) : null}
       {/* Copy button */}
       {showCopy && (
         <button
