@@ -15,6 +15,7 @@ export default function SessionPanel({
   onArchiveSession,
   archivingSessionId,
   apiConnected,
+  onNavigateToWorkspaces,
 }: {
   sessionsInFolder: OcSession[]
   selectedDirectory: string
@@ -25,6 +26,7 @@ export default function SessionPanel({
   onArchiveSession?: (sessionId: string) => void | Promise<void>
   archivingSessionId?: string | null
   apiConnected: boolean
+  onNavigateToWorkspaces: () => void
 }) {
   const dispatch = useAppDispatch()
   const [hoverSessionId, setHoverSessionId] = useState<string | null>(null)
@@ -67,6 +69,39 @@ export default function SessionPanel({
         }}
       >
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, minWidth: 0 }}>
+          <button
+            type="button"
+            onClick={onNavigateToWorkspaces}
+            title="Choose workspace"
+            aria-label="Choose workspace"
+            style={{
+              width: 22,
+              height: 22,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              background: 'transparent',
+              border: 'none',
+              borderRadius: 4,
+              cursor: 'pointer',
+              color: 'var(--color-text-tertiary)',
+              flexShrink: 0,
+              padding: 0,
+            }}
+          >
+            <svg
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="M15 19l-7-7 7-7" />
+            </svg>
+          </button>
           <span
             title={selectedDirectory || 'Active workspace'}
             style={{
@@ -195,7 +230,7 @@ export default function SessionPanel({
           >
             {sessionQuery.trim()
               ? 'No sessions match your search.'
-              : 'No sessions in this folder yet. Use &quot;New session&quot; to start.'}
+              : 'No sessions in this folder yet. Use "New session" to start.'}
           </div>
         ) : (
           filteredSessions.map((session) => (

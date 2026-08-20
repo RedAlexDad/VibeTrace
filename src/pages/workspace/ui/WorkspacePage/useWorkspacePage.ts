@@ -294,10 +294,16 @@ export function useWorkspacePage() {
 
   // Load sessions on mount
   useEffect(() => {
+    // Read the URL early so the async refresh cannot race the URL-sync effect below.
+    const initialParams = new URLSearchParams(window.location.search)
+    const initialSession = initialParams.get('session')
+    const initialDir = initialParams.get('dir')
+    if (initialDir) setSelectedDirectory(initialDir)
+    if (initialSession) setSelectedSessionId(initialSession)
+
     refreshSessions()
       .then((data) => {
         const sorted = [...data].sort((a, b) => b.time.updated - a.time.updated)
-        if (sorted.length === 0) return
         const params = new URLSearchParams(window.location.search)
         const urlSession = params.get('session')
         const urlDir = params.get('dir')
@@ -317,10 +323,15 @@ export function useWorkspacePage() {
             setSelectedSessionId(inDir[0]!.id)
             return
           }
+          // Directory exists in URL but has no sessions yet — keep it selected
+          setSelectedDirectory(urlDir)
+          setSelectedSessionId('')
+          return
         }
-        const first = sorted[0]!
-        setSelectedSessionId(first.id)
-        setSelectedDirectory(normalizeSessionDirectory(first.directory))
+        // No directory chosen: leave selection empty so the workspaces page
+        // acts as the entry point instead of silently picking the newest session.
+        setSelectedSessionId('')
+        setSelectedDirectory('')
       })
       .catch(() => setApiConnected(false))
   }, [refreshSessions])
@@ -337,9 +348,10 @@ export function useWorkspacePage() {
     window.history.replaceState(null, '', next)
   }, [selectedDirectory, selectedSessionId])
 
-  /** If the active session disappears from the list, fall back to newest in folder or globally */
+  /** If the active session disappears from the list, fall back to newest in folder */
   useEffect(() => {
     if (sessions.length === 0) return
+    if (!selectedDirectory) return
     if (selectedSessionId && sessions.some((s) => s.id === selectedSessionId)) return
 
     const inFolder = sessions
@@ -348,14 +360,7 @@ export function useWorkspacePage() {
 
     if (inFolder.length > 0) {
       setSelectedSessionId(inFolder[0]!.id)
-      return
     }
-    if (!selectedSessionId) return
-
-    const sorted = [...sessions].sort((a, b) => b.time.updated - a.time.updated)
-    const pick = sorted[0]!
-    setSelectedSessionId(pick.id)
-    setSelectedDirectory(normalizeSessionDirectory(pick.directory))
   }, [sessions, selectedSessionId, selectedDirectory])
 
   useEffect(() => {

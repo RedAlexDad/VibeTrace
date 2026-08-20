@@ -7,14 +7,13 @@ import ForkSessionModal from '@/features/fork-session/ui/ForkSessionModal'
 import SubtaskMessageConnector from '@/features/subtask-linking/ui/SubtaskMessageConnector'
 import SubtaskPanelHeader from './SubtaskPanelHeader'
 import { useWorkspacePage } from './useWorkspacePage'
+import { useNavigate } from 'react-router-dom'
 
 function WorkspacePage() {
+  const navigate = useNavigate()
   const {
     sessionsInFolder,
-    directories,
-    recencyMap,
     selectedDirectory,
-    handleSelectDirectory,
     selectedSessionId,
     setSelectedSessionId,
     handleCreateSession,
@@ -22,8 +21,6 @@ function WorkspacePage() {
     handleArchiveSession,
     archivingSessionId,
     apiConnected,
-    handleAddDirectory,
-    handleCloseDirectory,
     linkAreaRef,
     messages,
     sessionTodoModel,
@@ -82,6 +79,91 @@ function WorkspacePage() {
     closeAnalysisModal,
   } = useWorkspacePage()
 
+  if (!selectedDirectory && !loading) {
+    return (
+      <div
+        style={{
+          display: 'flex',
+          height: '100vh',
+          width: '100vw',
+          overflow: 'hidden',
+          background: 'var(--color-bg-base)',
+        }}
+      >
+        <Sidebar
+          sessionsInFolder={sessionsInFolder}
+          selectedDirectory={selectedDirectory}
+          selectedSessionId={selectedSessionId}
+          onSelectSession={setSelectedSessionId}
+          onCreateSession={handleCreateSession}
+          creatingSession={creatingSession}
+          onArchiveSession={handleArchiveSession}
+          archivingSessionId={archivingSessionId}
+          apiConnected={apiConnected}
+          onNavigateToWorkspaces={() => navigate('/workspaces')}
+        />
+        <div
+          style={{
+            flex: 1,
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: 16,
+            background: 'var(--color-bg-white)',
+          }}
+        >
+          <span style={{ fontSize: 15, fontWeight: 600, color: 'var(--color-text-primary)' }}>
+            Choose a workspace
+          </span>
+          <span
+            style={{
+              fontSize: 12,
+              color: 'var(--color-text-tertiary)',
+              maxWidth: 320,
+              textAlign: 'center',
+              lineHeight: 1.6,
+            }}
+          >
+            Pick a workspace to browse its sessions and start chatting.
+          </span>
+          <button
+            type="button"
+            onClick={() => navigate('/workspaces')}
+            style={{
+              height: 36,
+              padding: '0 18px',
+              display: 'flex',
+              alignItems: 'center',
+              gap: 8,
+              background: 'var(--color-accent)',
+              color: 'var(--color-on-accent)',
+              border: 'none',
+              borderRadius: 8,
+              fontSize: 13,
+              fontWeight: 500,
+              cursor: 'pointer',
+            }}
+          >
+            Workspaces
+            <svg
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="M9 5l7 7-7 7" />
+            </svg>
+          </button>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div
       style={{
@@ -93,13 +175,10 @@ function WorkspacePage() {
         position: 'relative',
       }}
     >
-      {/* Sidebar: workspaces + sessions */}
+      {/* Sidebar: sessions of the selected workspace */}
       <Sidebar
         sessionsInFolder={sessionsInFolder}
-        directories={directories}
-        recencyMap={recencyMap}
         selectedDirectory={selectedDirectory}
-        onSelectDirectory={handleSelectDirectory}
         selectedSessionId={selectedSessionId}
         onSelectSession={setSelectedSessionId}
         onCreateSession={handleCreateSession}
@@ -107,8 +186,7 @@ function WorkspacePage() {
         onArchiveSession={handleArchiveSession}
         archivingSessionId={archivingSessionId}
         apiConnected={apiConnected}
-        onAddDirectory={handleAddDirectory}
-        onCloseDirectory={handleCloseDirectory}
+        onNavigateToWorkspaces={() => navigate('/workspaces')}
       />
 
       {/* Center + right columns share one positioned parent for connector lines */}
