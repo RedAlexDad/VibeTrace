@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState, type RefObject } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState, type RefObject } from 'react'
 import { useVirtualizer } from '@tanstack/react-virtual'
 import type { OcMessage, OcPendingQuestionRequest, OcTodo } from '@/shared/types/opencode'
 import type { CanonicalTodo, LatestTodowriteBatchProgress } from '@/entities/todo/lib/todoRegistry'
@@ -106,6 +106,23 @@ export default function MessagePanel({
   const hasInlineQuestion = messagesHaveOpenQuestionWithInput(messages)
   const blockComposerForQuestion =
     hasInlineQuestion || Boolean(pendingQuestion && pendingQuestion.sessionID === sessionId)
+
+  // Composer-driven edit of an already-sent user message: reuse the big
+  // composer ("Ask something…") instead of a tiny inline textarea.
+  const [editTarget, setEditTarget] = useState<{ messageID: string; text: string } | null>(null)
+  const handleRequestEdit = useCallback((messageID: string, text: string) => {
+    setEditTarget({ messageID, text })
+  }, [])
+  const handleEditChange = useCallback((text: string) => {
+    setEditTarget((prev) => (prev ? { ...prev, text } : prev))
+  }, [])
+  const handleEditCancel = useCallback(() => setEditTarget(null), [])
+  const handleEditSave = useCallback(
+    async (messageID: string, newText: string) => {
+      if (onEditMessage) await onEditMessage(messageID, newText)
+    },
+    [onEditMessage],
+  )
 
   const assistantIndices = messages
     .map((m, i) => (m.info.role === 'assistant' ? i : -1))
@@ -418,7 +435,7 @@ export default function MessagePanel({
                           : null
                       }
                       onQuestionAnswered={onQuestionAnswered}
-                      onEditMessage={onEditMessage}
+                      onRequestEdit={handleRequestEdit}
                     />
                   </div>
                 )
@@ -516,6 +533,17 @@ export default function MessagePanel({
           composerAgent={composerAgent}
           onComposerAgentChange={onComposerAgentChange}
           summary={summary}
+          editMode={
+            editTarget
+              ? {
+                  messageID: editTarget.messageID,
+                  text: editTarget.text,
+                  onChange: handleEditChange,
+                  onCancel: handleEditCancel,
+                  onSave: handleEditSave,
+                }
+              : undefined
+          }
         />
       </div>
     </div>

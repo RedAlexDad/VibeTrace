@@ -31,13 +31,23 @@ export default function MessageInput({
   composerAgent = 'build',
   onComposerAgentChange,
   summary,
+  editMode,
 }: MessageInputProps) {
   const [text, setText] = useState('')
   const [files, setFiles] = useState<File[]>([])
   const [sending, setSending] = useState(false)
+  const [saving, setSaving] = useState(false)
   const [attachError, setAttachError] = useState<string | null>(null)
   const taRef = useRef<HTMLTextAreaElement>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
+
+  // Entering edit mode fills the composer with the message text. The draft
+  // lives in the PARENT (editMode.text is the live value, editMode.onChange
+  // updates it) — keeping it here would reset on every parent re-render, since
+  // a fresh editMode object is passed each time.
+  const isEditing = Boolean(editMode)
+  const effectiveText = isEditing ? editMode!.text : text
+  const setEffectiveText = isEditing ? (v: string) => editMode!.onChange(v) : setText
 
   useLayoutEffect(() => {
     const el = taRef.current
@@ -45,14 +55,35 @@ export default function MessageInput({
     el.style.height = 'auto'
     const next = Math.min(Math.max(el.scrollHeight, MIN_H), MAX_H)
     el.style.height = `${next}px`
-  }, [text])
+  }, [effectiveText])
 
-  const canSend = (text.trim().length > 0 || files.length > 0) && !sending && !disabled
+  useLayoutEffect(() => {
+    if (!editMode) return
+    taRef.current?.focus()
+  }, [editMode?.messageID])
+
+  const canSend = (effectiveText.trim().length > 0 || files.length > 0) && !sending && !disabled
   const canAbort = Boolean(isRunning && onAbort && !aborting && !disabled)
 
   const handleSend = async () => {
+    if (isEditing && editMode) {
+      const next = effectiveText.trim()
+      if (!next) return
+      setSaving(true)
+      setAttachError(null)
+      try {
+        await editMode.onSave(editMode.messageID, next)
+        editMode.onCancel()
+      } catch (err) {
+        const msg = err instanceof Error ? err.message : String(err)
+        setAttachError(msg)
+      } finally {
+        setSaving(false)
+      }
+      return
+    }
     if (!canSend) return
-    const prevText = text
+    const prevText = effectiveText
     const prevFiles = files
     // Clear immediately so long requests don’t leave stale text in the composer
     setText('')
@@ -216,10 +247,10 @@ export default function MessageInput({
       >
         <textarea
           ref={taRef}
-          value={text}
-          onChange={(e) => setText(e.target.value)}
+          value={effectiveText}
+          onChange={(e) => setEffectiveText(e.target.value)}
           onKeyDown={handleKeyDown}
-          placeholder="Ask something…"
+          placeholder={isEditing ? 'Edit message…' : 'Ask something…'}
           disabled={disabled || sending}
           rows={MIN_ROWS}
           style={{
@@ -302,7 +333,7 @@ export default function MessageInput({
             background: 'var(--color-bg-soft)',
           }}
         >
-          {summary ? (
+          {!isEditing && summary ? (
             <div
               style={{
                 flex: 1,
@@ -327,82 +358,126 @@ export default function MessageInput({
             onChange={onFileInputChange}
           />
           <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0 }}>
-            <button
-              type="button"
-              onClick={onPickFiles}
-              disabled={disabled || sending}
-              title="Attach images or text files"
-              style={{
-                width: 32,
-                height: 32,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                background: 'var(--color-bg-white)',
-                border: '1px solid var(--color-border-light)',
-                borderRadius: 6,
-                cursor: disabled || sending ? 'not-allowed' : 'pointer',
-                opacity: disabled || sending ? 0.5 : 1,
-              }}
-            >
-              <svg
-                width="16"
-                height="16"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="var(--color-text-secondary)"
-                strokeWidth="2"
-              >
-                <path d="M12 5v14M5 12h14" />
-              </svg>
-            </button>
+            {isEditing ? (
+              <>
+                <button
+                  type="button"
+                  onClick={() => editMode?.onCancel()}
+                  disabled={sending}
+                  style={{
+                    height: 32,
+                    padding: '0 12px',
+                    background: 'var(--color-bg-white)',
+                    border: '1px solid var(--color-border-light)',
+                    borderRadius: 6,
+                    fontSize: 11,
+                    color: 'var(--color-text-secondary)',
+                    cursor: sending ? 'not-allowed' : 'pointer',
+                  }}
+                >
+                  cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={() => void handleSend()}
+                  disabled={sending || !effectiveText.trim()}
+                  title="Save and resend"
+                  style={{
+                    height: 32,
+                    padding: '0 14px',
+                    background: 'var(--color-accent-strong)',
+                    border: 'none',
+                    borderRadius: 6,
+                    fontSize: 11,
+                    fontWeight: 600,
+                    color: 'white',
+                    cursor: sending || !effectiveText.trim() ? 'not-allowed' : 'pointer',
+                    opacity: sending || !effectiveText.trim() ? 0.6 : 1,
+                  }}
+                >
+                  {saving ? 'saving…' : 'save & resend'}
+                </button>
+              </>
+            ) : (
+              <>
+                <button
+                  type="button"
+                  onClick={onPickFiles}
+                  disabled={disabled || sending}
+                  title="Attach images or text files"
+                  style={{
+                    width: 32,
+                    height: 32,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    background: 'var(--color-bg-white)',
+                    border: '1px solid var(--color-border-light)',
+                    borderRadius: 6,
+                    cursor: disabled || sending ? 'not-allowed' : 'pointer',
+                    opacity: disabled || sending ? 0.5 : 1,
+                  }}
+                >
+                  <svg
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="var(--color-text-secondary)"
+                    strokeWidth="2"
+                  >
+                    <path d="M12 5v14M5 12h14" />
+                  </svg>
+                </button>
 
-            <button
-              type="button"
-              onClick={() => void (canAbort ? handleAbort() : handleSend())}
-              disabled={canAbort ? false : !canSend}
-              style={{
-                width: 32,
-                height: 32,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                background: canAbort
-                  ? 'var(--color-error-soft)'
-                  : canSend
-                    ? 'var(--color-accent-strong)'
-                    : 'var(--color-bg-soft)',
-                border: 'none',
-                borderRadius: 6,
-                cursor: canAbort || canSend ? 'pointer' : 'not-allowed',
-                opacity: sending ? 0.7 : 1,
-              }}
-            >
-              {canAbort ? (
-                <svg
-                  width="14"
-                  height="14"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="var(--color-error-text)"
-                  strokeWidth="2"
+                <button
+                  type="button"
+                  onClick={() => void (canAbort ? handleAbort() : handleSend())}
+                  disabled={canAbort ? false : !canSend}
+                  style={{
+                    width: 32,
+                    height: 32,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    background: canAbort
+                      ? 'var(--color-error-soft)'
+                      : canSend
+                        ? 'var(--color-accent-strong)'
+                        : 'var(--color-bg-soft)',
+                    border: 'none',
+                    borderRadius: 6,
+                    cursor: canAbort || canSend ? 'pointer' : 'not-allowed',
+                    opacity: sending ? 0.7 : 1,
+                  }}
                 >
-                  <rect x="6" y="6" width="12" height="12" rx="1.5" />
-                </svg>
-              ) : (
-                <svg
-                  width="14"
-                  height="14"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke={canSend ? 'white' : 'var(--color-text-muted)'}
-                  strokeWidth="2"
-                >
-                  <line x1="22" y1="2" x2="11" y2="13" />
-                  <polygon points="22 2 15 22 11 13 2 9 22 2" />
-                </svg>
-              )}
-            </button>
+                  {canAbort ? (
+                    <svg
+                      width="14"
+                      height="14"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="var(--color-error-text)"
+                      strokeWidth="2"
+                    >
+                      <rect x="6" y="6" width="12" height="12" rx="1.5" />
+                    </svg>
+                  ) : (
+                    <svg
+                      width="14"
+                      height="14"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke={canSend ? 'white' : 'var(--color-text-muted)'}
+                      strokeWidth="2"
+                    >
+                      <line x1="22" y1="2" x2="11" y2="13" />
+                      <polygon points="22 2 15 22 11 13 2 9 22 2" />
+                    </svg>
+                  )}
+                </button>
+              </>
+            )}
           </div>
         </div>
       </div>

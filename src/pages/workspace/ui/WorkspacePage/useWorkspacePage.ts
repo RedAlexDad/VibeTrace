@@ -1239,35 +1239,44 @@ export function useWorkspacePage() {
       const sid = selectedSessionId
       try {
         await revertSession(sid, messageID, dir)
-        await sendMessage(sid, newText, dir, {
-          model: composerModelRef.trim() || DEFAULT_MODEL_REF,
-          agent: composerAgent,
-        })
-        const msgs = await getMessages(sid, 'after edit resend', dir)
-        setMessagesStable(msgs)
-        setWaitingForAssistantReply(true)
-        try {
-          await pollUntilAssistantMessage(
-            sid,
-            dir,
-            () => selectedSessionIdRef.current === sid,
-            setMessagesStable,
-          )
-        } finally {
-          setWaitingForAssistantReply(false)
-        }
-        const [list, finalMsgs] = await Promise.all([
-          refreshSessions(),
-          getMessages(sid, 'after edit final refresh', dir),
-        ])
-        setSessions(list)
-        setMessagesStable(finalMsgs)
-        // Re-pin the list to the bottom now that the resend is done.
-        requestAnimationFrame(() => {
-          messageScrollToIndexRef.current?.(
-            Math.max(0, (finalMsgs?.length ?? 1) - 1),
-          )
-        })
+        // Fire-and-forget like handleSendMessage: POST /message only resolves
+        // after the whole agent turn, so awaiting it here would keep the
+        // composer stuck on "saving…" for the full generation.
+        void (async () => {
+          try {
+            await sendMessage(sid, newText, dir, {
+              model: composerModelRef.trim() || DEFAULT_MODEL_REF,
+              agent: composerAgent,
+            })
+            const msgs = await getMessages(sid, 'after edit resend', dir)
+            setMessagesStable(msgs)
+            setWaitingForAssistantReply(true)
+            try {
+              await pollUntilAssistantMessage(
+                sid,
+                dir,
+                () => selectedSessionIdRef.current === sid,
+                setMessagesStable,
+              )
+            } finally {
+              setWaitingForAssistantReply(false)
+            }
+            const [list, finalMsgs] = await Promise.all([
+              refreshSessions(),
+              getMessages(sid, 'after edit final refresh', dir),
+            ])
+            setSessions(list)
+            setMessagesStable(finalMsgs)
+            // Re-pin the list to the bottom now that the resend is done.
+            requestAnimationFrame(() => {
+              messageScrollToIndexRef.current?.(
+                Math.max(0, (finalMsgs?.length ?? 1) - 1),
+              )
+            })
+          } catch (e) {
+            window.alert(`Edit failed: ${e instanceof Error ? e.message : String(e)}`)
+          }
+        })()
       } catch (e) {
         window.alert(`Edit failed: ${e instanceof Error ? e.message : String(e)}`)
       }

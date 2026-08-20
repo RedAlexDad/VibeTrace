@@ -26,6 +26,17 @@ export interface MessageInputProps {
   onComposerAgentChange?: (agent: 'build' | 'plan') => void
   /** Session-wide stats shown in the composer footer */
   summary?: SessionSummary | null
+  /** Edit mode: reuse the composer to rewrite an already-sent user message.
+   * When set, the textarea is pre-filled and the send button becomes
+   * "save & resend" with a cancel action. */
+  editMode?: {
+    messageID: string
+    /** Live draft text — owned by the parent so re-renders never reset typing. */
+    text: string
+    onChange: (text: string) => void
+    onCancel: () => void
+    onSave: (messageID: string, newText: string) => Promise<void>
+  }
 }
 
 export const FONT_SIZE = 12
