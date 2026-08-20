@@ -3,6 +3,20 @@ import { isTodoWriteTool } from '@/entities/subtask/lib/subtaskGrouping'
 
 const SUBAGENT_TOOLS = new Set(['task', 'subtask', 'subagent', 'agent'])
 
+/** Known MCP servers — their tools arrive as `<server>_<tool>` (e.g. playwright_browser_navigate). */
+const MCP_SERVER_PREFIXES = [
+  'playwright',
+  'filesystem',
+  'context7',
+  'github',
+  'kubernetes',
+  'postgresql',
+  'rust',
+  'sequential_thinking',
+  'git_tools',
+  'ssh_manager',
+]
+
 function normalizeToolName(name: string): string {
   return name.trim().toLowerCase().replace(/-/g, '_')
 }
@@ -16,8 +30,9 @@ export function mapToolToActionType(tool: string): ActionType | null {
   if (['write', 'edit', 'multiedit', 'patch'].includes(t)) return 'Write'
   if (t === 'bash' || t === 'shell') return 'Shell'
   if (t === 'websearch' || t === 'web_fetch' || t === 'webfetch') return 'Search'
-  // MCP tools arrive as `mcp__<server>__<tool>`; skills as `skill`
-  if (t === 'skill' || t.startsWith('mcp__') || t.startsWith('skill_')) return 'Skill'
+  // MCP tools arrive as `mcp__<server>__<tool>` or `<server>_<tool>`; skills as `skill`
+  if (t === 'skill' || t.startsWith('skill_') || t.startsWith('mcp__')) return 'Skill'
+  if (MCP_SERVER_PREFIXES.some((p) => t === p || t.startsWith(`${p}_`))) return 'Skill'
   return null
 }
 
