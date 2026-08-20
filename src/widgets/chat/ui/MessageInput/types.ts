@@ -1,4 +1,5 @@
 import type { OcComposerModelOption } from '@/shared/api/opencodeApi'
+import type { SessionSummary } from '@/entities/message/lib/messageSummary'
 
 export type MessageSendPayload = {
   combinedText: string
@@ -23,6 +24,8 @@ export interface MessageInputProps {
   /** Agent (build/plan) sent with the next message */
   composerAgent?: 'build' | 'plan'
   onComposerAgentChange?: (agent: 'build' | 'plan') => void
+  /** Session-wide stats shown in the composer footer */
+  summary?: SessionSummary | null
 }
 
 export const FONT_SIZE = 12

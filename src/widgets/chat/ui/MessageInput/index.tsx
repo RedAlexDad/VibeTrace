@@ -3,6 +3,7 @@ import { SHOW_COMPOSER_MODEL_UI } from '@/shared/config/featureFlags'
 import { prepareOutgoingFromFiles } from '@/entities/message/lib/messageAttachments'
 import ComposerModelSelector from './ComposerModelSelector'
 import ModelPicker from './ModelPicker'
+import MessageSummaryLine from '@/widgets/chat/ui/MessageBubble/MessageSummaryLine'
 import {
   type MessageInputProps,
   type MessageSendPayload,
@@ -29,6 +30,7 @@ export default function MessageInput({
   envBootstrapModel = null,
   composerAgent = 'build',
   onComposerAgentChange,
+  summary,
 }: MessageInputProps) {
   const [text, setText] = useState('')
   const [files, setFiles] = useState<File[]>([])
@@ -295,11 +297,27 @@ export default function MessageInput({
             alignItems: 'center',
             justifyContent: 'space-between',
             gap: 8,
-            padding: '8px 10px',
+            padding: '6px 10px',
             borderTop: '1px solid var(--color-border-light)',
             background: 'var(--color-bg-soft)',
           }}
         >
+          {summary ? (
+            <div
+              style={{
+                flex: 1,
+                minWidth: 0,
+                display: 'flex',
+                justifyContent: 'flex-start',
+                overflow: 'hidden',
+              }}
+            >
+              <MessageSummaryLine summary={summary} />
+            </div>
+          ) : (
+            <div style={{ flex: 1 }} />
+          )}
+
           <input
             ref={fileInputRef}
             type="file"
@@ -308,82 +326,84 @@ export default function MessageInput({
             accept="image/*,.txt,.md,.json,.jsonc,.csv,.ts,.tsx,.js,.jsx,.css,.html,.xml,.yaml,.yml,.log,.env,.rs,.go,.py,.vue"
             onChange={onFileInputChange}
           />
-          <button
-            type="button"
-            onClick={onPickFiles}
-            disabled={disabled || sending}
-            title="Attach images or text files"
-            style={{
-              width: 32,
-              height: 32,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              background: 'var(--color-bg-white)',
-              border: '1px solid var(--color-border-light)',
-              borderRadius: 6,
-              cursor: disabled || sending ? 'not-allowed' : 'pointer',
-              opacity: disabled || sending ? 0.5 : 1,
-            }}
-          >
-            <svg
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="var(--color-text-secondary)"
-              strokeWidth="2"
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0 }}>
+            <button
+              type="button"
+              onClick={onPickFiles}
+              disabled={disabled || sending}
+              title="Attach images or text files"
+              style={{
+                width: 32,
+                height: 32,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                background: 'var(--color-bg-white)',
+                border: '1px solid var(--color-border-light)',
+                borderRadius: 6,
+                cursor: disabled || sending ? 'not-allowed' : 'pointer',
+                opacity: disabled || sending ? 0.5 : 1,
+              }}
             >
-              <path d="M12 5v14M5 12h14" />
-            </svg>
-          </button>
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="var(--color-text-secondary)"
+                strokeWidth="2"
+              >
+                <path d="M12 5v14M5 12h14" />
+              </svg>
+            </button>
 
-          <button
-            type="button"
-            onClick={() => void (canAbort ? handleAbort() : handleSend())}
-            disabled={canAbort ? false : !canSend}
-            style={{
-              width: 32,
-              height: 32,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              background: canAbort
-                ? 'var(--color-error-soft)'
-                : canSend
-                  ? 'var(--color-accent-strong)'
-                  : 'var(--color-bg-soft)',
-              border: 'none',
-              borderRadius: 6,
-              cursor: canAbort || canSend ? 'pointer' : 'not-allowed',
-              opacity: sending ? 0.7 : 1,
-            }}
-          >
-            {canAbort ? (
-              <svg
-                width="14"
-                height="14"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="var(--color-error-text)"
-                strokeWidth="2"
-              >
-                <rect x="6" y="6" width="12" height="12" rx="1.5" />
-              </svg>
-            ) : (
-              <svg
-                width="14"
-                height="14"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke={canSend ? 'white' : 'var(--color-text-muted)'}
-                strokeWidth="2"
-              >
-                <line x1="22" y1="2" x2="11" y2="13" />
-                <polygon points="22 2 15 22 11 13 2 9 22 2" />
-              </svg>
-            )}
-          </button>
+            <button
+              type="button"
+              onClick={() => void (canAbort ? handleAbort() : handleSend())}
+              disabled={canAbort ? false : !canSend}
+              style={{
+                width: 32,
+                height: 32,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                background: canAbort
+                  ? 'var(--color-error-soft)'
+                  : canSend
+                    ? 'var(--color-accent-strong)'
+                    : 'var(--color-bg-soft)',
+                border: 'none',
+                borderRadius: 6,
+                cursor: canAbort || canSend ? 'pointer' : 'not-allowed',
+                opacity: sending ? 0.7 : 1,
+              }}
+            >
+              {canAbort ? (
+                <svg
+                  width="14"
+                  height="14"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="var(--color-error-text)"
+                  strokeWidth="2"
+                >
+                  <rect x="6" y="6" width="12" height="12" rx="1.5" />
+                </svg>
+              ) : (
+                <svg
+                  width="14"
+                  height="14"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke={canSend ? 'white' : 'var(--color-text-muted)'}
+                  strokeWidth="2"
+                >
+                  <line x1="22" y1="2" x2="11" y2="13" />
+                  <polygon points="22 2 15 22 11 13 2 9 22 2" />
+                </svg>
+              )}
+            </button>
+          </div>
         </div>
       </div>
 

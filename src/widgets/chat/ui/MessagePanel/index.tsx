@@ -4,7 +4,6 @@ import type { OcMessage, OcPendingQuestionRequest, OcTodo } from '@/shared/types
 import type { CanonicalTodo, LatestTodowriteBatchProgress } from '@/entities/todo/lib/todoRegistry'
 import { buildSessionSummary } from '@/entities/message/lib/messageSummary'
 import MessageBubble from '@/widgets/chat/ui/MessageBubble'
-import MessageSummaryLine from '@/widgets/chat/ui/MessageBubble/MessageSummaryLine'
 import TodoPanel from '@/widgets/todo-panel/ui/TodoPanel'
 import MessageInput, { type MessageSendPayload } from '@/widgets/chat/ui/MessageInput'
 import QuestionPromptPanel from '@/widgets/chat/ui/QuestionPromptPanel'
@@ -493,18 +492,8 @@ export default function MessagePanel({
           envBootstrapModel={envBootstrapModel}
           composerAgent={composerAgent}
           onComposerAgentChange={onComposerAgentChange}
+          summary={summary}
         />
-        {summary && (
-          <div
-            style={{
-              padding: '4px 16px 6px',
-              display: 'flex',
-              justifyContent: 'center',
-            }}
-          >
-            <MessageSummaryLine summary={summary} />
-          </div>
-        )}
       </div>
     </div>
   )
