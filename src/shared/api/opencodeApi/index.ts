@@ -14,6 +14,7 @@ export {
   getTodos,
   rejectQuestion,
   replyToQuestion,
+  revertSession,
   sendMessage,
   updateSessionTitle,
 } from './rest'

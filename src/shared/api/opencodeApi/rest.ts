@@ -259,6 +259,25 @@ export async function abortSession(sessionId: string, directory?: string): Promi
   }
 }
 
+/** Rewind a session to a given message — messages after it are dropped on the
+ * next prompt. Used to "edit" a user message: revert, then resend. */
+export async function revertSession(
+  sessionId: string,
+  messageID: string,
+  directory?: string,
+): Promise<void> {
+  const url = `${BASE}/session/${sessionId}/revert`
+  const res = await fetch(url, {
+    method: 'POST',
+    headers: withDirectoryHeaders({ 'Content-Type': 'application/json' }, directory),
+    body: JSON.stringify({ messageID }),
+  })
+  const bodyText = await res.text()
+  if (!res.ok) {
+    throw new Error(`revertSession failed: ${res.status} ${bodyText}`)
+  }
+}
+
 export async function forkSession(
   sessionId: string,
   options?: { messageID?: string; directory?: string },

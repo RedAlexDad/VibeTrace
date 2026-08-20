@@ -32,6 +32,7 @@ function WorkspacePage() {
     loadSessionData,
     activeSessionDirectory,
     handleSendMessage,
+    handleEditMessage,
     handleAbortMessage,
     aborting,
     messageScrollRef,
@@ -245,6 +246,7 @@ function WorkspacePage() {
               sessionTitle={selectedSession?.title}
               onRefresh={() => loadSessionData(selectedSessionId, activeSessionDirectory)}
               onSendMessage={handleSendMessage}
+              onEditMessage={handleEditMessage}
               onAbortMessage={handleAbortMessage}
               aborting={aborting}
               messageListScrollRef={messageScrollRef}

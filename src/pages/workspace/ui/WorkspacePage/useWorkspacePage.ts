@@ -13,6 +13,7 @@ import {
   getTodos,
   rejectQuestion,
   replyToQuestion,
+  revertSession,
   sendMessage,
   subscribeGlobalEvents,
   updateSessionTitle,
@@ -1064,6 +1065,59 @@ export function useWorkspacePage() {
     [selectedSessionId, sessions, composerModelRef, composerAgent, setMessagesStable],
   )
 
+  /** Rewind the session to a user message and resend it with new text —
+   * surfaces as "editing" the sent message. */
+  const handleEditMessage = useCallback(
+    async (messageID: string, newText: string) => {
+      if (!selectedSessionId) return
+      const dir = sessions.find((s) => s.id === selectedSessionId)?.directory
+      const sid = selectedSessionId
+      try {
+        await revertSession(sid, messageID, dir)
+        await sendMessage(sid, newText, dir, {
+          model: composerModelRef.trim() || DEFAULT_MODEL_REF,
+          agent: composerAgent,
+        })
+        const msgs = await getMessages(sid, 'after edit resend', dir)
+        setMessagesStable(msgs)
+        setWaitingForAssistantReply(true)
+        try {
+          await pollUntilAssistantMessage(
+            sid,
+            dir,
+            () => selectedSessionIdRef.current === sid,
+            setMessagesStable,
+          )
+        } finally {
+          setWaitingForAssistantReply(false)
+        }
+        const [list, finalMsgs] = await Promise.all([
+          refreshSessions(),
+          getMessages(sid, 'after edit final refresh', dir),
+        ])
+        setSessions(list)
+        setMessagesStable(finalMsgs)
+        // Re-pin the list to the bottom now that the resend is done.
+        requestAnimationFrame(() => {
+          messageScrollToIndexRef.current?.(
+            Math.max(0, (finalMsgs?.length ?? 1) - 1),
+          )
+        })
+      } catch (e) {
+        window.alert(`Edit failed: ${e instanceof Error ? e.message : String(e)}`)
+      }
+    },
+    [
+      selectedSessionId,
+      sessions,
+      composerModelRef,
+      composerAgent,
+      setMessagesStable,
+      refreshSessions,
+      messageScrollToIndexRef,
+    ],
+  )
+
   const handleAbortMessage = useCallback(async () => {
     if (!selectedSessionId) return
     const dir = sessions.find((s) => s.id === selectedSessionId)?.directory
@@ -1387,6 +1441,7 @@ export function useWorkspacePage() {
     loadSessionData,
     activeSessionDirectory,
     handleSendMessage,
+    handleEditMessage,
     handleAbortMessage,
     aborting,
     messageScrollRef,

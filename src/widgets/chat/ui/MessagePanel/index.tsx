@@ -27,6 +27,8 @@ interface MessagePanelProps {
   sessionTitle?: string
   onRefresh: () => void
   onSendMessage: (payload: MessageSendPayload) => Promise<void>
+  /** Rewind session to a user message and resend its replacement text */
+  onEditMessage?: (messageID: string, newText: string) => Promise<void>
   onAbortMessage?: () => Promise<void>
   aborting?: boolean
   /** Scrollable message column ref (connector geometry) */
@@ -98,6 +100,7 @@ export default function MessagePanel({
   envBootstrapModel = null,
   composerAgent = 'build',
   onComposerAgentChange,
+  onEditMessage,
 }: MessagePanelProps) {
   void onRefresh
   const hasInlineQuestion = messagesHaveOpenQuestionWithInput(messages)
@@ -407,6 +410,7 @@ export default function MessagePanel({
                       staleToolCallIds={staleToolCallIds}
                       transcriptAnchorNowMs={transcriptAnchorNowMs}
                       isLastInTurn={isLastMessageInTurn(messages, idx)}
+                      sessionId={sessionId}
                       sessionDirectory={sessionDirectory}
                       ssePendingQuestion={
                         pendingQuestion && pendingQuestion.sessionID === sessionId
@@ -414,6 +418,7 @@ export default function MessagePanel({
                           : null
                       }
                       onQuestionAnswered={onQuestionAnswered}
+                      onEditMessage={onEditMessage}
                     />
                   </div>
                 )

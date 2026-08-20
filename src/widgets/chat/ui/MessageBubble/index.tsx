@@ -15,6 +15,10 @@ interface MessageBubbleProps {
   isLastInTurn: boolean
   /** Directory header for POST /question replies in multi-workspace setups */
   sessionDirectory?: string
+  /** Session id used for editing a user message (revert + resend) */
+  sessionId?: string
+  /** Rewind session to a user message and resend its replacement text */
+  onEditMessage?: (messageID: string, newText: string) => Promise<void>
   /** Pending question from SSE (`question.asked`) — carries request id for inline submit */
   ssePendingQuestion?: OcPendingQuestionRequest | null
   /** Refresh transcript after inline question answers */
@@ -27,6 +31,8 @@ export default memo(function MessageBubble({
   transcriptAnchorNowMs,
   isLastInTurn,
   sessionDirectory,
+  sessionId,
+  onEditMessage,
   ssePendingQuestion,
   onQuestionAnswered,
 }: MessageBubbleProps) {
@@ -34,7 +40,7 @@ export default memo(function MessageBubble({
   const isUser = info.role === 'user'
 
   if (isUser) {
-    return <UserMessage message={message} />
+    return <UserMessage message={message} sessionId={sessionId} onEditMessage={onEditMessage} />
   }
 
   // Assistant message
