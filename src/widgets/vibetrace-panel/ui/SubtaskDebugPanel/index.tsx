@@ -44,11 +44,20 @@ export default function SubtaskDebugPanel({
     return () => observer.disconnect()
   }, [flowLayoutMode, listScrollRef])
 
-  /** Reset cached heights when the subtask set changes (keys shift). */
+  /** Reset cached heights only when the subtask SET changes (same keys), not on
+   * every messages refetch — otherwise streaming text would reset the scroll. */
+  const subtasksSig = visibleSubtasks
+    .map(({ subtask }) => {
+      const ids = subtask.assistantMessageIndices
+      const first = ids[0] ?? -1
+      const last = ids[ids.length - 1] ?? -1
+      return `${subtask.subtask_id}:${first}:${last}:${ids.length}`
+    })
+    .join('|')
   useEffect(() => {
     cardHeightsRef.current = []
     setScrollTop(0)
-  }, [visibleSubtasks, flowLayoutMode])
+  }, [subtasksSig, flowLayoutMode])
 
   const cardWindow = useMemo(() => {
     if (flowLayoutMode === 'summary') return { start: 0, end: -1, topSpacer: 0, bottomSpacer: 0 }
