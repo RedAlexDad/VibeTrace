@@ -1,7 +1,7 @@
 import type { OcMessage, OcMessagePart, OcPendingQuestionRequest } from '@/shared/types/opencode'
 import { transcriptAnchorKeyForPart } from '@/entities/action/lib/actionMapping'
 import AgentInfo from './AgentInfo'
-import { renderMarkdown } from './markdown'
+import { renderMarkdown } from '@/shared/lib/format/markdown'
 import ToolCallView from './ToolCallView'
 import UserMessage from './UserMessage'
 
@@ -113,9 +113,8 @@ function PartView({
             borderRadius: '4px',
             lineHeight: 1.5,
           }}
-        >
-          {part.text}
-        </div>
+          dangerouslySetInnerHTML={{ __html: renderMarkdown(part.text || '') }}
+        />
       )
     }
 

@@ -43,6 +43,14 @@
   --color-gray-100: #e2e2e2;
   --color-gray-200: #c7c7c7;
 
+  /* Code syntax highlighting (JSON inputs, etc.) */
+  --color-code-key: #0550ae;
+  --color-code-string: #0a7d3f;
+  --color-code-number: #a05a00;
+  --color-code-boolean: #8250df;
+  --color-code-null: #8f8f8f;
+  --color-code-punct: #6f6f6f;
+
   /* Control ink — segmented toggles */
   --color-control-track-on: #2b2b2b;
   --color-control-track-off: #8a8a8a;
@@ -140,6 +148,13 @@
 
     --color-gray-100: #3a3a3a;
     --color-gray-200: #4a4a4a;
+
+    --color-code-key: #79c0ff;
+    --color-code-string: #7ee787;
+    --color-code-number: #ffa657;
+    --color-code-boolean: #d2a8ff;
+    --color-code-null: #8b949e;
+    --color-code-punct: #a8a8a8;
 
     --color-control-track-on: #e4e4e4;
     --color-control-track-off: #5c5c5c;
