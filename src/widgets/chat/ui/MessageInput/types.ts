@@ -12,8 +12,6 @@ export interface MessageInputProps {
   isRunning?: boolean
   aborting?: boolean
   sessionId?: string
-  agentName?: string | null
-  modelName?: string | null
   /** `provider/model`; empty string → omit body.model (then `.env` default inside API layer may still apply). */
   composerModelRef?: string
   onComposerModelRefChange?: (ref: string) => void

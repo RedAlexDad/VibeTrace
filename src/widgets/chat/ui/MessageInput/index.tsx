@@ -2,6 +2,7 @@ import { useLayoutEffect, useRef, useState } from 'react'
 import { SHOW_COMPOSER_MODEL_UI } from '@/shared/config/featureFlags'
 import { prepareOutgoingFromFiles } from '@/entities/message/lib/messageAttachments'
 import ComposerModelSelector from './ComposerModelSelector'
+import ModelPicker from './ModelPicker'
 import {
   type MessageInputProps,
   type MessageSendPayload,
@@ -20,8 +21,6 @@ export default function MessageInput({
   disabled,
   isRunning,
   aborting,
-  agentName,
-  modelName,
   composerModelRef = '',
   onComposerModelRefChange,
   composerModelOptions = [],
@@ -162,28 +161,13 @@ export default function MessageInput({
           ))}
         </div>
 
-        <select
+        <ModelPicker
           value={composerModelRef.trim() ? composerModelRef.trim() : ''}
-          onChange={(e) => onComposerModelRefChange?.(e.target.value)}
-          disabled={disabled || !onComposerModelRefChange || composerModelsLoading}
-          title="Model"
-          style={{
-            fontSize: 11,
-            padding: '4px 8px',
-            borderRadius: 6,
-            border: '1px solid var(--color-border-light)',
-            background: 'var(--color-bg-white)',
-            color: 'var(--color-text-primary)',
-            maxWidth: 260,
-          }}
-        >
-          <option value="">Default model</option>
-          {composerModelOptions.map((o) => (
-            <option key={o.ref} value={o.ref}>
-              {o.label}
-            </option>
-          ))}
-        </select>
+          options={composerModelOptions}
+          loading={composerModelsLoading}
+          disabled={disabled}
+          onChange={onComposerModelRefChange}
+        />
 
         <select
           defaultValue="auto"
@@ -406,21 +390,6 @@ export default function MessageInput({
       {attachError && (
         <div style={{ marginTop: 6, fontSize: 11, color: 'var(--color-error-text)' }}>
           {attachError}
-        </div>
-      )}
-
-      {(agentName || modelName) && (
-        <div
-          style={{
-            marginTop: 6,
-            fontSize: 11,
-            color: 'var(--color-text-tertiary)',
-            display: 'flex',
-            gap: 12,
-          }}
-        >
-          {agentName && <span>{agentName}</span>}
-          {modelName && <span>{modelName}</span>}
         </div>
       )}
     </div>

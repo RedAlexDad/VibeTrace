@@ -19,6 +19,7 @@ export const STORAGE_KEYS = {
   closedDirectories: `${APP_STORAGE_NAMESPACE}.closed.directories.v1`,
   composerModelRef: `${APP_STORAGE_NAMESPACE}.opencodeComposerModelRef`,
   composerAgent: `${APP_STORAGE_NAMESPACE}.opencodeComposerAgent`,
+  favoriteModels: `${APP_STORAGE_NAMESPACE}.favoriteModels`,
   /** Prefix for `${prefix}${sessionId}` fork-panel snapshot entries */
   forkPanelPrefix: `${APP_STORAGE_NAMESPACE}:fork-panel:`,
 } as const
