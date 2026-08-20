@@ -338,6 +338,12 @@ export function useWorkspacePage() {
 
   /** Keep the URL in sync with the selected directory + session (survives F5). */
   useEffect(() => {
+    // Guard against wiping the initial `dir`/`session` from the URL before the
+    // async refresh has applied the selection from the URL on first mount.
+    if (!selectedDirectory && !selectedSessionId) {
+      const cur = new URLSearchParams(window.location.search)
+      if (cur.get('dir') || cur.get('session')) return
+    }
     const params = new URLSearchParams(window.location.search)
     if (selectedDirectory) params.set('dir', selectedDirectory)
     else params.delete('dir')
@@ -786,6 +792,17 @@ export function useWorkspacePage() {
     [selectedSessionId, sessions, refreshSessions],
   )
 
+  const renameSessionById = useCallback(
+    async (sessionId: string, title: string) => {
+      const s = sessions.find((x) => x.id === sessionId)
+      const dir = s?.directory
+      await updateSessionTitle(sessionId, title, dir)
+      const list = await refreshSessions()
+      setSessions(list)
+    },
+    [sessions, refreshSessions],
+  )
+
   const handleQuestionReply = useCallback(
     async (answers: string[][]) => {
       const pq = pendingQuestionsRef.current[selectedSessionId]
@@ -1218,6 +1235,7 @@ export function useWorkspacePage() {
     todoPanelRevealGeneration,
     handleTodoClick,
     handleSessionTitleCommit,
+    renameSessionById,
     pendingQuestions,
     handleQuestionReply,
     handleQuestionReject,

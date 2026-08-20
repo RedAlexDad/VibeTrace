@@ -17,6 +17,7 @@ import {
   loadClosedDirectories,
   loadManualDirectories,
 } from '@/pages/workspace/ui/WorkspacePage/directoryStorage'
+import { STORAGE_KEYS } from '@/shared/config/storageKeys'
 
 export default function WorkspacesPage() {
   const navigate = useNavigate()
@@ -24,7 +25,31 @@ export default function WorkspacesPage() {
   const [projectDirectories, setProjectDirectories] = useState<string[]>([])
   const [loading, setLoading] = useState(true)
   const manualDirectories = useMemo(() => loadManualDirectories(), [])
-  const closedDirectories = useMemo(() => loadClosedDirectories(), [])
+  const [closedDirectories, setClosedDirectories] = useState<string[]>(() =>
+    loadClosedDirectories(),
+  )
+  const [ctxMenu, setCtxMenu] = useState<{ x: number; y: number; dir: string } | null>(null)
+
+  useEffect(() => {
+    window.localStorage.setItem(STORAGE_KEYS.closedDirectories, JSON.stringify(closedDirectories))
+  }, [closedDirectories])
+
+  useEffect(() => {
+    if (!ctxMenu) return
+    const onPointer = (e: MouseEvent) => {
+      const t = e.target
+      if (!(t instanceof Element) || !t.closest('[data-workspace-ctx-menu]')) setCtxMenu(null)
+    }
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setCtxMenu(null)
+    }
+    window.addEventListener('mousedown', onPointer)
+    window.addEventListener('keydown', onKey)
+    return () => {
+      window.removeEventListener('mousedown', onPointer)
+      window.removeEventListener('keydown', onKey)
+    }
+  }, [ctxMenu])
 
   useEffect(() => {
     let cancelled = false
@@ -160,6 +185,10 @@ export default function WorkspacesPage() {
                         type="button"
                         title={dir}
                         onClick={() => navigate(`/?dir=${encodeURIComponent(dir)}`)}
+                        onContextMenu={(e) => {
+                          e.preventDefault()
+                          setCtxMenu({ x: e.clientX, y: e.clientY, dir })
+                        }}
                         style={{
                           display: 'flex',
                           alignItems: 'center',
@@ -229,6 +258,66 @@ export default function WorkspacesPage() {
           )}
         </div>
       </div>
+
+      {ctxMenu && (
+        <div
+          data-workspace-ctx-menu="1"
+          style={{
+            position: 'fixed',
+            top: ctxMenu.y,
+            left: ctxMenu.x,
+            zIndex: 2000,
+            minWidth: 168,
+            background: 'var(--color-bg-white)',
+            border: '1px solid var(--color-border-light)',
+            borderRadius: 8,
+            boxShadow: '0 6px 24px rgba(0,0,0,0.14)',
+            padding: 4,
+          }}
+        >
+          <button
+            type="button"
+            onClick={() => navigate(`/?dir=${encodeURIComponent(ctxMenu.dir)}`)}
+            style={{
+              width: '100%',
+              height: 30,
+              border: 'none',
+              borderRadius: 6,
+              background: 'transparent',
+              cursor: 'pointer',
+              textAlign: 'left',
+              padding: '0 10px',
+              fontSize: 12,
+              color: 'var(--color-text-primary)',
+            }}
+          >
+            Open
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              setClosedDirectories((prev) =>
+                prev.includes(ctxMenu.dir) ? prev : [...prev, ctxMenu.dir],
+              )
+              setCtxMenu(null)
+            }}
+            style={{
+              width: '100%',
+              height: 30,
+              border: 'none',
+              borderRadius: 6,
+              background: 'transparent',
+              cursor: 'pointer',
+              textAlign: 'left',
+              padding: '0 10px',
+              fontSize: 12,
+              color: 'var(--color-error-text)',
+            }}
+          >
+            Close Workspace
+          </button>
+        </div>
+      )}
     </div>
   )
 }

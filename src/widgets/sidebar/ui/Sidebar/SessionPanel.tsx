@@ -13,9 +13,9 @@ export default function SessionPanel({
   onCreateSession,
   creatingSession,
   onArchiveSession,
-  archivingSessionId,
   apiConnected,
   onNavigateToWorkspaces,
+  onRenameSession,
 }: {
   sessionsInFolder: OcSession[]
   selectedDirectory: string
@@ -24,18 +24,34 @@ export default function SessionPanel({
   onCreateSession: () => void | Promise<void>
   creatingSession?: boolean
   onArchiveSession?: (sessionId: string) => void | Promise<void>
-  archivingSessionId?: string | null
   apiConnected: boolean
   onNavigateToWorkspaces: () => void
+  onRenameSession?: (sessionId: string, title: string) => void | Promise<void>
 }) {
   const dispatch = useAppDispatch()
-  const [hoverSessionId, setHoverSessionId] = useState<string | null>(null)
   const [sessionQuery, setSessionQuery] = useState('')
   const [nowMs, setNowMs] = useState(() => Date.now())
+  const [ctxMenu, setCtxMenu] = useState<{ x: number; y: number; sessionId: string } | null>(null)
   useEffect(() => {
     const id = window.setInterval(() => setNowMs(Date.now()), 5000)
     return () => window.clearInterval(id)
   }, [])
+  useEffect(() => {
+    if (!ctxMenu) return
+    const onPointer = (e: MouseEvent) => {
+      const t = e.target
+      if (!(t instanceof Element) || !t.closest('[data-session-ctx-menu]')) setCtxMenu(null)
+    }
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setCtxMenu(null)
+    }
+    window.addEventListener('mousedown', onPointer)
+    window.addEventListener('keydown', onKey)
+    return () => {
+      window.removeEventListener('mousedown', onPointer)
+      window.removeEventListener('keydown', onKey)
+    }
+  }, [ctxMenu])
   const titleName = useMemo(() => folderDisplayName(selectedDirectory), [selectedDirectory])
   const filteredSessions = useMemo(() => {
     const q = sessionQuery.trim().toLowerCase()
@@ -236,8 +252,11 @@ export default function SessionPanel({
           filteredSessions.map((session) => (
             <div
               key={session.id}
-              onMouseEnter={() => setHoverSessionId(session.id)}
-              onMouseLeave={() => setHoverSessionId(null)}
+              onContextMenu={(e) => {
+                if (!onArchiveSession) return
+                e.preventDefault()
+                setCtxMenu({ x: e.clientX, y: e.clientY, sessionId: session.id })
+              }}
               style={{
                 display: 'flex',
                 alignItems: 'center',
@@ -301,50 +320,77 @@ export default function SessionPanel({
                   {session.title || 'Untitled'}
                 </span>
               </button>
-              {onArchiveSession && (
-                <button
-                  type="button"
-                  title="Delete session (removes from server)"
-                  disabled={archivingSessionId === session.id}
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    void onArchiveSession(session.id)
-                  }}
-                  style={{
-                    flexShrink: 0,
-                    width: 28,
-                    height: 28,
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    background: 'transparent',
-                    border: 'none',
-                    borderRadius: 6,
-                    cursor: archivingSessionId === session.id ? 'wait' : 'pointer',
-                    opacity: hoverSessionId === session.id ? 1 : 0.35,
-                    color: 'var(--color-text-secondary)',
-                  }}
-                >
-                  {archivingSessionId === session.id ? (
-                    <span style={{ fontSize: 11 }}>…</span>
-                  ) : (
-                    <svg
-                      width="16"
-                      height="16"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                    >
-                      <path d="M21 8v13H3V8M1 3h22v5H1V3zM10 12h4" />
-                    </svg>
-                  )}
-                </button>
-              )}
             </div>
           ))
         )}
       </div>
+
+      {ctxMenu && (
+        <div
+          data-session-ctx-menu="1"
+          style={{
+            position: 'fixed',
+            top: ctxMenu.y,
+            left: ctxMenu.x,
+            zIndex: 2000,
+            minWidth: 148,
+            background: 'var(--color-bg-white)',
+            border: '1px solid var(--color-border-light)',
+            borderRadius: 8,
+            boxShadow: '0 6px 24px rgba(0,0,0,0.14)',
+            padding: 4,
+          }}
+        >
+          <button
+            type="button"
+            onClick={() => {
+              const id = ctxMenu.sessionId
+              const s = sessionsInFolder.find((x) => x.id === id)
+              const current = s?.title || ''
+              const next = window.prompt('Rename session', current)
+              setCtxMenu(null)
+              if (next === null || next.trim() === '' || next === current) return
+              if (onRenameSession) void onRenameSession(id, next.trim())
+            }}
+            style={{
+              width: '100%',
+              height: 30,
+              border: 'none',
+              borderRadius: 6,
+              background: 'transparent',
+              cursor: 'pointer',
+              textAlign: 'left',
+              padding: '0 10px',
+              fontSize: 12,
+              color: 'var(--color-text-primary)',
+            }}
+          >
+            Rename Session
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              const id = ctxMenu.sessionId
+              setCtxMenu(null)
+              if (onArchiveSession) void onArchiveSession(id)
+            }}
+            style={{
+              width: '100%',
+              height: 30,
+              border: 'none',
+              borderRadius: 6,
+              background: 'transparent',
+              cursor: 'pointer',
+              textAlign: 'left',
+              padding: '0 10px',
+              fontSize: 12,
+              color: 'var(--color-error-text)',
+            }}
+          >
+            Delete Session
+          </button>
+        </div>
+      )}
     </div>
   )
 }

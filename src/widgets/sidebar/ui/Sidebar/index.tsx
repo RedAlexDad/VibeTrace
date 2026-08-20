@@ -12,9 +12,9 @@ export default function Sidebar({
   onCreateSession,
   creatingSession,
   onArchiveSession,
-  archivingSessionId,
   apiConnected,
   onNavigateToWorkspaces,
+  onRenameSession,
 }: SidebarProps) {
   const sessionsCollapsed = useAppSelector((s) => s.ui.sessionsCollapsed)
   const dispatch = useAppDispatch()
@@ -36,9 +36,9 @@ export default function Sidebar({
           onCreateSession={onCreateSession}
           creatingSession={creatingSession}
           onArchiveSession={onArchiveSession}
-          archivingSessionId={archivingSessionId}
           apiConnected={apiConnected}
           onNavigateToWorkspaces={onNavigateToWorkspaces}
+          onRenameSession={onRenameSession}
         />
       ) : (
         <SidebarRail

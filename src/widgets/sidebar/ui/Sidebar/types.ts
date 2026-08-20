@@ -10,10 +10,11 @@ export interface SidebarProps {
   creatingSession?: boolean
   /** Calls OpenCode DELETE /session/:id — removes session from UI (server deletes data). */
   onArchiveSession?: (sessionId: string) => void | Promise<void>
-  archivingSessionId?: string | null
   apiConnected: boolean
   /** Navigate back to the workspace picker page. */
   onNavigateToWorkspaces: () => void
+  /** Rename a session by id (context-menu action). */
+  onRenameSession?: (sessionId: string, title: string) => void | Promise<void>
 }
 
 export const SESSION_WIDTH = 240

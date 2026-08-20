@@ -1,3 +1,5 @@
+import { useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
 import Sidebar from '@/widgets/sidebar/ui/Sidebar'
 import MessagePanel from '@/widgets/chat/ui/MessagePanel'
 import SubtaskDebugPanel from '@/widgets/vibetrace-panel/ui/SubtaskDebugPanel'
@@ -7,7 +9,6 @@ import ForkSessionModal from '@/features/fork-session/ui/ForkSessionModal'
 import SubtaskMessageConnector from '@/features/subtask-linking/ui/SubtaskMessageConnector'
 import SubtaskPanelHeader from './SubtaskPanelHeader'
 import { useWorkspacePage } from './useWorkspacePage'
-import { useNavigate } from 'react-router-dom'
 
 function WorkspacePage() {
   const navigate = useNavigate()
@@ -19,7 +20,6 @@ function WorkspacePage() {
     handleCreateSession,
     creatingSession,
     handleArchiveSession,
-    archivingSessionId,
     apiConnected,
     linkAreaRef,
     messages,
@@ -77,7 +77,19 @@ function WorkspacePage() {
     noTodoAnchor,
     analysisAction,
     closeAnalysisModal,
+    renameSessionById,
   } = useWorkspacePage()
+
+  // Guard: without a chosen workspace there is nothing to show — send the user
+  // to the workspace picker instead of an empty page. A `dir`/`session` in the
+  // URL means we are mid-load (selection is applied after the async refresh),
+  // so do not redirect in that case.
+  useEffect(() => {
+    if (loading || selectedDirectory) return
+    const params = new URLSearchParams(window.location.search)
+    if (params.get('dir') || params.get('session')) return
+    navigate('/workspaces', { replace: true })
+  }, [loading, selectedDirectory, navigate])
 
   if (!selectedDirectory && !loading) {
     return (
@@ -98,9 +110,9 @@ function WorkspacePage() {
           onCreateSession={handleCreateSession}
           creatingSession={creatingSession}
           onArchiveSession={handleArchiveSession}
-          archivingSessionId={archivingSessionId}
           apiConnected={apiConnected}
           onNavigateToWorkspaces={() => navigate('/workspaces')}
+          onRenameSession={renameSessionById}
         />
         <div
           style={{
@@ -184,9 +196,9 @@ function WorkspacePage() {
         onCreateSession={handleCreateSession}
         creatingSession={creatingSession}
         onArchiveSession={handleArchiveSession}
-        archivingSessionId={archivingSessionId}
         apiConnected={apiConnected}
         onNavigateToWorkspaces={() => navigate('/workspaces')}
+        onRenameSession={renameSessionById}
       />
 
       {/* Center + right columns share one positioned parent for connector lines */}
