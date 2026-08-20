@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState, type RefObject } from 'react'
 import { useVirtualizer } from '@tanstack/react-virtual'
 import type { OcMessage, OcPendingQuestionRequest, OcTodo } from '@/shared/types/opencode'
 import type { CanonicalTodo, LatestTodowriteBatchProgress } from '@/entities/todo/lib/todoRegistry'
+import { buildMessageSummary } from '@/entities/message/lib/messageSummary'
 import MessageBubble from '@/widgets/chat/ui/MessageBubble'
 import TodoPanel from '@/widgets/todo-panel/ui/TodoPanel'
 import MessageInput, { type MessageSendPayload } from '@/widgets/chat/ui/MessageInput'
@@ -137,6 +138,15 @@ export default function MessagePanel({
     staleToolCallIdsRef.current = next
     return next
   }, [messages])
+
+  // Summary for the last user bubble: stats of the assistant reply that follows it.
+  const summary = useMemo(() => buildMessageSummary(messages), [messages])
+  const lastUserIndex = useMemo(() => {
+    for (let i = messages.length - 1; i >= 0; i--) {
+      if (messages[i]?.info.role === 'user') return i
+    }
+    return -1
+  }, [messages])
   // Stable wall clock for anchor keys — refreshed on a slow tick instead of every render.
   const [transcriptAnchorNowMs, setTranscriptAnchorNowMs] = useState(() => Date.now())
   useEffect(() => {
@@ -166,7 +176,7 @@ export default function MessagePanel({
     count: messages.length,
     getScrollElement: () =>
       messageListScrollRef?.current ?? scrollTargetRef.current ?? listRef.current,
-    estimateSize: () => 60,
+    estimateSize: () => 96,
     overscan: 12,
   })
 
@@ -354,11 +364,7 @@ export default function MessagePanel({
                     data-message-index={idx}
                     data-virtual-index={vi.index}
                     ref={(el) => {
-                      if (el) {
-                        // Defer measurement out of the commit phase to avoid
-                        // react-virtual's internal flushSync during render.
-                        window.requestAnimationFrame(() => virtualizer.measureElement(el))
-                      }
+                      if (el) virtualizer.measureElement(el)
                     }}
                     data-index={vi.index}
                     style={{
@@ -389,6 +395,7 @@ export default function MessagePanel({
                           : null
                       }
                       onQuestionAnswered={onQuestionAnswered}
+                      summary={idx === lastUserIndex ? summary : null}
                     />
                   </div>
                 )
