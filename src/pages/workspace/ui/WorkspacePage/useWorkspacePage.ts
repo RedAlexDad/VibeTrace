@@ -142,15 +142,22 @@ export function useWorkspacePage() {
     const prev = messagesRef.current
     // Merge in any not-yet-committed local messages (created by the SSE
     // streaming fast-path) so refetches never blink them out. A server copy
-    // only "commits" the message once it actually carries parts — during
-    // generation opencode returns the message with an empty parts array,
-    // which would otherwise replace our streaming bubble with a blank card.
+    // only "commits" the message once it actually carries a text/reasoning
+    // part with content — during generation opencode returns the message with
+    // just a step-start part (or none), which must not replace our streaming
+    // bubble (otherwise accumulated deltas get wiped every refetch).
     const serverIds = new Set(next.map((m) => m.info.id))
     const pending = pendingLocalMessagesRef.current
+    const serverHasContent = (m: OcMessage) =>
+      m.parts.some((p) => {
+        if (p.type !== 'text' && p.type !== 'reasoning') return false
+        const t = (p as { text?: string }).text ?? ''
+        return t.trim().length > 0
+      })
     const committedIds = new Set(
       pending.filter((m) => {
         const s = next.find((n) => n.info.id === m.info.id)
-        return s && s.parts.length > 0
+        return s && serverHasContent(s)
       }).map((m) => m.info.id),
     )
     pendingLocalMessagesRef.current = pending.filter((m) => {
@@ -160,7 +167,7 @@ export function useWorkspacePage() {
     // Prefer the richer local copy for messages the server hasn't filled in yet.
     const withPending = next.map((m) => {
       const local = pending.find((p) => p.info.id === m.info.id)
-      if (local && !committedIds.has(m.info.id) && m.parts.length === 0 && local.parts.length > 0) {
+      if (local && !committedIds.has(m.info.id) && !serverHasContent(m) && local.parts.length > 0) {
         return local
       }
       return m
@@ -179,6 +186,23 @@ export function useWorkspacePage() {
     const merged = withPending.map((m, i) => {
       if (i < prev.length && prev[i]?.info.id === m.info.id && prevSig[i] === nextSig[i]) {
         return prev[i]!
+      }
+      // Never shrink a text/reasoning part: a refetch during streaming may
+      // return the message with empty/partial text and would otherwise wipe
+      // the deltas we already accumulated. Take the longer of the two.
+      if (i < prev.length && prev[i]?.info.id === m.info.id) {
+        const prevM = prev[i]!
+        const mergedParts = m.parts.map((p) => {
+          if ((p.type !== 'text' && p.type !== 'reasoning') || !('id' in p)) return p
+          const id = p.id
+          const prevP = prevM.parts.find((x) => 'id' in x && x.id === id)
+          if (!prevP) return p
+          const curLen = (p as { text?: string }).text?.length ?? 0
+          const prevLen = (prevP as { text?: string }).text?.length ?? 0
+          if (prevLen > curLen) return prevP
+          return p
+        })
+        return { ...m, parts: mergedParts }
       }
       return m
     })
@@ -203,6 +227,27 @@ export function useWorkspacePage() {
         .catch(() => {})
     }, 300)
   }, [setMessagesStable])
+
+  /** Throttled commit for token-stream deltas. opencode bursts many deltas in a
+   * few ms — committing every one makes React batch them all into a single
+   * render, so the whole answer pops in at once. Accumulate in messagesRef
+   * instantly, but flush to state at ~10fps so the text visibly grows. */
+  const deltaCommitTimerRef = useRef<number | null>(null)
+  const scheduleDeltaCommit = useCallback(() => {
+    if (deltaCommitTimerRef.current !== null) return
+    deltaCommitTimerRef.current = window.setTimeout(() => {
+      deltaCommitTimerRef.current = null
+      setMessages(messagesRef.current)
+    }, 100)
+  }, [])
+  // Force a final flush once streaming ends (step-finish / idle).
+  const flushDeltaCommit = useCallback(() => {
+    if (deltaCommitTimerRef.current !== null) {
+      window.clearTimeout(deltaCommitTimerRef.current)
+      deltaCommitTimerRef.current = null
+    }
+    setMessages(messagesRef.current)
+  }, [])
 
   const sessionsRef = useRef(sessions)
   sessionsRef.current = sessions
@@ -554,6 +599,13 @@ export function useWorkspacePage() {
               if (m.info.id !== part.messageID) return m
               const parts = m.parts.map((p) => {
                 if ('id' in p && p.id === part.id) {
+                  // During token streaming opencode also emits part.updated
+                  // with an EMPTY text — applying it would wipe the deltas we
+                  // already accumulated. Never shrink an existing text part.
+                  const cur = (p as { text?: string }).text ?? ''
+                  if ((p.type === 'text' || p.type === 'reasoning') && (part.text ?? '').length < cur.length) {
+                    return p
+                  }
                   return { ...p, text: part.text ?? '' } as (typeof m.parts)[number]
                 }
                 return p
@@ -595,6 +647,11 @@ export function useWorkspacePage() {
         // with the full text only occasionally, but emits a `delta` per token.
         // Without handling it the assistant text (esp. reasoning) stays
         // truncated until the next full refetch.
+        //
+        // opencode delivers deltas in quick bursts — React would batch every
+        // setMessages into a single render, so the whole answer would pop in
+        // at once. We accumulate into messagesRef immediately but throttle the
+        // commit to ~10fps so the text visibly grows in chunks.
         const props = payload.properties as {
           sessionID?: string
           messageID?: string
@@ -634,7 +691,7 @@ export function useWorkspacePage() {
               pendingLocalMessagesRef.current = pendingLocalMessagesRef.current.map((m) =>
                 m.info.id === props.messageID ? msgs[existingIdx] : m,
               )
-              setMessages(msgs)
+              scheduleDeltaCommit()
             } else {
               // Delta arrived before the part exists in the local copy (server
               // may stream text with a part id we haven't materialized yet).
@@ -654,7 +711,7 @@ export function useWorkspacePage() {
               pendingLocalMessagesRef.current = pendingLocalMessagesRef.current.map((m) =>
                 m.info.id === props.messageID ? msgs[existingIdx] : m,
               )
-              setMessages(msgs)
+              scheduleDeltaCommit()
             }
           } else {
             // First delta of a brand-new assistant part — materialize a text
@@ -681,7 +738,7 @@ export function useWorkspacePage() {
               ...pendingLocalMessagesRef.current.filter((m) => m.info.id !== props.messageID),
               newMsg,
             ]
-            setMessages(msgs)
+            scheduleDeltaCommit()
           }
         }
       }
@@ -692,6 +749,12 @@ export function useWorkspacePage() {
         // is already patched live via message.part.updated above.
         scheduleSseSessionsRefetch()
         scheduleSseMessagesRefetch()
+      }
+
+      if (eventType === 'session.idle') {
+        // Streaming finished — flush any pending throttled deltas so the very
+        // last chunk is rendered immediately instead of waiting ~100ms.
+        flushDeltaCommit()
       }
 
       if (eventType.startsWith('todo')) {
@@ -719,7 +782,7 @@ export function useWorkspacePage() {
     })
 
     return unsubscribe
-  }, [selectedSessionId, scheduleSseSessionsRefetch, scheduleSseMessagesRefetch])
+  }, [selectedSessionId, scheduleSseSessionsRefetch, scheduleSseMessagesRefetch, flushDeltaCommit, scheduleDeltaCommit])
 
   // Load messages + todos when session changes
   const loadSessionData = useCallback(
