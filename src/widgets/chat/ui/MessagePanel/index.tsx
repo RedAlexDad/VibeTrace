@@ -161,9 +161,14 @@ export default function MessagePanel({
   }
 
   const scrollToBottom = () => {
-    const el = messageListScrollRef?.current ?? scrollTargetRef.current
-    if (!el) return
-    el.scrollTo({ top: el.scrollHeight, behavior: 'smooth' })
+    // Use the virtualizer so we land exactly on the last message (measured heights,
+    // not the estimate). Re-issue after a tick so post-measurement positions apply.
+    const doScroll = () => {
+      if (messages.length === 0) return
+      virtualizer.scrollToIndex(messages.length - 1, { align: 'end', behavior: 'smooth' })
+    }
+    doScroll()
+    window.setTimeout(doScroll, 80)
   }
 
   const listRef = useRef<HTMLDivElement | null>(null)
@@ -200,6 +205,16 @@ export default function MessagePanel({
     setAtBottom(dist <= 24)
   }, [messages, loading, messageListScrollRef])
 
+  /** Auto-scroll while streaming: when pinned to the bottom, follow the last message. */
+  useEffect(() => {
+    if (loading || messages.length === 0) return
+    if (!atBottom) return
+    const frame = requestAnimationFrame(() => {
+      virtualizer.scrollToIndex(messages.length - 1, { align: 'end', behavior: 'auto' })
+    })
+    return () => cancelAnimationFrame(frame)
+  }, [messages, loading, atBottom, virtualizer])
+
   /** Auto-scroll to the bottom when entering a session (avoids starting at the top). */
   const prevSessionIdRef = useRef(sessionId)
   const pendingAutoScrollRef = useRef(false)
@@ -213,13 +228,16 @@ export default function MessagePanel({
     if (!pendingAutoScrollRef.current) return
     if (loading) return
     pendingAutoScrollRef.current = false
-    const root = messageListScrollRef?.current
-    if (!root) return
+    if (messages.length === 0) return
     const frame = requestAnimationFrame(() => {
-      root.scrollTop = root.scrollHeight
+      virtualizer.scrollToIndex(messages.length - 1, { align: 'end', behavior: 'auto' })
+      // Re-apply after measurement so the very last message is visible.
+      window.setTimeout(() => {
+        virtualizer.scrollToIndex(messages.length - 1, { align: 'end', behavior: 'auto' })
+      }, 100)
     })
     return () => cancelAnimationFrame(frame)
-  }, [messages, loading, messageListScrollRef])
+  }, [messages, loading, messageListScrollRef, virtualizer])
 
   return (
     <div

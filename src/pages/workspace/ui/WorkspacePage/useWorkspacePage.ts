@@ -132,8 +132,38 @@ export function useWorkspacePage() {
    * A message is reused only when its content signature is identical — streaming
    * updates (longer text / new parts) force a re-render. */
   const messagesRef = useRef<OcMessage[]>([])
+  /** Assistant messages materialized by the SSE fast-path but not yet
+   * committed by the server — refetches must keep them until the real
+   * message appears, otherwise the streaming bubble blinks out. */
+  const pendingLocalMessagesRef = useRef<OcMessage[]>([])
+
   const setMessagesStable = useCallback((next: OcMessage[]) => {
     const prev = messagesRef.current
+    // Merge in any not-yet-committed local messages (created by the SSE
+    // streaming fast-path) so refetches never blink them out. A server copy
+    // only "commits" the message once it actually carries parts — during
+    // generation opencode returns the message with an empty parts array,
+    // which would otherwise replace our streaming bubble with a blank card.
+    const serverIds = new Set(next.map((m) => m.info.id))
+    const pending = pendingLocalMessagesRef.current
+    const committedIds = new Set(
+      pending.filter((m) => {
+        const s = next.find((n) => n.info.id === m.info.id)
+        return s && s.parts.length > 0
+      }).map((m) => m.info.id),
+    )
+    pendingLocalMessagesRef.current = pending.filter((m) => {
+      if (!serverIds.has(m.info.id)) return true
+      return !committedIds.has(m.info.id)
+    })
+    // Prefer the richer local copy for messages the server hasn't filled in yet.
+    const withPending = next.map((m) => {
+      const local = pending.find((p) => p.info.id === m.info.id)
+      if (local && !committedIds.has(m.info.id) && m.parts.length === 0 && local.parts.length > 0) {
+        return local
+      }
+      return m
+    })
     const sig = (m: OcMessage) => {
       let s = m.info.role + ':' + m.parts.length + ':'
       for (const p of m.parts) {
@@ -143,9 +173,9 @@ export function useWorkspacePage() {
       }
       return s
     }
-    const nextSig = next.map(sig)
+    const nextSig = withPending.map(sig)
     const prevSig = prev.map(sig)
-    const merged = next.map((m, i) => {
+    const merged = withPending.map((m, i) => {
       if (i < prev.length && prev[i]?.info.id === m.info.id && prevSig[i] === nextSig[i]) {
         return prev[i]!
       }
@@ -167,12 +197,11 @@ export function useWorkspacePage() {
       const dir = sessionsRef.current.find((s) => s.id === sid)?.directory
       getMessages(sid, 'SSE:message.updated', dir)
         .then((msgs) => {
-          messagesRef.current = msgs
-          setMessages(msgs)
+          setMessagesStable(msgs)
         })
         .catch(() => {})
     }, 300)
-  }, [])
+  }, [setMessagesStable])
 
   const sessionsRef = useRef(sessions)
   sessionsRef.current = sessions
@@ -200,6 +229,20 @@ export function useWorkspacePage() {
     },
     [envDirectorySeeds, manualDirectories, closedDirectories],
   )
+
+  /** Debounce session-list refetches too — streaming emits a burst of
+   * message.updated/session.updated events and each naive refreshSessions
+   * fans out to one GET /session per directory, exhausting resources. */
+  const sseSessionsTimerRef = useRef<number | null>(null)
+  const scheduleSseSessionsRefetch = useCallback(() => {
+    if (sseSessionsTimerRef.current !== null) return
+    sseSessionsTimerRef.current = window.setTimeout(() => {
+      sseSessionsTimerRef.current = null
+      refreshSessions()
+        .then(setSessions)
+        .catch(() => {})
+    }, 400)
+  }, [refreshSessions])
 
   const directories = useMemo(() => {
     const fromSession = uniqueDirectoriesFromSessions(sessions)
@@ -502,36 +545,55 @@ export function useWorkspacePage() {
         } | null
         const sid = props?.sessionID
         const part = props?.part
-        if (
-          sid === selectedSessionIdRef.current &&
-          part?.id &&
-          part?.messageID &&
-          (part.type === 'text' || part.type === 'reasoning')
-        ) {
-          // Patch the part text in place so streaming updates appear live.
-          // No full refetch here — /message refetches run on message.updated.
-          const msgs = messagesRef.current.map((m) => {
-            if (m.info.id !== part.messageID) return m
-            const parts = m.parts.map((p) => {
-              if ('id' in p && p.id === part.id) {
-                return { ...p, text: part.text ?? '' } as (typeof m.parts)[number]
-              }
-              return p
+        if (sid === selectedSessionIdRef.current && part?.id && part?.messageID) {
+          const existingIdx = messagesRef.current.findIndex((m) => m.info.id === part.messageID)
+          if (existingIdx >= 0) {
+            // Patch the part text in place so streaming updates appear live.
+            const msgs = messagesRef.current.map((m) => {
+              if (m.info.id !== part.messageID) return m
+              const parts = m.parts.map((p) => {
+                if ('id' in p && p.id === part.id) {
+                  return { ...p, text: part.text ?? '' } as (typeof m.parts)[number]
+                }
+                return p
+              })
+              return { ...m, parts }
             })
-            return { ...m, parts }
-          })
-          messagesRef.current = msgs
-          setMessages(msgs)
+            messagesRef.current = msgs
+            // Keep the pending copy in sync too, in case it is still unconfirmed.
+            pendingLocalMessagesRef.current = pendingLocalMessagesRef.current.map((m) =>
+              m.info.id === part.messageID ? msgs[existingIdx] : m,
+            )
+            setMessages(msgs)
+          } else if (part.type === 'text' || part.type === 'reasoning') {
+            // First part of a brand-new assistant message — materialize it so
+            // streaming text appears immediately instead of after the refetch.
+            const newPart = { ...part, text: part.text ?? '' }
+            const newMsg: OcMessage = {
+              info: {
+                role: 'assistant',
+                id: part.messageID,
+                sessionID: sid,
+                time: { created: Date.now() },
+              },
+              parts: [newPart as OcMessage['parts'][number]],
+            }
+            const msgs = [...messagesRef.current, newMsg]
+            messagesRef.current = msgs
+            pendingLocalMessagesRef.current = [
+              ...pendingLocalMessagesRef.current.filter((m) => m.info.id !== part.messageID),
+              newMsg,
+            ]
+            setMessages(msgs)
+          }
         }
       }
 
       if (eventType.startsWith('message') || eventType.startsWith('session')) {
-        const root = event as { directory?: string }
-        const eventDir = typeof root.directory === 'string' ? root.directory : undefined
-        refreshSessions(eventDir ? [eventDir] : undefined)
-          .then(setSessions)
-          .catch(() => {})
-        // Debounced full refetch — text streaming already patched live above.
+        // Debounced session-list + message refetch — streaming emits a burst of
+        // events and naive refetches exhaust browser resources. Text streaming
+        // is already patched live via message.part.updated above.
+        scheduleSseSessionsRefetch()
         scheduleSseMessagesRefetch()
       }
 
@@ -560,13 +622,14 @@ export function useWorkspacePage() {
     })
 
     return unsubscribe
-  }, [selectedSessionId, refreshSessions, scheduleSseMessagesRefetch])
+  }, [selectedSessionId, scheduleSseSessionsRefetch, scheduleSseMessagesRefetch])
 
   // Load messages + todos when session changes
   const loadSessionData = useCallback(
     async (sessionId: string, directory?: string) => {
       if (!sessionId) return
       setLoading(true)
+      pendingLocalMessagesRef.current = []
       try {
         const [msgs, td] = await Promise.all([
           getMessages(sessionId, 'initial load / session switch', directory),

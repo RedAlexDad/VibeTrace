@@ -40,19 +40,34 @@ export default memo(function MessageBubble({
   // Assistant message
   return (
     <div style={{ padding: '4px 0' }}>
-      {parts.map((part, idx) => (
-        <PartView
-          key={idx}
-          message={message}
-          part={part}
-          partIndex={idx}
-          staleToolCallIds={staleToolCallIds}
-          transcriptAnchorNowMs={transcriptAnchorNowMs}
-          sessionDirectory={sessionDirectory}
-          ssePendingQuestion={ssePendingQuestion}
-          onQuestionAnswered={onQuestionAnswered}
-        />
-      ))}
+      {parts.length === 0 ? (
+        // Message created by the server mid-stream but not yet carrying parts —
+        // show a "thinking / writing" indicator instead of a blank card.
+        <div
+          style={{
+            fontSize: 12,
+            lineHeight: 1.6,
+            color: 'var(--color-text-tertiary)',
+          }}
+        >
+          <span className="vt-streaming-caret" aria-hidden="true" />
+          &nbsp;печатает…
+        </div>
+      ) : (
+        parts.map((part, idx) => (
+          <PartView
+            key={idx}
+            message={message}
+            part={part}
+            partIndex={idx}
+            staleToolCallIds={staleToolCallIds}
+            transcriptAnchorNowMs={transcriptAnchorNowMs}
+            sessionDirectory={sessionDirectory}
+            ssePendingQuestion={ssePendingQuestion}
+            onQuestionAnswered={onQuestionAnswered}
+          />
+        ))
+      )}
       {isLastInTurn && <AgentInfo info={info} />}
     </div>
   )
@@ -130,21 +145,15 @@ const PartView = memo(function PartView({
         staleToolCallIds,
       )
       const segments = splitMermaidBlocks(part.text || '')
-      if (segments.length === 1 && segments[0]!.type === 'md') {
-        return (
-          <div
-            data-transcript-action-key={ak ?? undefined}
-            style={{
-              fontSize: 12,
-              lineHeight: 1.6,
-              color: 'var(--color-text-primary)',
-              overflowWrap: 'break-word',
-              wordBreak: 'break-word',
-            }}
-            dangerouslySetInnerHTML={{ __html: renderMarkdown(part.text || '') }}
-          />
+      const isStreamingEmpty = message.info.role === 'assistant' && !part.text
+      const inner = isStreamingEmpty ? (
+        <span className="vt-streaming-caret" aria-hidden="true" />
+      ) : (
+        segments.length === 1 &&
+        segments[0]!.type === 'md' && (
+          <span dangerouslySetInnerHTML={{ __html: renderMarkdown(part.text || '') }} />
         )
-      }
+      )
       return (
         <div
           data-transcript-action-key={ak ?? undefined}
@@ -156,16 +165,17 @@ const PartView = memo(function PartView({
             wordBreak: 'break-word',
           }}
         >
-          {segments.map((seg, i) =>
-            seg.type === 'mermaid' && seg.code !== undefined ? (
-              <MermaidBlock key={i} code={seg.code} />
-            ) : (
-              <span
-                key={i}
-                dangerouslySetInnerHTML={{ __html: renderMarkdown(seg.text ?? '') }}
-              />
-            ),
-          )}
+          {inner ??
+            segments.map((seg, i) =>
+              seg.type === 'mermaid' && seg.code !== undefined ? (
+                <MermaidBlock key={i} code={seg.code} />
+              ) : (
+                <span
+                  key={i}
+                  dangerouslySetInnerHTML={{ __html: renderMarkdown(seg.text ?? '') }}
+                />
+              ),
+            )}
         </div>
       )
     }

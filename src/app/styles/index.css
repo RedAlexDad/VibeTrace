@@ -207,6 +207,29 @@ body {
   animation: spin 1s linear infinite;
 }
 
+/* Blinking caret shown while an assistant text part is still streaming. */
+@keyframes vtStreamingCaretBlink {
+  0%,
+  45% {
+    opacity: 1;
+  }
+  50%,
+  95% {
+    opacity: 0;
+  }
+}
+
+.vt-streaming-caret {
+  display: inline-block;
+  width: 7px;
+  height: 13px;
+  vertical-align: text-bottom;
+  margin-right: 2px;
+  background: var(--color-accent);
+  border-radius: 2px;
+  animation: vtStreamingCaretBlink 1s step-end infinite;
+}
+
 @keyframes fadeIn {
   from {
     opacity: 0;

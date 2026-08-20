@@ -87,6 +87,7 @@ export default function EditableSessionTitle({
           fontSize: 13,
           fontWeight: 500,
           color: 'var(--color-text-primary)',
+          background: 'var(--color-bg-white)',
           border: '1px solid var(--color-accent)',
           borderRadius: 6,
           padding: '4px 8px',
