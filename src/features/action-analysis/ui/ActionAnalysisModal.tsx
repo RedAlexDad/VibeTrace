@@ -23,11 +23,11 @@ function row(label: string, value: string | undefined): ReactNode {
         fontFamily: fontSans,
         fontSize: 12,
         lineHeight: 1.45,
-        color: 'var(--color-tip-subtle)',
+        color: 'var(--color-text-tertiary)',
       }}
     >
-      <div style={{ fontWeight: 600, color: 'var(--color-tip-muted)' }}>{label}</div>
-      <div style={{ wordBreak: 'break-all', color: 'var(--color-tip-text)' }}>{value}</div>
+      <div style={{ fontWeight: 600, color: 'var(--color-text-secondary)' }}>{label}</div>
+      <div style={{ wordBreak: 'break-all', color: 'var(--color-text-primary)' }}>{value}</div>
     </div>
   )
 }
@@ -85,7 +85,7 @@ export default function ActionAnalysisModal({ action, onClose }: Props) {
                 fontSize: 16,
                 fontWeight: 700,
                 letterSpacing: '-0.02em',
-                color: 'var(--color-tip-text)',
+                color: 'var(--color-text-primary)',
               }}
             >
               Explain
@@ -96,7 +96,7 @@ export default function ActionAnalysisModal({ action, onClose }: Props) {
                 fontFamily: fontSans,
                 fontSize: 12,
                 lineHeight: 1.55,
-                color: 'var(--color-tip-muted)',
+                color: 'var(--color-text-secondary)',
               }}
             >
               {hint}
@@ -115,7 +115,7 @@ export default function ActionAnalysisModal({ action, onClose }: Props) {
               cursor: 'pointer',
               fontSize: 18,
               lineHeight: '28px',
-              color: 'var(--color-tip-muted)',
+              color: 'var(--color-text-secondary)',
             }}
             aria-label="Close"
           >

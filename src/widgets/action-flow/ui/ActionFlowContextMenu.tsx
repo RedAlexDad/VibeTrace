@@ -213,7 +213,7 @@ export default function ActionFlowContextMenu({ menu, onClose, onFork, onAnalysi
         >
           <span
             style={{
-              color: 'var(--color-tip-faint)',
+              color: 'var(--color-text-muted)',
               display: 'flex',
               alignItems: 'center',
               flexShrink: 0,
@@ -241,7 +241,7 @@ export default function ActionFlowContextMenu({ menu, onClose, onFork, onAnalysi
         >
           <span
             style={{
-              color: 'var(--color-tip-faint)',
+              color: 'var(--color-text-muted)',
               display: 'flex',
               alignItems: 'center',
               flexShrink: 0,

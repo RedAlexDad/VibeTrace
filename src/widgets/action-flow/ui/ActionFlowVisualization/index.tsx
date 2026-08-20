@@ -123,7 +123,7 @@ export default memo(function ActionFlowVisualization(props: Props) {
             clickable
             /** Inner `overflow:auto` can bubble `scroll` globally and dismiss tooltips prematurely */
             globalCloseEvents={{ scroll: false, resize: true, escape: true }}
-            arrowColor="var(--color-tip-bg)"
+            arrowColor="var(--color-bg-elevated)"
           />
         )}
       </div>

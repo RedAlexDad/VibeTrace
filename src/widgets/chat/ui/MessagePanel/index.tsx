@@ -278,7 +278,7 @@ export default function MessagePanel({
             }}
           />
           <span style={{ fontWeight: 600 }}>Waiting for the model…</span>
-          <span style={{ color: 'var(--color-tip-muted)', fontWeight: 400 }}>
+          <span style={{ color: 'var(--color-text-secondary)', fontWeight: 400 }}>
             Polling in the background — if nothing appears, check OpenCode logs or upstream queue
             delays.
           </span>

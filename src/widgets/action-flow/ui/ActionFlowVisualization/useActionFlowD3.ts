@@ -639,7 +639,7 @@ export function useActionFlowD3({
           .attr('y', ny + 10)
           .attr('font-size', 9)
           .attr('font-weight', 600)
-          .attr('fill', 'var(--color-tip-muted)')
+          .attr('fill', 'var(--color-text-secondary)')
           .attr('font-family', SVG_FONT_SANS)
           .text(formatDurationMs(act.durationMs))
           .attr('pointer-events', 'none')

@@ -49,21 +49,11 @@
   --color-code-number: #a05a00;
   --color-code-boolean: #8250df;
   --color-code-null: #8f8f8f;
-  --color-code-punct: #6f6f6f;
 
   /* Control ink — segmented toggles */
   --color-control-track-on: #2b2b2b;
   --color-control-track-off: #8a8a8a;
   --color-control-muted: #c6c6c6;
-
-  /* Tooltip slate palette (kept as tokens for light/dark switch) */
-  --color-tip-bg: #f8fafc;
-  --color-tip-border: #e2e8f0;
-  --color-tip-text: #0f172a;
-  --color-tip-muted: #64748b;
-  --color-tip-soft: #f1f5f9;
-  --color-tip-subtle: #334155;
-  --color-tip-faint: #94a3b8;
 
   /* Typography */
   --font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
@@ -154,19 +144,10 @@
     --color-code-number: #ffa657;
     --color-code-boolean: #d2a8ff;
     --color-code-null: #8b949e;
-    --color-code-punct: #a8a8a8;
 
     --color-control-track-on: #e4e4e4;
     --color-control-track-off: #5c5c5c;
     --color-control-muted: #4a4a4a;
-
-    --color-tip-bg: #1e1e1e;
-    --color-tip-border: #333333;
-    --color-tip-text: #ededed;
-    --color-tip-muted: #a8a8a8;
-    --color-tip-soft: #262626;
-    --color-tip-subtle: #c0c0c0;
-    --color-tip-faint: #858585;
 
     --shadow-sm: 0px 1px 2px rgba(0, 0, 0, 0.5);
     --shadow-md: 0px 1px 3px rgba(0, 0, 0, 0.5);

@@ -73,7 +73,7 @@ export default function ForkSessionModal({ open, submitting, onClose, onConfirm 
             style={{
               margin: '8px 0 0',
               fontSize: 12,
-              color: 'var(--color-tip-muted)',
+              color: 'var(--color-text-secondary)',
               lineHeight: 1.45,
             }}
           >
@@ -94,7 +94,7 @@ export default function ForkSessionModal({ open, submitting, onClose, onConfirm 
             style={{
               fontSize: 11,
               fontWeight: 600,
-              color: 'var(--color-tip-subtle)',
+              color: 'var(--color-text-tertiary)',
               marginBottom: 6,
             }}
           >
@@ -158,7 +158,7 @@ export default function ForkSessionModal({ open, submitting, onClose, onConfirm 
               fontSize: 13,
               borderRadius: 8,
               border: 'none',
-              background: canSubmit ? 'var(--color-ink)' : 'var(--color-tip-border)',
+              background: canSubmit ? 'var(--color-ink)' : 'var(--color-border-light)',
               color: 'var(--color-on-accent)',
               cursor: submitting ? 'not-allowed' : 'pointer',
               fontFamily: fontSans,

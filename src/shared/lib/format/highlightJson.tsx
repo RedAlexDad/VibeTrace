@@ -8,7 +8,7 @@ const TOKEN = /("(?:\\.|[^"\\])*")(\s*:)?|\b(true|false|null)\b|(-?\d+(?:\.\d+)?
 function tokenColor(token: string): string {
   if (token === 'true' || token === 'false') return 'var(--color-code-boolean)'
   if (token === 'null') return 'var(--color-code-null)'
-  return 'var(--color-code-punct)'
+  return 'var(--color-text-secondary)'
 }
 
 /** Renders pretty-printed JSON text with per-token colors. */
@@ -33,7 +33,7 @@ export function highlightJson(text: string): ReactNode[] {
           </span>,
         )
         nodes.push(
-          <span key={key++} style={{ color: 'var(--color-code-punct)' }}>
+          <span key={key++} style={{ color: 'var(--color-text-secondary)' }}>
             {colon}
           </span>,
         )

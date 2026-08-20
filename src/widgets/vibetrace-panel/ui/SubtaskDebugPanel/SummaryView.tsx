@@ -271,7 +271,7 @@ export default function SummaryView({
           opacity={1}
           clickable
           globalCloseEvents={{ scroll: false, resize: true, escape: true }}
-          arrowColor="var(--color-tip-bg)"
+          arrowColor="var(--color-bg-elevated)"
         />
       )}
     </>
