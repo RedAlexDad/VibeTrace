@@ -1,12 +1,12 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 
 /**
  * Renders a fenced ```mermaid block as a real diagram with a toggle to
  * switch between the rendered diagram (default) and its source code.
  */
 export default function MermaidBlock({ code }: { code: string }) {
-  const containerRef = useRef<HTMLDivElement>(null)
   const [error, setError] = useState<string | null>(null)
+  const [svg, setSvg] = useState<string | null>(null)
   const [mode, setMode] = useState<'diagram' | 'code'>('diagram')
 
   useEffect(() => {
@@ -22,10 +22,8 @@ export default function MermaidBlock({ code }: { code: string }) {
           fontFamily: 'inherit',
         })
         const id = `mermaid-${Math.random().toString(36).slice(2, 10)}`
-        const { svg } = await mermaid.render(id, code)
-        if (!cancelled && containerRef.current) {
-          containerRef.current.innerHTML = svg
-        }
+        const { svg: rendered } = await mermaid.render(id, code)
+        if (!cancelled) setSvg(rendered)
       } catch (e) {
         if (!cancelled) {
           setError(e instanceof Error ? e.message : String(e))
@@ -103,7 +101,6 @@ export default function MermaidBlock({ code }: { code: string }) {
       {toggle}
       {mode === 'diagram' ? (
         <div
-          ref={containerRef}
           style={{
             padding: 8,
             background: 'var(--color-bg-white)',
@@ -112,6 +109,7 @@ export default function MermaidBlock({ code }: { code: string }) {
             display: 'flex',
             justifyContent: 'center',
           }}
+          dangerouslySetInnerHTML={{ __html: svg ?? '' }}
         />
       ) : (
         <pre
