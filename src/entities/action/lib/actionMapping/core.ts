@@ -1,8 +1,4 @@
-import type {
-  MappedAction,
-  OcMessage,
-  OcMessagePart,
-} from '@/shared/types/opencode'
+import type { MappedAction, OcMessage, OcMessagePart } from '@/shared/types/opencode'
 import { type AssistantSubtask } from '@/entities/subtask/lib/subtaskGrouping'
 import { stripHarnessGuidanceForDisplay } from '@/shared/config/harnessGuidance'
 import { actionKey } from '@/entities/action/lib/actionKey'

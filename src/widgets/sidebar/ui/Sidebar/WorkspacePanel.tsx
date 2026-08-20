@@ -1,4 +1,7 @@
-import { folderDisplayName, groupDirectoriesByParent } from '@/entities/workspace/lib/sessionFolders'
+import {
+  folderDisplayName,
+  groupDirectoriesByParent,
+} from '@/entities/workspace/lib/sessionFolders'
 import { setWsCollapsed, toggleGroupCollapsed } from '@/app/store/uiSlice'
 import { useAppDispatch, useAppSelector } from '@/app/store/hooks'
 import { WORKSPACE_WIDTH, type DirMenu } from './types'
@@ -192,17 +195,13 @@ export default function WorkspacePanel({
                         minHeight: 30,
                         padding: '4px 8px',
                         borderRadius: 7,
-                        border: active
-                          ? '1px solid var(--color-accent)'
-                          : '1px solid transparent',
+                        border: active ? '1px solid var(--color-accent)' : '1px solid transparent',
                         background: active ? 'var(--color-accent-soft)' : 'transparent',
                         cursor: 'pointer',
                         textAlign: 'left',
                         fontSize: 12,
                         fontWeight: active ? 600 : 400,
-                        color: active
-                          ? 'var(--color-accent-deep)'
-                          : 'var(--color-text-primary)',
+                        color: active ? 'var(--color-accent-deep)' : 'var(--color-text-primary)',
                         lineHeight: 1.2,
                       }}
                     >

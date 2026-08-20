@@ -1,6 +1,14 @@
 import { fontSans } from './types'
 
-export default function MetricBox({ label, value, alert }: { label: string; value: string; alert?: boolean }) {
+export default function MetricBox({
+  label,
+  value,
+  alert,
+}: {
+  label: string
+  value: string
+  alert?: boolean
+}) {
   return (
     <div
       style={{

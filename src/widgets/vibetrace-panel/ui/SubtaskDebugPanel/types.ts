@@ -1,7 +1,10 @@
 import type { RefObject } from 'react'
 import type { MappedAction, OcMessage } from '@/shared/types/opencode'
 import type { AssistantSubtask } from '@/entities/subtask/lib/subtaskGrouping'
-import type { ForkFromActionContext, ForkPanelSnapshotBundle } from '@/features/fork-session/model/forkPanelSnapshot'
+import type {
+  ForkFromActionContext,
+  ForkPanelSnapshotBundle,
+} from '@/features/fork-session/model/forkPanelSnapshot'
 
 export interface SubtaskDebugPanelProps {
   messages: OcMessage[]

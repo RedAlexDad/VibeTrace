@@ -1,5 +1,8 @@
 import type { OcMessage, OcTodo } from '@/shared/types/opencode'
-import { isTodoWriteMessage, parseTodowriteTodosFromMessage } from '@/entities/subtask/lib/subtaskGrouping'
+import {
+  isTodoWriteMessage,
+  parseTodowriteTodosFromMessage,
+} from '@/entities/subtask/lib/subtaskGrouping'
 import { normalizeTodoContent } from '@/entities/subtask/lib/subtaskLinkage'
 
 /** 会话内稳定 id（含 OpenCode 下发 id 或本地产 uuid） */

@@ -18,7 +18,9 @@ function isFileMutatingTool(toolName: string): boolean {
   return false
 }
 
-export function extractPathFromToolInput(input: Record<string, unknown> | undefined): string | null {
+export function extractPathFromToolInput(
+  input: Record<string, unknown> | undefined,
+): string | null {
   if (!input) return null
   const keys = ['path', 'file_path', 'target_file', 'filepath', 'filePath']
   for (const k of keys) {

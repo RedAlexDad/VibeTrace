@@ -2,7 +2,10 @@ import { useEffect, useRef } from 'react'
 import type { RefObject } from 'react'
 import type { MappedAction, OcMessage } from '@/shared/types/opencode'
 import type { AssistantSubtask } from '@/entities/subtask/lib/subtaskGrouping'
-import type { ForkFromActionContext, ForkPanelSnapshotBundle } from '@/features/fork-session/model/forkPanelSnapshot'
+import type {
+  ForkFromActionContext,
+  ForkPanelSnapshotBundle,
+} from '@/features/fork-session/model/forkPanelSnapshot'
 import SubtaskDebugPanel from '@/widgets/vibetrace-panel/ui/SubtaskDebugPanel'
 
 type SubtaskSelection = { subtaskIndex: number; actionKey: string } | null

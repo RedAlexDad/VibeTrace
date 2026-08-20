@@ -23,10 +23,18 @@ import {
   normalizeSessionDirectory,
   uniqueDirectoriesFromSessions,
 } from '@/entities/workspace/lib/sessionFolders'
-import type { MappedAction, OcMessage, OcPendingQuestionRequest, OcTodo } from '@/shared/types/opencode'
+import type {
+  MappedAction,
+  OcMessage,
+  OcPendingQuestionRequest,
+  OcTodo,
+} from '@/shared/types/opencode'
 import type { MessageSendPayload } from '@/widgets/chat/ui/MessageInput'
 import { groupAssistantSubtasks, isTodoWriteMessage } from '@/entities/subtask/lib/subtaskGrouping'
-import { findSubtaskIndexForTodo, subtaskShouldUseTodoLink } from '@/entities/subtask/lib/subtaskLinkage'
+import {
+  findSubtaskIndexForTodo,
+  subtaskShouldUseTodoLink,
+} from '@/entities/subtask/lib/subtaskLinkage'
 import { actionKeyMessageId } from '@/entities/action/lib/actionKey'
 import { firstFlowAnchorKeyForSubtaskSegment } from '@/entities/action/lib/actionMapping'
 import { parseActionRelatedSseEvent } from '@/entities/action/lib/opencodeSse'
@@ -293,9 +301,7 @@ export function useWorkspacePage() {
         const params = new URLSearchParams(window.location.search)
         const urlSession = params.get('session')
         const urlDir = params.get('dir')
-        const fromUrl = urlSession
-          ? sorted.find((s) => s.id === urlSession) ?? null
-          : null
+        const fromUrl = urlSession ? (sorted.find((s) => s.id === urlSession) ?? null) : null
         if (fromUrl) {
           setSelectedSessionId(fromUrl.id)
           if (urlDir) setSelectedDirectory(urlDir)

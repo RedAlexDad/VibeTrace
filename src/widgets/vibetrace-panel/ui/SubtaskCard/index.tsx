@@ -102,13 +102,7 @@ export default function SubtaskCard({
         flowActions,
         tooltipLookupMessages,
       }),
-    [
-      forkPanelSnapshotBundle,
-      subtask.subtask_id,
-      displayIndex,
-      flowActions,
-      tooltipLookupMessages,
-    ],
+    [forkPanelSnapshotBundle, subtask.subtask_id, displayIndex, flowActions, tooltipLookupMessages],
   )
   const hasActiveRunningAction = useMemo(
     () => flowActions.some((a) => a.status === 'running' || a.status === 'pending'),

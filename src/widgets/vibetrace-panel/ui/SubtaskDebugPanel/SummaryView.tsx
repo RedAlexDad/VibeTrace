@@ -2,11 +2,11 @@ import { useEffect, useId, useMemo, useRef, useState } from 'react'
 import { Tooltip } from 'react-tooltip'
 import type { OcMessage } from '@/shared/types/opencode'
 import type { AssistantSubtask } from '@/entities/subtask/lib/subtaskGrouping'
+import { type ActionTypePaletteId, getActionTypeTriad } from '@/shared/styles/actionTypePalettes'
 import {
-  type ActionTypePaletteId,
-  getActionTypeTriad,
-} from '@/shared/styles/actionTypePalettes'
-import { buildMappedActionsFromMessages, collectTaskChildDescriptors } from '@/entities/action/lib/actionMapping'
+  buildMappedActionsFromMessages,
+  collectTaskChildDescriptors,
+} from '@/entities/action/lib/actionMapping'
 import { actionKey } from '@/entities/action/lib/actionKey'
 import { getMessages } from '@/shared/api/opencodeApi'
 import {

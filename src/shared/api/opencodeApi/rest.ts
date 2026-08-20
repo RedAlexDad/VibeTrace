@@ -1,5 +1,11 @@
 import type { OcSession, OcTodo, OcMessage, OcPendingQuestionItem } from '@/shared/types/opencode'
-import { BASE, extractProjectDirectory, normalizeDirectoryLike, parseModelRefToBody, withDirectoryHeaders } from './config'
+import {
+  BASE,
+  extractProjectDirectory,
+  normalizeDirectoryLike,
+  parseModelRefToBody,
+  withDirectoryHeaders,
+} from './config'
 import { normalizePendingQuestionList } from './types'
 import type { OcComposerModelOption, UserMessagePartBody } from './types'
 

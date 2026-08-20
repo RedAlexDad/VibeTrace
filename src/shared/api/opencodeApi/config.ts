@@ -16,7 +16,9 @@ export const BASE = resolveOpencodeBase()
 /**
  * OpenCode `POST /session/:id/message` expects `model` as `{ providerID, modelID }`, not a `provider/model` string.
  */
-export function parseModelRefToBody(ref: string): { providerID: string; modelID: string } | undefined {
+export function parseModelRefToBody(
+  ref: string,
+): { providerID: string; modelID: string } | undefined {
   const t = ref.trim()
   const i = t.indexOf('/')
   if (i <= 0 || i >= t.length - 1) return undefined

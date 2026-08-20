@@ -207,9 +207,7 @@ export default function SubtaskPanelHeader({
             justifyContent: 'center',
             borderRadius: 6,
             color:
-              subtasksCount === 0
-                ? 'var(--color-control-muted)'
-                : 'var(--color-text-secondary)',
+              subtasksCount === 0 ? 'var(--color-control-muted)' : 'var(--color-text-secondary)',
           }}
           onMouseEnter={(e) => {
             if (subtasksCount === 0) return

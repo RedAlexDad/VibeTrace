@@ -1,8 +1,4 @@
-import type {
-  OcMessage,
-  OcMessagePart,
-  OcPendingQuestionRequest,
-} from '@/shared/types/opencode'
+import type { OcMessage, OcMessagePart, OcPendingQuestionRequest } from '@/shared/types/opencode'
 import { transcriptAnchorKeyForPart } from '@/entities/action/lib/actionMapping'
 import AgentInfo from './AgentInfo'
 import { renderMarkdown } from './markdown'

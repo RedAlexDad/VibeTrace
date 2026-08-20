@@ -1,6 +1,9 @@
 import type { MappedAction, OcMessage } from '@/shared/types/opencode'
 import type { AssistantSubtask } from '@/entities/subtask/lib/subtaskGrouping'
-import type { ForkFromActionContext, ForkPanelSnapshotBundle } from '@/features/fork-session/model/forkPanelSnapshot'
+import type {
+  ForkFromActionContext,
+  ForkPanelSnapshotBundle,
+} from '@/features/fork-session/model/forkPanelSnapshot'
 import type { ActionTypePaletteId } from '@/shared/styles/actionTypePalettes'
 
 export type ColorByMode = 'tokens' | 'type'

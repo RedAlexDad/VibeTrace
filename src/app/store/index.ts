@@ -1,10 +1,5 @@
 import { combineReducers, configureStore } from '@reduxjs/toolkit'
-import {
-  persistReducer,
-  persistStore,
-  type PersistedState,
-  type WebStorage,
-} from 'redux-persist'
+import { persistReducer, persistStore, type PersistedState, type WebStorage } from 'redux-persist'
 import uiReducer, { type UiState } from '@/app/store/uiSlice'
 
 /** localStorage-backed WebStorage for redux-persist (Vite ESM-safe). */

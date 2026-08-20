@@ -1,9 +1,5 @@
 import type { OcMessage, OcTodo } from '@/shared/types/opencode'
-import {
-  cloneTodo,
-  diffTodosNewlyCompleted,
-  parseTodowriteTodosFromMessage,
-} from './todo'
+import { cloneTodo, diffTodosNewlyCompleted, parseTodowriteTodosFromMessage } from './todo'
 import type { AssistantSubtask, SubtaskPhase } from './types'
 
 /**

@@ -1,5 +1,12 @@
 import type { OcMessage, OcMessagePart, ToolPart } from '@/shared/types/opencode'
-import { formatToolError, normalizeToolName, num, str, stringField, truncateToMaxWords } from './text'
+import {
+  formatToolError,
+  normalizeToolName,
+  num,
+  str,
+  stringField,
+  truncateToMaxWords,
+} from './text'
 import { extractUrlsFromSearchOutput, parseWebsearchTitleQuery } from './search'
 import { buildTodowriteLines } from './todo'
 import { PREVIEW_MAX_WORDS, URL_LIST_MAX, type TooltipBodyLine } from './types'

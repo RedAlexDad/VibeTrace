@@ -22,14 +22,8 @@ export default function useFilter({
   subtaskSig: string
   filterMode: FilterMode
 }) {
-  const durationDomain = useMemo(
-    () => domainOf(flowActions, (a) => a.durationMs),
-    [flowActions],
-  )
-  const tokenDomain = useMemo(
-    () => domainOf(flowActions, (a) => a.tokenEstimate),
-    [flowActions],
-  )
+  const durationDomain = useMemo(() => domainOf(flowActions, (a) => a.durationMs), [flowActions])
+  const tokenDomain = useMemo(() => domainOf(flowActions, (a) => a.tokenEstimate), [flowActions])
   const [durationHighlightMinMs, setDurationHighlightMinMs] = useState(0)
   const [tokenHighlightMin, setTokenHighlightMin] = useState(0)
   const [filterTouched, setFilterTouched] = useState(false)

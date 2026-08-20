@@ -1,8 +1,5 @@
 import type { OcMessage } from '@/shared/types/opencode'
-import {
-  TOKEN_COST_RATES_USD_PER_1K,
-  type SubtaskTokenBreakdown,
-} from './types'
+import { TOKEN_COST_RATES_USD_PER_1K, type SubtaskTokenBreakdown } from './types'
 
 /** Matches OpenCode context-panel semantics: per-message token total = input + output + reasoning + cache (see opencode-context-panel.md). */
 export function tokenTotalForMessage(tokens: OcMessage['info']['tokens'] | undefined): number {

@@ -52,7 +52,9 @@ export default function SubtaskDebugPanel({
 
   const cardWindow = useMemo(() => {
     if (flowLayoutMode === 'summary') return { start: 0, end: -1, topSpacer: 0, bottomSpacer: 0 }
-    const heights = visibleSubtasks.map((_, i) => cardHeightsRef.current[i] ?? CARD_ESTIMATED_HEIGHT)
+    const heights = visibleSubtasks.map(
+      (_, i) => cardHeightsRef.current[i] ?? CARD_ESTIMATED_HEIGHT,
+    )
     return computeCardWindow(
       scrollTop,
       viewportHeight,
@@ -143,9 +145,7 @@ export default function SubtaskDebugPanel({
                         }
                         otherSubtaskHasSelection={false}
                         onSelectActionFromFlow={
-                          onSelectAction
-                            ? (key) => onSelectAction(sourceIndex, key)
-                            : undefined
+                          onSelectAction ? (key) => onSelectAction(sourceIndex, key) : undefined
                         }
                         colorBy={colorBy}
                         onColorByChange={setColorBy}
