@@ -67,6 +67,7 @@ import { loadComposerModelRefFromLs } from './composerModelRef'
 import { mergeSessionsById, fetchSessionsAcrossDirectories } from './sessionMerge'
 import { pollUntilAssistantMessage } from './pollUntilAssistantMessage'
 import type { PendingFork, TodosSnapshotMap } from './types'
+import { DEFAULT_MODEL_REF } from '@/widgets/chat/ui/MessageInput/ModelPicker'
 
 export function useWorkspacePage() {
   const envDirectorySeeds = useMemo(
@@ -917,7 +918,7 @@ export function useWorkspacePage() {
         try {
           await sendMessage(sid, text, dir, {
             imageParts: images,
-            model: composerModelRef.trim() || undefined,
+            model: composerModelRef.trim() || DEFAULT_MODEL_REF,
             agent: composerAgent,
           })
           const msgs = await getMessages(sid, 'after POST /message completes', dir)

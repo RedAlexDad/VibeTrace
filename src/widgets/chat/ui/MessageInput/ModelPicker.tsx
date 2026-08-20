@@ -6,6 +6,9 @@ function providerOf(ref: string): string {
   return ref.includes('/') ? ref.split('/')[0]! : 'Other'
 }
 
+/** Default model when nothing is picked — mirrors the opencode default. */
+export const DEFAULT_MODEL_REF = 'opencode/deepseek-v4-flash'
+
 /** Free models exposed by opencode: ref/label contains "free". */
 function isFreeModel(o: OcComposerModelOption): boolean {
   return /free|contributor/i.test(o.ref) || /free/i.test(o.label)
@@ -97,8 +100,9 @@ export default function ModelPicker({
     return [...map.entries()]
   }, [groupOptions, query])
 
-  const currentLabel =
-    options.find((o) => o.ref === value)?.label || (value ? value : 'Default model')
+  const currentLabel = value
+    ? options.find((o) => o.ref === value)?.label || value
+    : `Default · ${DEFAULT_MODEL_REF}`
 
   const renderRow = (o: OcComposerModelOption) => {
     const isFav = favorites.includes(o.ref)
@@ -305,6 +309,9 @@ export default function ModelPicker({
                 }}
               >
                 Default model
+                <span style={{ color: 'var(--color-text-tertiary)', marginLeft: 6, fontSize: 11 }}>
+                  · {DEFAULT_MODEL_REF}
+                </span>
               </button>
 
               {!query.trim() && favoriteOptions.length > 0 && (
