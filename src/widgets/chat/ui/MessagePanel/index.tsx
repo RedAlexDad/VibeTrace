@@ -13,6 +13,7 @@ import type { OcComposerModelOption } from '@/shared/api/opencodeApi'
 import { messagesHaveOpenQuestionWithInput } from '@/entities/message/lib/questionPart'
 import { collectStaleToolCallIDs } from '@/entities/action/lib/actionMapping'
 import EditableSessionTitle from './EditableSessionTitle'
+import McpStatusPanel from './McpStatusPanel'
 
 interface MessagePanelProps {
   messages: OcMessage[]
@@ -239,6 +240,7 @@ export default function MessagePanel({
           padding: '0 16px',
           display: 'flex',
           alignItems: 'center',
+          gap: 12,
           borderBottom: '1px solid var(--color-border-light)',
           background: 'var(--color-bg-white)',
           flexShrink: 0,
@@ -250,6 +252,7 @@ export default function MessagePanel({
           loading={loading}
           onCommit={onSessionTitleCommit}
         />
+        <McpStatusPanel directory={sessionDirectory} />
       </div>
 
       {waitingForAssistantReply && !loading && (

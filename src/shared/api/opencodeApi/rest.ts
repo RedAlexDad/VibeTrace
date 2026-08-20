@@ -340,3 +340,31 @@ export async function rejectQuestion(requestId: string, directory?: string): Pro
     throw new Error(`rejectQuestion failed: ${res.status} ${bodyText}`)
   }
 }
+
+export type McpServerStatus = {
+  status: 'connected' | 'failed'
+  error?: string
+}
+
+export type OcSkill = {
+  name: string
+  description?: string
+  location?: string
+}
+
+/** GET /mcp — configured MCP servers and their health. */
+export async function getMcpStatus(directory?: string): Promise<Record<string, McpServerStatus>> {
+  const res = await fetch(`${BASE}/mcp`, { headers: withDirectoryHeaders({}, directory) })
+  if (!res.ok) throw new Error(`getMcpStatus failed: ${res.status}`)
+  const data = (await res.json()) as unknown
+  if (data && typeof data === 'object') return data as Record<string, McpServerStatus>
+  return {}
+}
+
+/** GET /skill — available skills. */
+export async function getSkills(directory?: string): Promise<OcSkill[]> {
+  const res = await fetch(`${BASE}/skill`, { headers: withDirectoryHeaders({}, directory) })
+  if (!res.ok) throw new Error(`getSkills failed: ${res.status}`)
+  const data = (await res.json()) as unknown
+  return Array.isArray(data) ? (data as OcSkill[]) : []
+}

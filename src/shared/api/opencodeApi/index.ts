@@ -5,10 +5,12 @@ export {
   forkSession,
   getComposerModelOptions,
   getCurrentWorkspaceDirectory,
+  getMcpStatus,
   getMessages,
   getPendingQuestions,
   getProjectDirectories,
   getSessions,
+  getSkills,
   getTodos,
   rejectQuestion,
   replyToQuestion,
@@ -18,3 +20,4 @@ export {
 export { subscribeGlobalEvents } from './sse'
 export { normalizePendingQuestionList } from './types'
 export type { GlobalSseEvent, OcComposerModelOption, UserMessagePartBody } from './types'
+export type { McpServerStatus, OcSkill } from './rest'

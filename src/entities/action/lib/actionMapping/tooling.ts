@@ -16,7 +16,8 @@ export function mapToolToActionType(tool: string): ActionType | null {
   if (['write', 'edit', 'multiedit', 'patch'].includes(t)) return 'Write'
   if (t === 'bash' || t === 'shell') return 'Shell'
   if (t === 'websearch' || t === 'web_fetch' || t === 'webfetch') return 'Search'
-  if (t === 'skill') return 'Skill'
+  // MCP tools arrive as `mcp__<server>__<tool>`; skills as `skill`
+  if (t === 'skill' || t.startsWith('mcp__') || t.startsWith('skill_')) return 'Skill'
   return null
 }
 
