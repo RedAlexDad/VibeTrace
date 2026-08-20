@@ -131,7 +131,7 @@ export default function QuestionInlineForm({
       style={{
         padding: '10px 12px',
         background:
-          'linear-gradient(180deg, var(--color-accent-softer) 0%, var(--color-bg-white) 100%)',
+          'linear-gradient(180deg, var(--color-bg-soft) 0%, var(--color-bg-white) 100%)',
         borderTop: '1px solid var(--color-border-light)',
       }}
     >

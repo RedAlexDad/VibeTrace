@@ -18,9 +18,7 @@
   --color-accent-deep: #5b2d82;
   --color-accent-muted: #c4b5d8;
   --color-accent-soft: #f0e6fa;
-  --color-accent-softer: #faf7ff;
   --color-link: #5a8fff;
-  --color-link-soft: #eef2ff;
   --color-on-accent: #ffffff;
 
   --color-success: #0abe00;
@@ -101,9 +99,7 @@
     --color-accent-deep: #c4a5e8;
     --color-accent-muted: #5e4a72;
     --color-accent-soft: #2a2140;
-    --color-accent-softer: #241d33;
     --color-link: #6fa1ff;
-    --color-link-soft: #232b3f;
     --color-on-accent: #ffffff;
 
     --color-success: #3ec637;
@@ -289,12 +285,12 @@ body {
   white-space: normal !important;
   padding: 10px 12px !important;
   border-radius: 8px !important;
-  border: 1px solid var(--color-tip-border) !important;
+  border: 1px solid var(--color-border-light) !important;
   box-shadow: 0 4px 16px rgba(15, 23, 42, 0.1) !important;
   font-size: 12px !important;
   line-height: 1.45 !important;
-  color: var(--color-tip-text) !important;
-  background: var(--color-tip-bg) !important;
+  color: var(--color-text-primary) !important;
+  background: var(--color-bg-white) !important;
 }
 
 .action-flow-react-tooltip .action-tip-root {
@@ -312,7 +308,7 @@ body {
   flex: 0 0 auto;
   padding-top: 8px;
   margin-top: 4px;
-  border-top: 1px solid var(--color-tip-border);
+  border-top: 1px solid var(--color-border-light);
 }
 
 .action-flow-react-tooltip .action-tip-footer .action-tip-kv {
@@ -332,18 +328,18 @@ body {
   gap: 8px 12px;
   margin-bottom: 8px;
   padding-bottom: 8px;
-  border-bottom: 1px solid var(--color-tip-border);
+  border-bottom: 1px solid var(--color-border-light);
 }
 
 .action-flow-react-tooltip .action-tip-primary {
   font-size: 13px;
   font-weight: 700;
-  color: var(--color-tip-text);
+  color: var(--color-text-primary);
 }
 
 .action-flow-react-tooltip .action-tip-status {
   font-size: 12px;
-  color: var(--color-tip-subtle);
+  color: var(--color-text-tertiary);
   font-weight: 500;
 }
 
@@ -355,17 +351,17 @@ body {
 
 .action-flow-react-tooltip .action-tip-text {
   font-size: 12px;
-  color: var(--color-tip-subtle);
+  color: var(--color-text-tertiary);
   margin-top: 6px;
   padding-top: 6px;
-  border-top: 1px solid var(--color-tip-soft);
+  border-top: 1px solid var(--color-bg-soft);
   word-break: break-word;
   white-space: pre-wrap;
 }
 
 .action-flow-react-tooltip .action-tip-sep {
   height: 1px;
-  background: var(--color-tip-border);
+  background: var(--color-border-light);
   margin: 8px 0;
 }
 
@@ -374,7 +370,7 @@ body {
   grid-template-columns: minmax(4.5em, 7.5em) minmax(0, 1fr);
   gap: 4px 10px;
   padding: 5px 0;
-  border-bottom: 1px solid var(--color-tip-soft);
+  border-bottom: 1px solid var(--color-bg-soft);
   align-items: start;
 }
 
@@ -383,12 +379,12 @@ body {
 }
 
 .action-flow-react-tooltip .action-tip-k {
-  color: var(--color-tip-muted);
+  color: var(--color-text-secondary);
   font-weight: 600;
 }
 
 .action-flow-react-tooltip .action-tip-v {
-  color: var(--color-tip-text);
+  color: var(--color-text-primary);
   word-break: break-word;
   white-space: pre-wrap;
 }
@@ -396,19 +392,19 @@ body {
 .action-flow-react-tooltip .action-tip-about {
   margin-top: 6px;
   padding-top: 6px;
-  border-top: 1px solid var(--color-tip-soft);
+  border-top: 1px solid var(--color-bg-soft);
 }
 
 .action-flow-react-tooltip .action-tip-about-label {
   font-size: 12px;
   font-weight: 600;
-  color: var(--color-tip-muted);
+  color: var(--color-text-secondary);
   margin-bottom: 4px;
 }
 
 .action-flow-react-tooltip .action-tip-about-line {
   font-size: 12px;
-  color: var(--color-tip-text);
+  color: var(--color-text-primary);
   word-break: break-word;
   white-space: pre-wrap;
   line-height: 1.4;
@@ -430,17 +426,17 @@ body {
 }
 
 .action-flow-react-tooltip .action-tip-compact-head {
-  color: var(--color-tip-subtle);
+  color: var(--color-text-tertiary);
   margin-bottom: 6px;
   padding-bottom: 6px;
-  border-bottom: 1px solid var(--color-tip-border);
+  border-bottom: 1px solid var(--color-border-light);
 }
 
 .action-flow-react-tooltip .action-tip-compact-snippet {
   display: block;
   margin-top: 4px;
   font-size: 11px;
-  color: var(--color-tip-muted);
+  color: var(--color-text-secondary);
   font-weight: 400;
 }
 
@@ -449,7 +445,7 @@ body {
 }
 
 .action-flow-react-tooltip .action-tip-compact-status {
-  color: var(--color-tip-muted);
+  color: var(--color-text-secondary);
   font-weight: 500;
 }
 
@@ -462,7 +458,7 @@ body {
 
 .action-flow-react-tooltip .action-tip-compact-line {
   font-size: 11px;
-  color: var(--color-tip-subtle);
+  color: var(--color-text-tertiary);
   line-height: 1.35;
   word-break: break-word;
 }
@@ -470,9 +466,9 @@ body {
 .action-flow-react-tooltip .action-tip-compact-footer {
   padding-top: 6px;
   margin-top: 4px;
-  border-top: 1px solid var(--color-tip-border);
+  border-top: 1px solid var(--color-border-light);
   font-size: 11px;
-  color: var(--color-tip-muted);
+  color: var(--color-text-secondary);
 }
 
 /**

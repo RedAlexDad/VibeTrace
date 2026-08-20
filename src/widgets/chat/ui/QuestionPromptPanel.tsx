@@ -81,7 +81,7 @@ export default function QuestionPromptPanel({
       style={{
         borderTop: '1px solid var(--color-border-light)',
         background:
-          'linear-gradient(180deg, var(--color-accent-softer) 0%, var(--color-bg-white) 100%)',
+          'linear-gradient(180deg, var(--color-bg-soft) 0%, var(--color-bg-white) 100%)',
         padding: '12px 16px',
         flexShrink: 0,
       }}
