@@ -586,7 +586,7 @@ export default function SubtaskCard({
     gap: 4,
     width: '100%',
     minWidth: 0,
-    background: isLinked ? 'var(--color-bg-white)' : 'var(--color-bg-elevated)',
+    background: isLinked ? 'var(--color-bg-white)' : 'var(--color-bg-white)',
     borderRadius: 14,
     fontFamily: fontSans,
     overflow: 'visible',

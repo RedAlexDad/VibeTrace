@@ -297,7 +297,7 @@ export default function MessageInput({
             gap: 8,
             padding: '8px 10px',
             borderTop: '1px solid var(--color-border-faint)',
-            background: 'var(--color-bg-subtle)',
+            background: 'var(--color-bg-soft)',
           }}
         >
           <input

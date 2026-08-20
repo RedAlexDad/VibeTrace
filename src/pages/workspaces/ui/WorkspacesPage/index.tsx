@@ -208,7 +208,7 @@ export default function WorkspacesPage() {
                           transition: 'background 0.15s ease, border-color 0.15s ease',
                         }}
                         onMouseEnter={(e) => {
-                          e.currentTarget.style.background = 'var(--color-bg-subtle)'
+                          e.currentTarget.style.background = 'var(--color-bg-soft)'
                           e.currentTarget.style.borderColor = 'var(--color-border-strong)'
                         }}
                         onMouseLeave={(e) => {

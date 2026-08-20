@@ -190,7 +190,7 @@ export default function ActionFlowContextMenu({ menu, onClose, onFork, onAnalysi
         padding: 6,
         borderRadius: 12,
         background:
-          'linear-gradient(145deg, var(--color-bg-white) 0%, var(--color-bg-elevated) 100%)',
+          'linear-gradient(145deg, var(--color-bg-white) 0%, var(--color-bg-white) 100%)',
         boxShadow:
           '0 12px 40px rgba(15, 23, 42, 0.12), 0 0 0 1px rgba(15, 23, 42, 0.06), inset 0 1px 0 var(--color-bg-white)',
         backdropFilter: 'blur(10px)',

@@ -143,7 +143,7 @@ const PartView = memo(function PartView({
             color: 'var(--color-text-tertiary)',
             margin: '4px 0',
             padding: '6px 10px',
-            background: 'var(--color-bg-subtle)',
+            background: 'var(--color-bg-soft)',
             borderRadius: '4px',
             lineHeight: 1.5,
             overflowWrap: 'break-word',

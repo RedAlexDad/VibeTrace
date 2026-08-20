@@ -416,7 +416,7 @@ export default function MessagePanel({
               justifyContent: 'center',
               borderRadius: '50%',
               border: '1px solid var(--color-border)',
-              background: 'var(--color-bg-elevated)',
+              background: 'var(--color-bg-white)',
               color: 'var(--color-accent-deep)',
               cursor: 'pointer',
               boxShadow: 'var(--shadow-md)',

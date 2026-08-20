@@ -102,7 +102,7 @@ export default memo(function ActionFlowVisualization(props: Props) {
               boxSizing: 'border-box',
               border: '1px solid var(--color-border-light)',
               borderRadius: 8,
-              background: 'var(--color-bg-elevated)',
+              background: 'var(--color-bg-white)',
               overflow: 'hidden',
               width: '100%',
             }}
@@ -123,7 +123,7 @@ export default memo(function ActionFlowVisualization(props: Props) {
             clickable
             /** Inner `overflow:auto` can bubble `scroll` globally and dismiss tooltips prematurely */
             globalCloseEvents={{ scroll: false, resize: true, escape: true }}
-            arrowColor="var(--color-bg-elevated)"
+            arrowColor="var(--color-bg-white)"
           />
         )}
       </div>

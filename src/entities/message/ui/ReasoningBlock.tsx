@@ -15,7 +15,7 @@ export default function ReasoningBlock({ text, time }: ReasoningBlockProps) {
   return (
     <div
       style={{
-        background: 'var(--color-bg-subtle)',
+        background: 'var(--color-bg-soft)',
         borderRadius: 6,
         overflow: 'hidden',
         maxWidth: '100%',

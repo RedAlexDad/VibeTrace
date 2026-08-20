@@ -50,7 +50,7 @@ export default function PeakPricingWidget() {
         color: 'var(--color-text-secondary)',
         padding: '4px 10px',
         borderRadius: 8,
-        background: 'var(--color-bg-subtle)',
+        background: 'var(--color-bg-soft)',
         border: '1px solid var(--color-border-light)',
         flexShrink: 0,
       }}

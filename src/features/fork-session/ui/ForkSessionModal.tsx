@@ -130,7 +130,7 @@ export default function ForkSessionModal({ open, submitting, onClose, onConfirm 
             gap: 10,
             padding: '12px 16px 14px',
             borderTop: '1px solid var(--color-border-faint)',
-            background: 'var(--color-bg-subtle)',
+            background: 'var(--color-bg-soft)',
           }}
         >
           <button

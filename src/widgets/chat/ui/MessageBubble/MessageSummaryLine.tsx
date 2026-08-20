@@ -51,7 +51,7 @@ export default function MessageSummaryLine({ summary }: { summary: SessionSummar
         maxWidth: '100%',
         padding: '3px 10px',
         borderRadius: 6,
-        background: 'var(--color-bg-subtle)',
+        background: 'var(--color-bg-soft)',
         border: '1px solid var(--color-border-faint)',
       }}
     >

@@ -4,10 +4,7 @@
   /* ── Colors (light) ─────────────────────────────────────────────── */
   --color-bg-base: #f8f8f8;
   --color-bg-white: #ffffff;
-  --color-bg-elevated: #fcfcfc;
-  --color-bg-subtle: #fafafa;
   --color-bg-soft: #f5f5f5;
-  --color-bg-faint: #f0f0f0;
   --color-bg-disabled: #ececec;
 
   --color-border: #dbdbdb;
@@ -19,7 +16,6 @@
   --color-text-secondary: #6f6f6f;
   --color-text-tertiary: #8f8f8f;
   --color-text-muted: #b0b0b0;
-  --color-text-placeholder: #adacab;
 
   --color-accent: #8445bc;
   --color-accent-strong: #8b5cf6;
@@ -27,7 +23,6 @@
   --color-accent-muted: #c4b5d8;
   --color-accent-soft: #f0e6fa;
   --color-accent-softer: #faf7ff;
-  --color-accent-border: #d8c2eb;
   --color-link: #5a8fff;
   --color-link-soft: #eef2ff;
   --color-link-softer: #faf5ff;
@@ -40,7 +35,6 @@
   --color-error-text: #c62828;
   --color-error-soft: #fff1f1;
 
-  --color-gray-100: #e2e2e2;
   --color-gray-200: #c7c7c7;
 
   /* Code syntax highlighting (JSON inputs, etc.) */
@@ -100,10 +94,7 @@
   :root {
     --color-bg-base: #161616;
     --color-bg-white: #1e1e1e;
-    --color-bg-elevated: #1a1a1a;
-    --color-bg-subtle: #202020;
     --color-bg-soft: #262626;
-    --color-bg-faint: #2c2c2c;
     --color-bg-disabled: #303030;
 
     --color-border: #3a3a3a;
@@ -115,7 +106,6 @@
     --color-text-secondary: #a8a8a8;
     --color-text-tertiary: #858585;
     --color-text-muted: #6b6b6b;
-    --color-text-placeholder: #6b6b6b;
 
     --color-accent: #a06bd1;
     --color-accent-strong: #a78bfa;
@@ -123,7 +113,6 @@
     --color-accent-muted: #5e4a72;
     --color-accent-soft: #2a2140;
     --color-accent-softer: #241d33;
-    --color-accent-border: #4a3a5e;
     --color-link: #6fa1ff;
     --color-link-soft: #232b3f;
     --color-link-softer: #241d33;
@@ -136,7 +125,6 @@
     --color-error-text: #ff8a80;
     --color-error-soft: #3a2222;
 
-    --color-gray-100: #3a3a3a;
     --color-gray-200: #4a4a4a;
 
     --color-code-key: #79c0ff;

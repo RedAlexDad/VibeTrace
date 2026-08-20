@@ -12,7 +12,7 @@ export default function SidebarRail({
       style={{
         width: 36,
         height: '100%',
-        background: 'var(--color-bg-subtle)',
+        background: 'var(--color-bg-soft)',
         borderRight: '1px solid var(--color-border-light)',
         display: 'flex',
         flexDirection: 'column',

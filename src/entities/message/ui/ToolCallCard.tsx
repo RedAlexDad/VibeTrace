@@ -235,7 +235,7 @@ export default memo(function ToolCallCard({ part, renderInline }: ToolCallCardPr
           alignItems: 'center',
           gap: 6,
           padding: '6px 10px',
-          background: 'var(--color-bg-subtle)',
+          background: 'var(--color-bg-soft)',
           cursor: hasDetails ? 'pointer' : 'default',
           fontSize: 12,
         }}
