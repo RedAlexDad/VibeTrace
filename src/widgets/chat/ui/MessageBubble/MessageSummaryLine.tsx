@@ -18,9 +18,6 @@ export default function MessageSummaryLine({ summary }: { summary: MessageSummar
   const modeLabel = summary.mode || summary.agent
   const parts: string[] = []
 
-  if (modeLabel) parts.push(modeLabel)
-  if (summary.model) parts.push(summary.model)
-
   const llm = formatMs(summary.llmMs)
   if (llm) parts.push(`LLM ${llm}`)
   if (summary.toolCalls > 0) {
@@ -39,21 +36,38 @@ export default function MessageSummaryLine({ summary }: { summary: MessageSummar
   const cost = formatCost(summary.cost)
   if (cost) parts.push(cost)
 
-  if (parts.length === 0) return null
+  if (!modeLabel && parts.length === 0) return null
+
+  const isPlan = modeLabel === 'plan'
 
   return (
     <div
       style={{
-        marginTop: 4,
-        fontSize: 10,
-        lineHeight: 1.4,
-        color: 'var(--color-text-tertiary)',
+        marginTop: 6,
+        fontSize: 11,
+        lineHeight: 1.5,
+        color: 'var(--color-text-secondary)',
         textAlign: 'right',
         fontFamily: 'IBM Plex Mono, monospace',
         wordBreak: 'break-word',
+        display: 'inline-block',
+        maxWidth: '100%',
+        padding: '3px 8px',
+        borderRadius: 6,
+        background: 'var(--color-bg-subtle)',
+        border: '1px solid var(--color-border-faint)',
       }}
     >
-      {parts.join(' · ')}
+      <span
+        style={{
+          fontWeight: 600,
+          color: isPlan ? 'var(--color-warning)' : 'var(--color-accent-deep)',
+        }}
+      >
+        {modeLabel}
+      </span>
+      {summary.model ? <span style={{ marginLeft: 6 }}>{summary.model}</span> : null}
+      <span style={{ marginLeft: 6 }}>{parts.slice(1).join(' · ')}</span>
     </div>
   )
 }
