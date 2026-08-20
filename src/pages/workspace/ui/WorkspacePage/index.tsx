@@ -224,6 +224,10 @@ function WorkspacePage() {
                 flowLayoutMode={subtaskFlowLayoutMode}
                 selection={selection}
                 onSelectAction={handleSelectAction}
+                onScrollToLatestChat={() => {
+                  const root = messageScrollRef.current
+                  if (root) root.scrollTop = root.scrollHeight
+                }}
               />
             </div>
           </div>
@@ -309,6 +313,10 @@ function WorkspacePage() {
           flowLayoutMode={subtaskFlowLayoutMode}
           selection={selection}
           onSelectAction={handleSelectAction}
+          onScrollToLatestChat={() => {
+            const root = messageScrollRef.current
+            if (root) root.scrollTop = root.scrollHeight
+          }}
         />
       </div>
     </div>

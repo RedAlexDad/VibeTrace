@@ -207,10 +207,12 @@ export default function MessagePanel({
         style={{
           flex: 1,
           overflowY: 'auto',
+          overflowX: 'hidden',
           padding: '16px',
           display: 'flex',
           flexDirection: 'column',
           gap: '0',
+          overflowWrap: 'break-word',
         }}
       >
         {loading ? (

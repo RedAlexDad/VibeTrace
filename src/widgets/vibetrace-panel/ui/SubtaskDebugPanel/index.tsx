@@ -22,6 +22,7 @@ export default function SubtaskDebugPanel({
   selection = null,
   onSelectAction,
   flowLayoutMode = 'timeline',
+  onScrollToLatestChat,
 }: SubtaskDebugPanelProps) {
   usePrefersDark()
   const [colorBy, setColorBy] = useState<'tokens' | 'type'>('type')
@@ -150,6 +151,7 @@ export default function SubtaskDebugPanel({
                         colorBy={colorBy}
                         onColorByChange={setColorBy}
                         actionTypePaletteId={actionTypePaletteId}
+                        onScrollToLatestChat={onScrollToLatestChat}
                       />
                     </HeightProbe>
                   </Fragment>

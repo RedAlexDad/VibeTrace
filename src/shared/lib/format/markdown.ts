@@ -6,12 +6,12 @@ export function renderMarkdown(text: string): string {
       // fenced code
       .replace(
         /```(\w*)\n([\s\S]*?)```/g,
-        '<pre style="background:var(--color-bg-soft);padding:8px;border-radius:4px;margin:6px 0;font-family:IBM Plex Mono,monospace;font-size:11px"><code>$2</code></pre>',
+        '<pre style="background:var(--color-bg-soft);padding:8px;border-radius:4px;margin:6px 0;font-family:IBM Plex Mono,monospace;font-size:11px;white-space:pre-wrap;overflow-wrap:break-word;word-break:break-word;max-width:100%"><code>$2</code></pre>',
       )
       // inline code
       .replace(
         /`([^`]+)`/g,
-        '<code style="background:var(--color-bg-soft);padding:1px 3px;border-radius:2px;font-family:IBM Plex Mono,monospace;font-size:11px">$1</code>',
+        '<code style="background:var(--color-bg-soft);padding:1px 3px;border-radius:2px;font-family:IBM Plex Mono,monospace;font-size:11px;overflow-wrap:break-word;word-break:break-word">$1</code>',
       )
       // Tables
       .replace(/(\|.+\|)\n(\|[-:| ]+\|)\n((?:\|.+\|\n?)*)/g, (_match, header, _divider, rows) => {
@@ -20,13 +20,13 @@ export function renderMarkdown(text: string): string {
         const bodyCells = rowLines.map((row: string) =>
           row.split('|').filter((c: string) => c.trim()),
         )
-        let html = '<table style="border-collapse:collapse;margin:8px 0;font-size:11px">'
+        let html = '<table style="border-collapse:collapse;margin:8px 0;font-size:11px;max-width:100%;table-layout:fixed">'
         html +=
           '<thead><tr>' +
           headerCells
             .map(
               (c: string) =>
-                `<th style="border:1px solid var(--color-border-light);padding:4px 8px;background:var(--color-bg-soft);font-weight:600">${c}</th>`,
+                `<th style="border:1px solid var(--color-border-light);padding:4px 8px;background:var(--color-bg-soft);font-weight:600;overflow-wrap:break-word;word-break:break-word">${c}</th>`,
             )
             .join('') +
           '</tr></thead>'
@@ -37,7 +37,7 @@ export function renderMarkdown(text: string): string {
             cells
               .map(
                 (c: string) =>
-                  `<td style="border:1px solid var(--color-border-light);padding:4px 8px">${c}</td>`,
+                  `<td style="border:1px solid var(--color-border-light);padding:4px 8px;overflow-wrap:break-word;word-break:break-word">${c}</td>`,
               )
               .join('') +
             '</tr>'

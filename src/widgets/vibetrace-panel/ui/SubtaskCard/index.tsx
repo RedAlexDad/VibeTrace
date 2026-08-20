@@ -35,6 +35,7 @@ export default function SubtaskCard({
   colorBy,
   onColorByChange,
   actionTypePaletteId,
+  onScrollToLatestChat,
 }: SubtaskCardProps) {
   const [nowTick, setNowTick] = useState(() => Date.now())
   const [actionsDurationOn, setActionsDurationOn] = useState(false)
@@ -508,6 +509,43 @@ export default function SubtaskCard({
             >
               {filter.activeFilterMaxLabel}·{filter.matchedActionCount}/{flowActions.length}
             </span>
+            {onScrollToLatestChat && (
+              <button
+                type="button"
+                onClick={onScrollToLatestChat}
+                title="Scroll to the latest chat message"
+                aria-label="Scroll to the latest chat message"
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  width: 20,
+                  height: 20,
+                  flexShrink: 0,
+                  marginLeft: 6,
+                  background: 'var(--color-bg-soft)',
+                  border: '1px solid var(--color-border)',
+                  borderRadius: 5,
+                  cursor: 'pointer',
+                  color: 'var(--color-accent-deep)',
+                  padding: 0,
+                }}
+              >
+                <svg
+                  width="13"
+                  height="13"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path d="M12 5v14" />
+                  <path d="M19 12l-7 7-7-7" />
+                </svg>
+              </button>
+            )}
           </div>
         )}
       </div>

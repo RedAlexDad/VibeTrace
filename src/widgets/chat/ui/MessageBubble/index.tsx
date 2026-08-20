@@ -87,7 +87,13 @@ function PartView({
       return (
         <div
           data-transcript-action-key={ak ?? undefined}
-          style={{ fontSize: 12, lineHeight: 1.6, color: 'var(--color-text-primary)' }}
+          style={{
+            fontSize: 12,
+            lineHeight: 1.6,
+            color: 'var(--color-text-primary)',
+            overflowWrap: 'break-word',
+            wordBreak: 'break-word',
+          }}
           dangerouslySetInnerHTML={{ __html: renderMarkdown(part.text || '') }}
         />
       )
@@ -112,6 +118,8 @@ function PartView({
             background: 'var(--color-bg-subtle)',
             borderRadius: '4px',
             lineHeight: 1.5,
+            overflowWrap: 'break-word',
+            wordBreak: 'break-word',
           }}
           dangerouslySetInnerHTML={{ __html: renderMarkdown(part.text || '') }}
         />

@@ -228,6 +228,14 @@ body {
   font-family: var(--font-family-mono);
 }
 
+/* Transcript: never overflow horizontally — wrap long code lines */
+[data-transcript-action-key] pre,
+[data-message-index] pre {
+  white-space: pre-wrap;
+  overflow-wrap: break-word;
+  word-break: break-word;
+  max-width: 100%;
+}
 .truncate {
   overflow: hidden;
   text-overflow: ellipsis;
