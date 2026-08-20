@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState, type RefObject } from 'react'
 import { useVirtualizer } from '@tanstack/react-virtual'
 import type { OcMessage, OcPendingQuestionRequest, OcTodo } from '@/shared/types/opencode'
 import type { CanonicalTodo, LatestTodowriteBatchProgress } from '@/entities/todo/lib/todoRegistry'
-import { buildMessageSummary } from '@/entities/message/lib/messageSummary'
+import { buildSessionSummary } from '@/entities/message/lib/messageSummary'
 import MessageBubble from '@/widgets/chat/ui/MessageBubble'
 import MessageSummaryLine from '@/widgets/chat/ui/MessageBubble/MessageSummaryLine'
 import TodoPanel from '@/widgets/todo-panel/ui/TodoPanel'
@@ -59,6 +59,8 @@ interface MessagePanelProps {
   composerModelsLoading?: boolean
   composerModelsError?: string | null
   envBootstrapModel?: string | null
+  composerAgent?: 'build' | 'plan'
+  onComposerAgentChange?: (agent: 'build' | 'plan') => void
 }
 
 export default function MessagePanel({
@@ -94,6 +96,8 @@ export default function MessagePanel({
   composerModelsLoading = false,
   composerModelsError = null,
   envBootstrapModel = null,
+  composerAgent = 'build',
+  onComposerAgentChange,
 }: MessagePanelProps) {
   void onRefresh
   const hasInlineQuestion = messagesHaveOpenQuestionWithInput(messages)
@@ -140,8 +144,8 @@ export default function MessagePanel({
     return next
   }, [messages])
 
-  // Summary for the last user bubble: stats of the assistant reply that follows it.
-  const summary = useMemo(() => buildMessageSummary(messages), [messages])
+  // Session-wide stats shown under the composer (deepseek-harness style).
+  const summary = useMemo(() => buildSessionSummary(messages), [messages])
   // Stable wall clock for anchor keys — refreshed on a slow tick instead of every render.
   const [transcriptAnchorNowMs, setTranscriptAnchorNowMs] = useState(() => Date.now())
   useEffect(() => {
@@ -486,6 +490,8 @@ export default function MessagePanel({
           composerModelsLoading={composerModelsLoading}
           composerModelsError={composerModelsError}
           envBootstrapModel={envBootstrapModel}
+          composerAgent={composerAgent}
+          onComposerAgentChange={onComposerAgentChange}
         />
         {summary && (
           <div

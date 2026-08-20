@@ -28,6 +28,8 @@ export default function MessageInput({
   composerModelsLoading = false,
   composerModelsError = null,
   envBootstrapModel = null,
+  composerAgent = 'build',
+  onComposerAgentChange,
 }: MessageInputProps) {
   const [text, setText] = useState('')
   const [files, setFiles] = useState<File[]>([])
@@ -115,6 +117,107 @@ export default function MessageInput({
           envBootstrapModel={envBootstrapModel}
           disabled={disabled}
         />
+      )}
+
+      {/* Agent / model / reasoning toolbar */}
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: 10,
+          flexWrap: 'wrap',
+          marginBottom: 8,
+        }}
+      >
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 4,
+            background: 'var(--color-bg-soft)',
+            borderRadius: 6,
+            padding: 2,
+          }}
+        >
+          {(['build', 'plan'] as const).map((a) => (
+            <button
+              key={a}
+              type="button"
+              onClick={() => onComposerAgentChange?.(a)}
+              style={{
+                border: 'none',
+                background: composerAgent === a ? 'var(--color-bg-white)' : 'transparent',
+                color:
+                  composerAgent === a ? 'var(--color-accent-deep)' : 'var(--color-text-secondary)',
+                fontWeight: composerAgent === a ? 600 : 400,
+                fontSize: 11,
+                borderRadius: 5,
+                padding: '3px 10px',
+                cursor: 'pointer',
+                boxShadow: composerAgent === a ? 'var(--shadow-sm)' : 'none',
+              }}
+            >
+              {a}
+            </button>
+          ))}
+        </div>
+
+        <select
+          value={composerModelRef.trim() ? composerModelRef.trim() : ''}
+          onChange={(e) => onComposerModelRefChange?.(e.target.value)}
+          disabled={disabled || !onComposerModelRefChange || composerModelsLoading}
+          title="Model"
+          style={{
+            fontSize: 11,
+            padding: '4px 8px',
+            borderRadius: 6,
+            border: '1px solid var(--color-border-light)',
+            background: 'var(--color-bg-white)',
+            color: 'var(--color-text-primary)',
+            maxWidth: 260,
+          }}
+        >
+          <option value="">Default model</option>
+          {composerModelOptions.map((o) => (
+            <option key={o.ref} value={o.ref}>
+              {o.label}
+            </option>
+          ))}
+        </select>
+
+        <select
+          defaultValue="auto"
+          title="Reasoning"
+          style={{
+            fontSize: 11,
+            padding: '4px 8px',
+            borderRadius: 6,
+            border: '1px solid var(--color-border-light)',
+            background: 'var(--color-bg-white)',
+            color: 'var(--color-text-primary)',
+          }}
+        >
+          <option value="auto">Reasoning: auto</option>
+          <option value="low">Reasoning: low</option>
+          <option value="medium">Reasoning: medium</option>
+          <option value="high">Reasoning: high</option>
+        </select>
+
+        {composerModelsLoading && (
+          <span style={{ fontSize: 10, color: 'var(--color-text-tertiary)' }}>Loading…</span>
+        )}
+      </div>
+      {composerModelsError && (
+        <div
+          style={{
+            fontSize: 10,
+            color: 'var(--color-error-text)',
+            lineHeight: 1.4,
+            marginBottom: 8,
+          }}
+        >
+          Models unavailable: {composerModelsError}
+        </div>
       )}
 
       <div

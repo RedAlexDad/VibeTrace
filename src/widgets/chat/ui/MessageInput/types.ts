@@ -22,6 +22,9 @@ export interface MessageInputProps {
   composerModelsError?: string | null
   /** Shown when composer selection is empty — mirrors `VITE_OPENCODE_DEFAULT_MODEL`. */
   envBootstrapModel?: string | null
+  /** Agent (build/plan) sent with the next message */
+  composerAgent?: 'build' | 'plan'
+  onComposerAgentChange?: (agent: 'build' | 'plan') => void
 }
 
 export const FONT_SIZE = 12

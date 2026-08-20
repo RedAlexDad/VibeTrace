@@ -45,7 +45,6 @@ import {
   buildSessionTodoModel,
   getLatestTodowriteBatchProgress,
 } from '@/entities/todo/lib/todoRegistry'
-import { SHOW_COMPOSER_MODEL_UI } from '@/shared/config/featureFlags'
 import { STORAGE_KEYS } from '@/shared/config/storageKeys'
 import { buildUserMessageWithGuidance } from '@/shared/config/harnessGuidance'
 import {
@@ -110,6 +109,14 @@ export function useWorkspacePage() {
   const [composerModelRef, setComposerModelRef] = useState<string>(() =>
     loadComposerModelRefFromLs(),
   )
+  const [composerAgent, setComposerAgent] = useState<'build' | 'plan'>(() => {
+    try {
+      const v = window.localStorage.getItem(STORAGE_KEYS.composerAgent)
+      return v === 'plan' ? 'plan' : 'build'
+    } catch {
+      return 'build'
+    }
+  })
   const [composerModelOptions, setComposerModelOptions] = useState<OcComposerModelOption[]>([])
   const [composerModelsLoading, setComposerModelsLoading] = useState(false)
   const [composerModelsError, setComposerModelsError] = useState<string | null>(null)
@@ -242,7 +249,6 @@ export function useWorkspacePage() {
   }, [composerModelOptions, composerModelRef])
 
   useEffect(() => {
-    if (!SHOW_COMPOSER_MODEL_UI) return
     let cancelled = false
     setComposerModelsLoading(true)
     setComposerModelsError(null)
@@ -267,6 +273,15 @@ export function useWorkspacePage() {
     try {
       if (t) window.localStorage.setItem(STORAGE_KEYS.composerModelRef, t)
       else window.localStorage.removeItem(STORAGE_KEYS.composerModelRef)
+    } catch {
+      /* ignore */
+    }
+  }, [])
+
+  const handleComposerAgentChange = useCallback((agent: 'build' | 'plan') => {
+    setComposerAgent(agent)
+    try {
+      window.localStorage.setItem(STORAGE_KEYS.composerAgent, agent)
     } catch {
       /* ignore */
     }
@@ -903,6 +918,7 @@ export function useWorkspacePage() {
           await sendMessage(sid, text, dir, {
             imageParts: images,
             model: composerModelRef.trim() || undefined,
+            agent: composerAgent,
           })
           const msgs = await getMessages(sid, 'after POST /message completes', dir)
           setMessagesStable(msgs)
@@ -926,7 +942,7 @@ export function useWorkspacePage() {
         }
       })()
     },
-    [selectedSessionId, sessions, composerModelRef, setMessagesStable],
+    [selectedSessionId, sessions, composerModelRef, composerAgent, setMessagesStable],
   )
 
   const handleAbortMessage = useCallback(async () => {
@@ -1273,6 +1289,8 @@ export function useWorkspacePage() {
     composerModelsLoading,
     composerModelsError,
     envBootstrapModel,
+    composerAgent,
+    handleComposerAgentChange,
     subtaskPanelVisible,
     subtaskFlowLayoutMode,
     setFlowLayoutMode,

@@ -1,16 +1,19 @@
 import type { OcMessage } from '@/shared/types/opencode'
 
-export interface MessageSummary {
-  mode: string | null
-  agent: string | null
-  model: string | null
-  /** Duration of the assistant reply (completed - created), ms */
-  llmMs: number | null
-  /** Time until the first output part (first reasoning/text/tool timestamp - created), ms */
-  ttftMs: number | null
-  /** Output tokens per second across the reply */
+export interface SessionSummary {
+  /** Number of user messages (turns) */
+  turns: number
+  /** Number of tool calls across the session */
+  steps: number
+  /** Total LLM time across assistant replies, ms */
+  llmMs: number
+  /** Total tool call time, ms */
+  toolMs: number
+  /** Average TTFT (first output part) across replies, ms */
+  ttftAvgMs: number | null
+  /** Output tokens per second across the session */
   tokPerSec: number | null
-  /** Cache read % of input tokens */
+  /** Cache read % of total input */
   cacheHitPct: number | null
   tokens: {
     input: number
@@ -19,8 +22,8 @@ export interface MessageSummary {
     total: number
   }
   cost: number | null
-  toolCalls: number
-  toolMs: number | null
+  /** Mode counts (e.g. build/plan/compaction) */
+  modes: Record<string, number>
 }
 
 export function formatMs(ms: number | null): string | null {
@@ -30,96 +33,99 @@ export function formatMs(ms: number | null): string | null {
   if (s < 60) return `${s.toFixed(1)}s`
   const m = Math.floor(s / 60)
   const sec = Math.round(s % 60)
-  return `${m}m${String(sec).padStart(2, '0')}s`
+  if (m < 60) return `${m}m${String(sec).padStart(2, '0')}s`
+  const h = Math.floor(m / 60)
+  const mm = m % 60
+  return `${h}h${String(mm).padStart(2, '0')}m`
 }
 
 /**
- * Summary of the last assistant reply that follows the last user message.
- * Used under the newest user bubble (deepseek-harness style stats line).
+ * Aggregate statistics across the whole session, deepseek-harness style:
+ * turns · steps | LLM time · tool call time | TTFT avg · tok/s | cache hit | in/out tokens.
  */
-export function buildMessageSummary(messages: OcMessage[]): MessageSummary | null {
-  if (messages.length < 2) return null
+export function buildSessionSummary(messages: OcMessage[]): SessionSummary {
+  let turns = 0
+  let steps = 0
+  let llmMs = 0
+  let toolMs = 0
+  let input = 0
+  let output = 0
+  let reasoning = 0
+  let cacheRead = 0
+  let cost = 0
+  let ttftSum = 0
+  let ttftCount = 0
+  const modes: Record<string, number> = {}
 
-  // Find the last user message index
-  let lastUserIdx = -1
-  for (let i = messages.length - 1; i >= 0; i--) {
-    if (messages[i]!.info.role === 'user') {
-      lastUserIdx = i
-      break
+  for (const m of messages) {
+    const info = m.info
+    if (info.role === 'user') {
+      turns++
+      continue
+    }
+    if (info.role !== 'assistant') continue
+
+    const created = info.time?.created
+    const completed = info.time?.completed
+    if (created && completed && completed >= created) {
+      llmMs += completed - created
+    }
+
+    const tok = info.tokens
+    if (tok) {
+      input += tok.input ?? 0
+      output += tok.output ?? 0
+      reasoning += tok.reasoning ?? 0
+      cacheRead += tok.cache?.read ?? 0
+    }
+    if (info.cost) cost += info.cost
+
+    const mode = info.mode || info.agent
+    if (mode) modes[mode] = (modes[mode] ?? 0) + 1
+
+    // TTFT: first output part timestamp - created
+    let firstOutputTs: number | null = null
+    for (const p of m.parts) {
+      if (p.type === 'reasoning' && p.time?.start) {
+        firstOutputTs = p.time.start
+        break
+      }
+      if (p.type === 'tool' && p.state?.time?.start) {
+        firstOutputTs = p.state.time.start
+        break
+      }
+    }
+    if (created && firstOutputTs && firstOutputTs >= created) {
+      ttftSum += firstOutputTs - created
+      ttftCount++
+    }
+
+    for (const p of m.parts) {
+      if (p.type !== 'tool') continue
+      steps++
+      const st = p.state?.time
+      if (st?.start && st.end && st.end >= st.start) {
+        toolMs += st.end - st.start
+      }
     }
   }
-  if (lastUserIdx < 0) return null
 
-  // The assistant reply that follows it
-  let reply: OcMessage | null = null
-  for (let i = lastUserIdx + 1; i < messages.length; i++) {
-    if (messages[i]!.info.role === 'assistant') {
-      reply = messages[i]!
-      break
-    }
-  }
-  if (!reply) return null
-
-  const info = reply.info
-  const created = info.time?.created
-  const completed = info.time?.completed
-
-  let llmMs: number | null = null
-  if (created && completed && completed >= created) llmMs = completed - created
-
-  // TTFT: first output part timestamp (reasoning has time, tools have state.time.start)
-  let firstOutputTs: number | null = null
-  for (const p of reply.parts) {
-    if (p.type === 'reasoning' && p.time?.start) {
-      firstOutputTs = p.time.start
-      break
-    }
-    if (p.type === 'tool' && p.state?.time?.start) {
-      firstOutputTs = p.state.time.start
-      break
-    }
-  }
-  const ttftMs =
-    created && firstOutputTs && firstOutputTs >= created ? firstOutputTs - created : null
-
-  let toolCalls = 0
-  let toolMs: number | null = null
-  let toolSum = 0
-  let toolAny = false
-  for (const p of reply.parts) {
-    if (p.type !== 'tool') continue
-    toolCalls++
-    const st = p.state?.time
-    if (st?.start && st.end && st.end >= st.start) {
-      toolAny = true
-      toolSum += st.end - st.start
-    }
-  }
-  if (toolAny) toolMs = toolSum
-
-  const tok = info.tokens
-  const input = tok?.input ?? 0
-  const output = tok?.output ?? 0
-  const reasoning = tok?.reasoning ?? 0
-  const cacheRead = tok?.cache?.read ?? 0
-  const total = tok?.total ?? input + output + reasoning
-
+  const total = input + output + reasoning
+  const ttftAvgMs = ttftCount > 0 ? ttftSum / ttftCount : null
+  const tokPerSec = llmMs > 0 && output > 0 ? (output / llmMs) * 1000 : null
   const cacheHitPct =
     cacheRead + input > 0 ? Math.round((cacheRead / (cacheRead + input)) * 100) : null
 
-  const tokPerSec = llmMs && llmMs > 0 && output > 0 ? (output / llmMs) * 1000 : null
-
   return {
-    mode: info.mode ?? null,
-    agent: info.agent ?? null,
-    model: info.model?.modelID ?? null,
+    turns,
+    steps,
     llmMs,
-    ttftMs,
+    toolMs,
+    ttftAvgMs,
     tokPerSec,
     cacheHitPct,
     tokens: { input, output, reasoning, total },
-    cost: info.cost ?? null,
-    toolCalls,
-    toolMs,
+    cost: cost > 0 ? cost : null,
+    modes,
   }
 }

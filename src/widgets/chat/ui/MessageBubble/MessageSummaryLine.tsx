@@ -1,4 +1,4 @@
-import type { MessageSummary } from '@/entities/message/lib/messageSummary'
+import type { SessionSummary } from '@/entities/message/lib/messageSummary'
 import { formatMs } from '@/entities/message/lib/messageSummary'
 
 function formatCost(cost: number | null): string | null {
@@ -14,17 +14,16 @@ function formatCount(n: number): string {
   return String(n)
 }
 
-export default function MessageSummaryLine({ summary }: { summary: MessageSummary }) {
-  const modeLabel = summary.mode || summary.agent
+export default function MessageSummaryLine({ summary }: { summary: SessionSummary }) {
   const parts: string[] = []
 
+  parts.push(`${summary.turns} turns · ${summary.steps} steps`)
   const llm = formatMs(summary.llmMs)
   if (llm) parts.push(`LLM ${llm}`)
-  if (summary.toolCalls > 0) {
-    const toolTime = formatMs(summary.toolMs)
-    parts.push(`Tool call ${summary.toolCalls}${toolTime ? ` · ${toolTime}` : ''}`)
+  if (summary.toolMs > 0) {
+    parts.push(`Tool call ${formatMs(summary.toolMs)}`)
   }
-  if (summary.ttftMs !== null) parts.push(`TTFT ${formatMs(summary.ttftMs)}`)
+  if (summary.ttftAvgMs !== null) parts.push(`TTFT avg ${formatMs(summary.ttftAvgMs)}`)
   if (summary.tokPerSec !== null) parts.push(`${Math.round(summary.tokPerSec)} tok/s`)
   if (summary.cacheHitPct !== null) parts.push(`Cache hit ${summary.cacheHitPct}%`)
   if (summary.tokens.input > 0 || summary.tokens.output > 0) {
@@ -36,9 +35,7 @@ export default function MessageSummaryLine({ summary }: { summary: MessageSummar
   const cost = formatCost(summary.cost)
   if (cost) parts.push(cost)
 
-  if (!modeLabel && parts.length === 0) return null
-
-  const isPlan = modeLabel === 'plan'
+  if (parts.length === 0) return null
 
   return (
     <div
@@ -47,27 +44,18 @@ export default function MessageSummaryLine({ summary }: { summary: MessageSummar
         fontSize: 11,
         lineHeight: 1.5,
         color: 'var(--color-text-secondary)',
-        textAlign: 'right',
+        textAlign: 'center',
         fontFamily: 'IBM Plex Mono, monospace',
         wordBreak: 'break-word',
         display: 'inline-block',
         maxWidth: '100%',
-        padding: '3px 8px',
+        padding: '3px 10px',
         borderRadius: 6,
         background: 'var(--color-bg-subtle)',
         border: '1px solid var(--color-border-faint)',
       }}
     >
-      <span
-        style={{
-          fontWeight: 600,
-          color: isPlan ? 'var(--color-warning)' : 'var(--color-accent-deep)',
-        }}
-      >
-        {modeLabel}
-      </span>
-      {summary.model ? <span style={{ marginLeft: 6 }}>{summary.model}</span> : null}
-      <span style={{ marginLeft: 6 }}>{parts.slice(1).join(' · ')}</span>
+      {parts.join(' · ')}
     </div>
   )
 }

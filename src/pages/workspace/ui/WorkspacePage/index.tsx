@@ -47,6 +47,8 @@ function WorkspacePage() {
     questionSubmitting,
     handleQuestionAnswered,
     composerModelRef,
+    composerAgent,
+    handleComposerAgentChange,
     handleComposerModelRefChange,
     composerModelOptionsForUi,
     composerModelsLoading,
@@ -267,6 +269,8 @@ function WorkspacePage() {
               composerModelsLoading={composerModelsLoading}
               composerModelsError={composerModelsError}
               envBootstrapModel={envBootstrapModel}
+              composerAgent={composerAgent}
+              onComposerAgentChange={handleComposerAgentChange}
             />
           </div>
         </div>
