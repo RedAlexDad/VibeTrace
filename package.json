@@ -10,7 +10,9 @@
     "preview": "vite preview",
     "smoke:opencode": "node scripts/smoke-opencode-session.mjs",
     "format": "prettier --write \"src/**/*.{ts,tsx,css}\"",
-    "format:check": "prettier --check \"src/**/*.{ts,tsx,css}\""
+    "format:check": "prettier --check \"src/**/*.{ts,tsx,css}\"",
+    "perf:bench": "python3 perf/bench.py",
+    "perf:profile": "python3 perf/profile.py"
   },
   "dependencies": {
     "@reduxjs/toolkit": "^2.12.0",
