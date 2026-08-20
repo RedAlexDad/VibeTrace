@@ -359,7 +359,11 @@ export default function MessagePanel({
                     data-message-index={idx}
                     data-virtual-index={vi.index}
                     ref={(el) => {
-                      if (el) virtualizer.measureElement(el)
+                      if (el) {
+                        // Defer measurement out of the commit phase — react-virtual's
+                        // internal flushSync must not run while React is rendering.
+                        window.requestAnimationFrame(() => virtualizer.measureElement(el))
+                      }
                     }}
                     data-index={vi.index}
                     style={{
