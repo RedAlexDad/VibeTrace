@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState, type RefObject } from 'react'
+import { useVirtualizer } from '@tanstack/react-virtual'
 import type { OcMessage, OcPendingQuestionRequest, OcTodo } from '@/shared/types/opencode'
 import type { CanonicalTodo, LatestTodowriteBatchProgress } from '@/entities/todo/lib/todoRegistry'
 import MessageBubble from '@/widgets/chat/ui/MessageBubble'
@@ -114,7 +115,25 @@ export default function MessagePanel({
     })
   })
 
-  const staleToolCallIds = useMemo(() => collectStaleToolCallIDs(messages), [messages])
+  const staleToolCallIdsRef = useRef<Set<string> | null>(null)
+  const staleToolCallIds = useMemo(() => {
+    const next = collectStaleToolCallIDs(messages)
+    // Keep the Set instance stable when its contents are unchanged, so memoized
+    // bubbles don't re-render on every transcript refresh.
+    const prev = staleToolCallIdsRef.current
+    if (prev && prev.size === next.size) {
+      let same = true
+      for (const v of next) {
+        if (!prev.has(v)) {
+          same = false
+          break
+        }
+      }
+      if (same) return prev
+    }
+    staleToolCallIdsRef.current = next
+    return next
+  }, [messages])
   // Stable wall clock for anchor keys — refreshed on a slow tick instead of every render.
   const [transcriptAnchorNowMs, setTranscriptAnchorNowMs] = useState(() => Date.now())
   useEffect(() => {
@@ -138,6 +157,15 @@ export default function MessagePanel({
     if (!el) return
     el.scrollTo({ top: el.scrollHeight, behavior: 'smooth' })
   }
+
+  const listRef = useRef<HTMLDivElement | null>(null)
+  const virtualizer = useVirtualizer({
+    count: messages.length,
+    getScrollElement: () =>
+      messageListScrollRef?.current ?? scrollTargetRef.current ?? listRef.current,
+    estimateSize: () => 60,
+    overscan: 12,
+  })
 
   /** Keep the floating button hidden when new messages arrive and we are already at the bottom. */
   useEffect(() => {
@@ -245,6 +273,7 @@ export default function MessagePanel({
       >
         <div
           ref={(node) => {
+            listRef.current = node
             scrollTargetRef.current = node
             if (messageListScrollRef) messageListScrollRef.current = node
           }}
@@ -287,39 +316,59 @@ export default function MessagePanel({
               Pick a session to start chatting
             </div>
           ) : (
-            messages.map((msg, idx) => {
-              const hl = highlightMessageIndices?.has(idx) ?? false
-              return (
-                <div
-                  key={msg.info.id || `msg-${idx}`}
-                  data-message-index={idx}
-                  style={{
-                    borderRadius: 10,
-                    padding: hl ? '6px 8px' : '2px 0',
-                    margin: hl ? '2px -4px' : 0,
-                    outline: hl ? `2px solid ${actionFlowPalette.completed.stroke}` : 'none',
-                    outlineOffset: hl ? 1 : 0,
-                    background: hl ? 'rgba(245, 255, 234, 0.55)' : 'transparent',
-                    boxShadow: hl ? `0 0 0 1px rgba(145, 163, 123, 0.25)` : 'none',
-                    transition: 'background 0.15s ease, outline 0.15s ease',
-                  }}
-                >
-                  <MessageBubble
-                    message={msg}
-                    staleToolCallIds={staleToolCallIds}
-                    transcriptAnchorNowMs={transcriptAnchorNowMs}
-                    isLastInTurn={isLastMessageInTurn(messages, idx)}
-                    sessionDirectory={sessionDirectory}
-                    ssePendingQuestion={
-                      pendingQuestion && pendingQuestion.sessionID === sessionId
-                        ? pendingQuestion
-                        : null
-                    }
-                    onQuestionAnswered={onQuestionAnswered}
-                  />
-                </div>
-              )
-            })
+            <div
+              style={{
+                position: 'relative',
+                width: '100%',
+                height: virtualizer.getTotalSize(),
+                flexShrink: 0,
+              }}
+            >
+              {virtualizer.getVirtualItems().map((vi) => {
+                const idx = vi.index
+                const msg = messages[idx]
+                if (!msg) return null
+                const hl = highlightMessageIndices?.has(idx) ?? false
+                return (
+                  <div
+                    key={msg.info.id || `msg-${idx}`}
+                    data-message-index={idx}
+                    data-virtual-index={vi.index}
+                    ref={virtualizer.measureElement}
+                    data-index={vi.index}
+                    style={{
+                      position: 'absolute',
+                      top: 0,
+                      left: 0,
+                      width: '100%',
+                      transform: `translateY(${vi.start}px)`,
+                      borderRadius: 10,
+                      padding: hl ? '6px 8px' : '2px 0',
+                      margin: hl ? '2px -4px' : 0,
+                      outline: hl ? `2px solid ${actionFlowPalette.completed.stroke}` : 'none',
+                      outlineOffset: hl ? 1 : 0,
+                      background: hl ? 'rgba(245, 255, 234, 0.55)' : 'transparent',
+                      boxShadow: hl ? `0 0 0 1px rgba(145, 163, 123, 0.25)` : 'none',
+                      transition: 'background 0.15s ease, outline 0.15s ease',
+                    }}
+                  >
+                    <MessageBubble
+                      message={msg}
+                      staleToolCallIds={staleToolCallIds}
+                      transcriptAnchorNowMs={transcriptAnchorNowMs}
+                      isLastInTurn={isLastMessageInTurn(messages, idx)}
+                      sessionDirectory={sessionDirectory}
+                      ssePendingQuestion={
+                        pendingQuestion && pendingQuestion.sessionID === sessionId
+                          ? pendingQuestion
+                          : null
+                      }
+                      onQuestionAnswered={onQuestionAnswered}
+                    />
+                  </div>
+                )
+              })}
+            </div>
           )}
         </div>
 

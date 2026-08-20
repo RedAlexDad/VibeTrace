@@ -1,19 +1,22 @@
+import { memo } from 'react'
 import type { OcPendingQuestionRequest, ToolPart } from '@/shared/types/opencode'
 import { parseQuestionInputQuestions } from '@/entities/message/lib/questionPart'
 import ToolCallCard from '@/entities/message/ui/ToolCallCard'
 import QuestionInlineForm from './QuestionInlineForm'
 
-export default function ToolCallView({
-  part,
-  sessionDirectory,
-  ssePendingQuestion,
-  onQuestionAnswered,
-}: {
+type ToolCallViewProps = {
   part: ToolPart
   sessionDirectory?: string
   ssePendingQuestion?: OcPendingQuestionRequest | null
   onQuestionAnswered?: () => Promise<void>
-}) {
+}
+
+export default memo(function ToolCallView({
+  part,
+  sessionDirectory,
+  ssePendingQuestion,
+  onQuestionAnswered,
+}: ToolCallViewProps) {
   const toolName = part.tool
   const state = part.state
   const status = state?.status
@@ -44,4 +47,11 @@ export default function ToolCallView({
       }
     />
   )
+}, toolCallViewPropsEqual)
+
+function toolCallViewPropsEqual(prev: ToolCallViewProps, next: ToolCallViewProps): boolean {
+  if (prev.part !== next.part) return false
+  if (prev.sessionDirectory !== next.sessionDirectory) return false
+  if (prev.ssePendingQuestion !== next.ssePendingQuestion) return false
+  return Boolean(prev.onQuestionAnswered) === Boolean(next.onQuestionAnswered)
 }

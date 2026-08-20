@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { memo, useState, useEffect } from 'react'
 import type { ReactElement, ReactNode } from 'react'
 import type { ToolPart } from '@/shared/types/opencode'
 import { mapToolToActionType } from '@/entities/action/lib/actionMapping'
@@ -166,7 +166,7 @@ const STATUS_TEXT: Record<string, string> = {
   error: 'var(--color-error-text)',
 }
 
-export default function ToolCallCard({ part, renderInline }: ToolCallCardProps) {
+export default memo(function ToolCallCard({ part, renderInline }: ToolCallCardProps) {
   const [expanded, setExpanded] = useState(false)
   const [activeTab, setActiveTab] = useState<'input' | 'output' | 'error'>('input')
   usePrefersDark()
@@ -377,4 +377,10 @@ export default function ToolCallCard({ part, renderInline }: ToolCallCardProps) 
       )}
     </div>
   )
+}, toolCallCardPropsEqual)
+
+function toolCallCardPropsEqual(prev: ToolCallCardProps, next: ToolCallCardProps): boolean {
+  if (prev.part !== next.part) return false
+  // `renderInline` is a fresh closure each render — only re-render if presence changes
+  return Boolean(prev.renderInline) === Boolean(next.renderInline)
 }
