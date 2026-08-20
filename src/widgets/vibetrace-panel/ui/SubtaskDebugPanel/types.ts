@@ -23,6 +23,4 @@ export interface SubtaskDebugPanelProps {
   onSelectAction?: (subtaskIndex: number, actionKey: string | null) => void
   /** Layout mode toggled by the subtask panel header. */
   flowLayoutMode?: 'timeline' | 'summary'
-  /** Scrolls the chat transcript to the very last message */
-  onScrollToLatestChat?: () => void
 }

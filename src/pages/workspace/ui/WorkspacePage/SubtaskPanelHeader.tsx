@@ -25,7 +25,7 @@ export default function SubtaskPanelHeader({
   return (
     <div
       style={{
-        height: 44,
+        height: 48,
         padding: '0 14px',
         display: 'flex',
         alignItems: 'center',

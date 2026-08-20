@@ -24,8 +24,6 @@ interface Props {
   flowLayoutMode: 'timeline' | 'summary'
   selection: SubtaskSelection
   onSelectAction: (subtaskIndex: number, actionKey: string | null) => void
-  /** Scrolls the chat transcript to the very last message */
-  onScrollToLatestChat?: () => void
 }
 
 /**
@@ -46,7 +44,6 @@ export default function FullscreenSubtaskPanel({
   flowLayoutMode,
   selection,
   onSelectAction,
-  onScrollToLatestChat,
 }: Props) {
   const scrollRef = useRef<HTMLDivElement>(null)
 
@@ -191,7 +188,6 @@ export default function FullscreenSubtaskPanel({
             flowLayoutMode={flowLayoutMode}
             selection={selection}
             onSelectAction={onSelectAction}
-            onScrollToLatestChat={onScrollToLatestChat}
           />
         </div>
       </div>

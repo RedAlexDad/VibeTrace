@@ -43,6 +43,4 @@ export interface SubtaskCardProps {
   onColorByChange: (mode: ColorByMode) => void
   /** Shared action-type palette from parent panel */
   actionTypePaletteId: ActionTypePaletteId
-  /** Scrolls the chat transcript to the very last message */
-  onScrollToLatestChat?: () => void
 }

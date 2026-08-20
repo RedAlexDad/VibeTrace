@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, type RefObject } from 'react'
+import { useEffect, useMemo, useRef, useState, type RefObject } from 'react'
 import type { OcMessage, OcPendingQuestionRequest, OcTodo } from '@/shared/types/opencode'
 import type { CanonicalTodo, LatestTodowriteBatchProgress } from '@/entities/todo/lib/todoRegistry'
 import MessageBubble from '@/widgets/chat/ui/MessageBubble'
@@ -117,6 +117,32 @@ export default function MessagePanel({
   const staleToolCallIds = useMemo(() => collectStaleToolCallIDs(messages), [messages])
   const transcriptAnchorNowMs = Date.now()
 
+  /** Whether the message list is scrolled to the very bottom (controls the floating button). */
+  const [atBottom, setAtBottom] = useState(true)
+  const scrollTargetRef = useRef<HTMLDivElement | null>(null)
+
+  const handleScroll = () => {
+    const el = messageListScrollRef?.current ?? scrollTargetRef.current
+    if (!el) return
+    const dist = el.scrollHeight - el.scrollTop - el.clientHeight
+    setAtBottom(dist <= 24)
+  }
+
+  const scrollToBottom = () => {
+    const el = messageListScrollRef?.current ?? scrollTargetRef.current
+    if (!el) return
+    el.scrollTo({ top: el.scrollHeight, behavior: 'smooth' })
+  }
+
+  /** Keep the floating button hidden when new messages arrive and we are already at the bottom. */
+  useEffect(() => {
+    if (loading) return
+    const el = messageListScrollRef?.current ?? scrollTargetRef.current
+    if (!el) return
+    const dist = el.scrollHeight - el.scrollTop - el.clientHeight
+    setAtBottom(dist <= 24)
+  }, [messages, loading, messageListScrollRef])
+
   /** Auto-scroll to the bottom when entering a session (avoids starting at the top). */
   const prevSessionIdRef = useRef(sessionId)
   const pendingAutoScrollRef = useRef(false)
@@ -146,6 +172,7 @@ export default function MessagePanel({
         flexDirection: 'column',
         overflow: 'hidden',
         background: 'var(--color-bg-white)',
+        position: 'relative',
       }}
     >
       {/* Header */}
@@ -203,18 +230,31 @@ export default function MessagePanel({
 
       {/* Messages (scrollable) */}
       <div
-        ref={messageListScrollRef}
         style={{
           flex: 1,
-          overflowY: 'auto',
-          overflowX: 'hidden',
-          padding: '16px',
+          minHeight: 0,
+          position: 'relative',
           display: 'flex',
           flexDirection: 'column',
-          gap: '0',
-          overflowWrap: 'break-word',
         }}
       >
+        <div
+          ref={(node) => {
+            scrollTargetRef.current = node
+            if (messageListScrollRef) messageListScrollRef.current = node
+          }}
+          onScroll={handleScroll}
+          style={{
+            flex: 1,
+            overflowY: 'auto',
+            overflowX: 'hidden',
+            padding: '16px',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '0',
+            overflowWrap: 'break-word',
+          }}
+        >
         {loading ? (
           <div
             style={{
@@ -275,6 +315,49 @@ export default function MessagePanel({
               </div>
             )
           })
+        )}
+        </div>
+
+        {/* Floating "scroll to latest" button — pinned above the composer, inside the message area */}
+        {!atBottom && (
+          <button
+            type="button"
+            onClick={scrollToBottom}
+            title="Scroll to the latest message"
+            aria-label="Scroll to the latest message"
+            style={{
+              position: 'absolute',
+              right: 24,
+              bottom: 16,
+              width: 32,
+              height: 32,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              borderRadius: '50%',
+              border: '1px solid var(--color-border)',
+              background: 'var(--color-bg-elevated)',
+              color: 'var(--color-accent-deep)',
+              cursor: 'pointer',
+              boxShadow: 'var(--shadow-md)',
+              zIndex: 20,
+              padding: 0,
+            }}
+          >
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="M12 5v14" />
+              <path d="M19 12l-7 7-7-7" />
+            </svg>
+          </button>
         )}
       </div>
 
