@@ -27,7 +27,7 @@ export function flowEndListRows(
   const html = shown
     .map(
       (p) =>
-        `<div style="font-family:ui-monospace,Consolas,monospace;font-size:11px;line-height:1.4;color:var(--color-ink);">${esc(truncatePathForFlowEnd(p))}</div>`,
+        `<div style="font-family:ui-monospace,Consolas,monospace;font-size:11px;line-height:1.4;color:var(--color-text-primary);">${esc(truncatePathForFlowEnd(p))}</div>`,
     )
     .join('')
   return { html, more }
@@ -62,13 +62,13 @@ export function buildFlowEndTooltipHtml(s: FlowEndSummary): string {
       : ''
 
   return `<div class="action-tip-root action-tip-root--compact" style="text-align:left;max-width:min(440px,92vw);">
-<div style="font-size:12px;font-weight:600;color:var(--color-ink);margin-bottom:4px;">Read</div>
+<div style="font-size:12px;font-weight:600;color:var(--color-text-primary);margin-bottom:4px;">Read</div>
 <div style="font-size:11px;color:var(--color-text-secondary);margin-bottom:6px;">${esc(String(s.readFileTotalCount))} file(s) (paths + glob)</div>
 ${readList.html}${readMore}${globLine}
-<div style="font-size:12px;font-weight:600;color:var(--color-ink);margin-top:10px;margin-bottom:4px;">Web search</div>
+<div style="font-size:12px;font-weight:600;color:var(--color-text-primary);margin-top:10px;margin-bottom:4px;">Web search</div>
 <div style="font-size:11px;color:var(--color-text-secondary);margin-bottom:6px;">${esc(String(s.webSearchCount))} call(s) · keywords / URLs</div>
 ${qList.html}${qMore}
-<div style="font-size:12px;font-weight:600;color:var(--color-ink);margin-top:10px;margin-bottom:4px;">Write / edit</div>
+<div style="font-size:12px;font-weight:600;color:var(--color-text-primary);margin-top:10px;margin-bottom:4px;">Write / edit</div>
 <div style="font-size:11px;color:var(--color-text-secondary);margin-bottom:6px;">${esc(String(s.writeFileCount))} file(s)</div>
 ${writeList.html}${writeMore}
 </div>`

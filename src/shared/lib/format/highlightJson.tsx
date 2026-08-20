@@ -7,7 +7,7 @@ const TOKEN = /("(?:\\.|[^"\\])*")(\s*:)?|\b(true|false|null)\b|(-?\d+(?:\.\d+)?
 
 function tokenColor(token: string): string {
   if (token === 'true' || token === 'false') return 'var(--color-code-boolean)'
-  if (token === 'null') return 'var(--color-code-null)'
+  if (token === 'null') return 'var(--color-text-tertiary)'
   return 'var(--color-text-secondary)'
 }
 

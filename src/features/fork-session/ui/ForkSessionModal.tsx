@@ -63,7 +63,7 @@ export default function ForkSessionModal({ open, submitting, onClose, onConfirm 
               margin: 0,
               fontSize: 15,
               fontWeight: 600,
-              color: 'var(--color-ink)',
+              color: 'var(--color-text-primary)',
               lineHeight: '22px',
             }}
           >
@@ -158,7 +158,7 @@ export default function ForkSessionModal({ open, submitting, onClose, onConfirm 
               fontSize: 13,
               borderRadius: 8,
               border: 'none',
-              background: canSubmit ? 'var(--color-ink)' : 'var(--color-border-light)',
+              background: canSubmit ? 'var(--color-text-primary)' : 'var(--color-border-light)',
               color: 'var(--color-on-accent)',
               cursor: submitting ? 'not-allowed' : 'pointer',
               fontFamily: fontSans,

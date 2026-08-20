@@ -199,7 +199,7 @@ export default function ActionFlowContextMenu({ menu, onClose, onFork, onAnalysi
       {onFork ? (
         <button
           type="button"
-          style={{ ...itemStyle, color: 'var(--color-ink)' }}
+          style={{ ...itemStyle, color: 'var(--color-text-primary)' }}
           onMouseEnter={(e) => {
             e.currentTarget.style.background = 'rgba(148, 163, 184, 0.15)'
           }}
@@ -227,7 +227,7 @@ export default function ActionFlowContextMenu({ menu, onClose, onFork, onAnalysi
       {onAnalysis ? (
         <button
           type="button"
-          style={{ ...itemStyle, color: 'var(--color-ink)', marginTop: onFork ? 2 : 0 }}
+          style={{ ...itemStyle, color: 'var(--color-text-primary)', marginTop: onFork ? 2 : 0 }}
           onMouseEnter={(e) => {
             e.currentTarget.style.background = 'rgba(148, 163, 184, 0.15)'
           }}

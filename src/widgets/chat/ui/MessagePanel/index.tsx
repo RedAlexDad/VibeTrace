@@ -260,7 +260,7 @@ export default function MessagePanel({
             fontSize: 12,
             color: 'var(--color-accent-strong)',
             background:
-              'linear-gradient(90deg, var(--color-link-soft) 0%, var(--color-link-softer) 100%)',
+              'linear-gradient(90deg, var(--color-link-soft) 0%, var(--color-accent-softer) 100%)',
             borderBottom: '1px solid var(--color-link-soft)',
             display: 'flex',
             alignItems: 'center',
