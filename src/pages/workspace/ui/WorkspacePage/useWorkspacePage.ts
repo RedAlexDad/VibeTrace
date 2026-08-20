@@ -590,6 +590,102 @@ export function useWorkspacePage() {
         }
       }
 
+      if (eventType === 'message.part.delta') {
+        // Token-level text streaming: opencode sends `message.part.updated`
+        // with the full text only occasionally, but emits a `delta` per token.
+        // Without handling it the assistant text (esp. reasoning) stays
+        // truncated until the next full refetch.
+        const props = payload.properties as {
+          sessionID?: string
+          messageID?: string
+          partID?: string
+          field?: string
+          delta?: string
+        } | null
+        const sid = props?.sessionID
+        if (
+          sid === selectedSessionIdRef.current &&
+          props?.partID &&
+          props?.messageID &&
+          props.field === 'text' &&
+          typeof props.delta === 'string' &&
+          props.delta.length > 0
+        ) {
+          const existingIdx = messagesRef.current.findIndex((m) => m.info.id === props.messageID)
+          if (existingIdx >= 0) {
+            const targetMsg = messagesRef.current[existingIdx]
+            const hasPart = targetMsg.parts.some((p) => 'id' in p && p.id === props.partID)
+            if (hasPart) {
+              // Append the delta to the matching text/reasoning part.
+              const msgs = messagesRef.current.map((m) => {
+                if (m.info.id !== props.messageID) return m
+                const parts = m.parts.map((p) => {
+                  if ('id' in p && p.id === props.partID) {
+                    const cur = (p as { text?: string }).text ?? ''
+                    if (p.type === 'text' || p.type === 'reasoning') {
+                      return { ...p, text: cur + props.delta } as (typeof m.parts)[number]
+                    }
+                  }
+                  return p
+                })
+                return { ...m, parts }
+              })
+              messagesRef.current = msgs
+              pendingLocalMessagesRef.current = pendingLocalMessagesRef.current.map((m) =>
+                m.info.id === props.messageID ? msgs[existingIdx] : m,
+              )
+              setMessages(msgs)
+            } else {
+              // Delta arrived before the part exists in the local copy (server
+              // may stream text with a part id we haven't materialized yet).
+              // Append to the last text/reasoning part of this message.
+              const msgs = messagesRef.current.map((m) => {
+                if (m.info.id !== props.messageID) return m
+                const parts = m.parts.map((p) => {
+                  const cur = (p as { text?: string }).text ?? ''
+                  if ((p.type === 'text' || p.type === 'reasoning') && 'id' in p) {
+                    return { ...p, text: cur + props.delta } as (typeof m.parts)[number]
+                  }
+                  return p
+                })
+                return { ...m, parts }
+              })
+              messagesRef.current = msgs
+              pendingLocalMessagesRef.current = pendingLocalMessagesRef.current.map((m) =>
+                m.info.id === props.messageID ? msgs[existingIdx] : m,
+              )
+              setMessages(msgs)
+            }
+          } else {
+            // First delta of a brand-new assistant part — materialize a text
+            // part so streaming text appears immediately.
+            const newPart = {
+              id: props.partID,
+              messageID: props.messageID,
+              sessionID: sid,
+              type: 'text',
+              text: props.delta,
+            }
+            const newMsg: OcMessage = {
+              info: {
+                role: 'assistant',
+                id: props.messageID,
+                sessionID: sid,
+                time: { created: Date.now() },
+              },
+              parts: [newPart as OcMessage['parts'][number]],
+            }
+            const msgs = [...messagesRef.current, newMsg]
+            messagesRef.current = msgs
+            pendingLocalMessagesRef.current = [
+              ...pendingLocalMessagesRef.current.filter((m) => m.info.id !== props.messageID),
+              newMsg,
+            ]
+            setMessages(msgs)
+          }
+        }
+      }
+
       if (eventType.startsWith('message') || eventType.startsWith('session')) {
         // Debounced session-list + message refetch — streaming emits a burst of
         // events and naive refetches exhaust browser resources. Text streaming
